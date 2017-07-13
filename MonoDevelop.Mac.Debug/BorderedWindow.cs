@@ -10,64 +10,54 @@ namespace MonoDevelop.Mac.Debug
 	{
 		readonly NSBox box;
 
-		public NSColor BorderColor
-		{
+		public NSColor BorderColor {
 			get { return box.BorderColor; }
-			set
-			{
+			set {
 				box.BorderColor = value;
 			}
 		}
 
-		public NSColor FillColor
-		{
-			get
-			{
+		public NSColor FillColor {
+			get {
 				return box.FillColor;
 			}
-			set
-			{
+			set {
 				BackgroundColor = value;
 				box.FillColor = value;
 			}
 		}
 
-		public float BorderWidth
-		{
+		public float BorderWidth {
 			get { return (float)box.BorderWidth; }
-			set
-			{
+			set {
 				box.BorderWidth = value;
 			}
 		}
 
-		public NSBorderType BorderType
-		{
+		public NSBorderType BorderType {
 			get { return box.BorderType; }
-			set
-			{
+			set {
 				box.BorderType = value;
 			}
 		}
 
 
-		public BorderedWindow(IntPtr handle) : base(handle)
+		public BorderedWindow (IntPtr handle) : base (handle)
 		{
 
 		}
 
-		public BorderedWindow(CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public BorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 
 		}
 
-		public BorderedWindow(CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base(frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
+		public BorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
 		{
 			IsOpaque = false;
 			ShowsToolbarButton = false;
 			IgnoresMouseEvents = true;
-			box = new NSBox()
-			{
+			box = new NSBox () {
 				BoxType = NSBoxType.NSBoxCustom
 			};
 			ContentView = box;
@@ -76,15 +66,13 @@ namespace MonoDevelop.Mac.Debug
 			BorderWidth = borderWidth;
 			BorderColor = borderColor;
 			BorderType = borderType;
-
-
 		}
 
-		internal void AlignWith(NSView view)
+		internal void AlignWith (NSView view)
 		{
 
 			var frame = view.AccessibilityFrame; //.Add(this.ParentWindow.Frame.Location);
-			this.SetFrame(frame, true);
+			this.SetFrame (frame, true);
 		}
 	}
 }

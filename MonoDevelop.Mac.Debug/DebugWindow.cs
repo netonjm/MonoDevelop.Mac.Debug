@@ -16,29 +16,25 @@ namespace MonoDevelop.Mac.Debug
 
 		StatusWindow debugStatusWindow;
 
-		bool ShowNextResponderOverlay
-		{
-			get
-			{
+		bool ShowNextResponderOverlay {
+			get {
 				return debugNextOverlayWindow.IsVisible;
 			}
-			set
-			{
+			set {
 				debugNextOverlayWindow.IsVisible = value;
 			}
 		}
-		bool ShowPreviousResponderOverlay
-		{
-			get
-			{
+
+		bool ShowPreviousResponderOverlay {
+			get {
 				return debugPreviousOverlayWindow.IsVisible;
 			}
-			set
-			{
+			set {
 				debugPreviousOverlayWindow.IsVisible = value;
 			}
 		}
-		bool ShowFirstResponderOverlay { 
+
+		bool ShowFirstResponderOverlay {
 			get {
 				return debugOverlayWindow.IsVisible;
 			}
@@ -49,103 +45,97 @@ namespace MonoDevelop.Mac.Debug
 
 		public DebugWindow (IntPtr handle) : base (handle)
 		{
-			
+
 		}
 
-		public void SetMenu (NSMenu menu) 
+		public void SetMenu (NSMenu menu)
 		{
-			this.menu = menu ?? throw new NullReferenceException("Menu cannot be null");
+			this.menu = menu ?? throw new NullReferenceException ("Menu cannot be null");
 
-			var submenu = this.menu.ItemAt(0).Submenu;
-			submenu.InsertItem(new NSMenuItem("Debug Key View Loop", DebugKeyViewLoopHandler), 0);
+			var submenu = this.menu.ItemAt (0).Submenu;
+			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", DebugKeyViewLoopHandler), 0);
 
-			submenu.InsertItem(new NSMenuItem("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
-			submenu.InsertItem(new NSMenuItem("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
+			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
+			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
 
-			submenu.InsertItem(new NSMenuItem("Debug Key View Loop", ShowHideDetailDebuggerWindow), 2);
-			submenu.InsertItem(NSMenuItem.SeparatorItem, 3);
+			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", ShowHideDetailDebuggerWindow), 2);
+			submenu.InsertItem (NSMenuItem.SeparatorItem, 3);
 		}
 
-		void ShowFirstResponderOverlayHandler(object sender, EventArgs e)
+		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
 		{
 			ShowFirstResponderOverlay = !ShowFirstResponderOverlay;
-			RefreshDebugData(FirstResponder);
+			RefreshDebugData (FirstResponder);
 		}
 
-		void ShowHideDetailDebuggerWindow(object sender, EventArgs e)
+		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{
 			debugStatusWindow.IsVisible = !debugStatusWindow.IsVisible;
 		}
 
-		void DebugKeyViewLoopHandler(object sender, EventArgs e)
+		void DebugKeyViewLoopHandler (object sender, EventArgs e)
 		{
-			
+
 		}
 
-		void RefreshDebugData (NSResponder firstResponder) 
+		void RefreshDebugData (NSResponder firstResponder)
 		{
 			var view = firstResponder as NSView;
 			if (view != null) {
 
-				if (debugOverlayWindow == null)
-				{
+				if (debugOverlayWindow == null) {
 					debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
-					AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+					AddChildWindow (debugOverlayWindow, NSWindowOrderingMode.Above);
 				}
 
-				debugOverlayWindow.AlignWith(view);
+				debugOverlayWindow.AlignWith (view);
 
 				var nextKeyView = view.NextValidKeyView as NSView;
 				if (nextKeyView != null) {
-					if (debugNextOverlayWindow == null)
-					{
-						debugNextOverlayWindow = new BorderedWindow(CGRect.Empty, NSColor.Yellow);
-						AddChildWindow(debugNextOverlayWindow, NSWindowOrderingMode.Above);
+					if (debugNextOverlayWindow == null) {
+						debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Yellow);
+						AddChildWindow (debugNextOverlayWindow, NSWindowOrderingMode.Above);
 					}
-					debugNextOverlayWindow.AlignWith(nextKeyView);
+					debugNextOverlayWindow.AlignWith (nextKeyView);
 				}
 
 				var previousKeyView = view.PreviousValidKeyView as NSView;
-				if (previousKeyView != null)
-				{
-					if (debugPreviousOverlayWindow == null)
-					{
-						debugPreviousOverlayWindow = new BorderedWindow(CGRect.Empty, NSColor.Red);
-						AddChildWindow(debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
+				if (previousKeyView != null) {
+					if (debugPreviousOverlayWindow == null) {
+						debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
+						AddChildWindow (debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
 					}
-					debugPreviousOverlayWindow.AlignWith(previousKeyView);
+					debugPreviousOverlayWindow.AlignWith (previousKeyView);
 				}
 
-				if (debugStatusWindow == null)
-				{
-					debugStatusWindow = new StatusWindow(new CGRect(10, 10, 300, 500));
-					AddChildWindow(debugStatusWindow, NSWindowOrderingMode.Above);
+				if (debugStatusWindow == null) {
+					debugStatusWindow = new StatusWindow (new CGRect (10, 10, 300, 500));
+					AddChildWindow (debugStatusWindow, NSWindowOrderingMode.Above);
 				}
 
-				debugStatusWindow.AlignWith(Frame);
+				debugStatusWindow.AlignWith (Frame);
 
-				var elements = view.GenerateLog("Current"); 
+				var elements = view.GenerateLog ("Current");
 				if (nextKeyView != null) {
-					elements.AddRange(nextKeyView.GenerateLog("Next"));
+					elements.AddRange (nextKeyView.GenerateLog ("Next"));
 				};
-				if (previousKeyView != null)
-				{
-					elements.AddRange(previousKeyView.GenerateLog("Previous"));
+				if (previousKeyView != null) {
+					elements.AddRange (previousKeyView.GenerateLog ("Previous"));
 				};
 
-				debugStatusWindow.GenerateStatusView(elements);
+				debugStatusWindow.GenerateStatusView (elements);
 			}
 		}
 
-		public override void BecomeMainWindow()
+		public override void BecomeMainWindow ()
 		{
-			base.BecomeMainWindow();
+			base.BecomeMainWindow ();
 		}
 
-		public override bool MakeFirstResponder(NSResponder aResponder)
+		public override bool MakeFirstResponder (NSResponder aResponder)
 		{
-			RefreshDebugData(aResponder);
-			return base.MakeFirstResponder(aResponder);
+			RefreshDebugData (aResponder);
+			return base.MakeFirstResponder (aResponder);
 		}
 	}
 }

@@ -11,78 +11,76 @@ namespace MonoDevelop.Mac.Debug
 	{
 		NSStackView stackContainer;
 
-		public StatusWindow(IntPtr handle) : base(handle)
+		public StatusWindow (IntPtr handle) : base (handle)
 		{
 
 		}
 
-		public StatusWindow(CGRect frame) : base(frame, NSWindowStyle.Titled, NSBackingStore.Buffered, false)
+		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled, NSBackingStore.Buffered, false)
 		{
 			IsOpaque = false;
 			ShowsToolbarButton = false;
 			IgnoresMouseEvents = true;
 			this.Title = "KeyViewLoop Debug Window";
-			var containerView = new NSView
-			{
+			var containerView = new NSView {
 				TranslatesAutoresizingMaskIntoConstraints = false
 			};
 
 			ContentView = containerView;
 
-			stackContainer = new NSStackView
-			{
+			stackContainer = new NSStackView {
 				Orientation = NSUserInterfaceLayoutOrientation.Vertical,
 				Alignment = NSLayoutAttribute.Leading,
 				TranslatesAutoresizingMaskIntoConstraints = false
 			};
-			containerView.AddSubview(stackContainer);
+			containerView.AddSubview (stackContainer);
 
-			NSLayoutConstraint.Create(stackContainer, NSLayoutAttribute.Left, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Left, 1, 10);
-			NSLayoutConstraint.Create(stackContainer, NSLayoutAttribute.Right, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Right, 1, 10);
-			NSLayoutConstraint.Create(stackContainer, NSLayoutAttribute.Top, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Top, 1, 10);
-			NSLayoutConstraint.Create(stackContainer, NSLayoutAttribute.Bottom, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Bottom, 1, 10);
+			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Left, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Left, 1, 10);
+			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Right, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Right, 1, 10);
+			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Top, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Top, 1, 10);
+			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Bottom, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Bottom, 1, 10);
 		}
 
-		public void GenerateStatusView(List<string> elements)
+		public void GenerateStatusView (List<string> elements)
 		{
-			CleanViews();
+			CleanViews ();
 			NSTextField label = null;
 
-			foreach (var item in elements)
-			{
+			foreach (var item in elements) {
 				label = GetLabel (item);
-				stackContainer.AddView(label, NSStackViewGravity.Leading);
-				var content = label.GetContentHuggingPriorityForOrientation(NSLayoutConstraintOrientation.Vertical);
-				label.SetContentHuggingPriorityForOrientation(750, NSLayoutConstraintOrientation.Vertical);
+				stackContainer.AddView (label, NSStackViewGravity.Leading);
+				var content = label.GetContentHuggingPriorityForOrientation (NSLayoutConstraintOrientation.Vertical);
+				label.SetContentHuggingPriorityForOrientation (750, NSLayoutConstraintOrientation.Vertical);
 			}
 
-			if (label != null)
-			{
-				label.SetContentHuggingPriorityForOrientation(300, NSLayoutConstraintOrientation.Vertical);
+			if (label != null) {
+				label.SetContentHuggingPriorityForOrientation (300, NSLayoutConstraintOrientation.Vertical);
 			}
 		}
 
-		public void AlignWith(CGRect targetFrame)
+		public void AlignWith (CGRect targetFrame)
 		{
 			var frame = Frame;
-			frame.Location = new CGPoint(targetFrame.Right + 5, targetFrame.Bottom - frame.Height);
-			SetFrame(frame, true);
+			frame.Location = new CGPoint (targetFrame.Right + 5, targetFrame.Bottom - frame.Height);
+			SetFrame (frame, true);
 		}
 
-		void CleanViews()
+		void CleanViews ()
 		{
 			var views = stackContainer.Views;
-			foreach (var item in views)
-			{
-				item.RemoveFromSuperview();
+			foreach (var item in views) {
+				item.RemoveFromSuperview ();
 			}
 		}
 
-		NSTextField GetLabel(string title)
+		NSTextField GetLabel (string title)
 		{
-			return new NSTextField(new CGRect(10, 10, 200, 17))
-			{
-				StringValue = title, Bezeled = false, DrawsBackground = false, Editable = false, Selectable = false
+			return new NSTextField (new CGRect (10, 10, 200, 17)) {
+				StringValue = title,
+				Bezeled = false,
+				DrawsBackground = false,
+				Editable = false,
+				Selectable = false
 			};
 		}
 	}

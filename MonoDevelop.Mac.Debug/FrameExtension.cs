@@ -7,23 +7,24 @@ namespace AppKit
 {
 	public static class FrameExtension
 	{
-		public static CGRect Add(this CGRect sender, CGRect toAdd)
+		public static CGRect Add (this CGRect sender, CGRect toAdd)
 		{
-			return new CGRect(sender.X + toAdd.X, sender.Y + toAdd.Y, sender.Width + toAdd.Width, sender.Height + toAdd.Height);
+			return new CGRect (sender.X + toAdd.X, sender.Y + toAdd.Y, sender.Width + toAdd.Width, sender.Height + toAdd.Height);
 		}
 
-		public static CGRect Add(this CGRect sender, CGPoint toAdd)
+		public static CGRect Add (this CGRect sender, CGPoint toAdd)
 		{
-			return new CGRect(sender.X + toAdd.X, sender.Y + toAdd.Y, sender.Width, sender.Height);
+			return new CGRect (sender.X + toAdd.X, sender.Y + toAdd.Y, sender.Width, sender.Height);
 		}
 
-		public static CGRect Add(this CGRect sender, CGSize toAdd)
+		public static CGRect Add (this CGRect sender, CGSize toAdd)
 		{
-			return new CGRect(sender.X, sender.Y, sender.Width + toAdd.Width, sender.Height + toAdd.Height);
+			return new CGRect (sender.X, sender.Y, sender.Width + toAdd.Width, sender.Height + toAdd.Height);
 		}
 
-		public static List<string> GenerateLog (this NSView view, string title) {
-			return new List<string>() {
+		public static List<string> GenerateLog (this NSView view, string title)
+		{
+			return new List<string> () {
 				string.Format("============={0}==========", title),
 				string.Format("Type: {0}", view.GetType()),
 				string.Format("Frame: {0}", view.Frame),
