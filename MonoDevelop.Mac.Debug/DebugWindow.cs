@@ -61,13 +61,12 @@ namespace MonoDevelop.Mac.Debug
 			int menuCount = 0;
 
 			var submenu = this.menu.ItemAt (0).Submenu;
-			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", DebugKeyViewLoopHandler), menuCount++);
 
-			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show/Hide Next Responder Overlay", ShowNextResponderOverlayHandler), menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show/Hide Previous Responder Overlay", ShowPreviousResponderOverlayHandler), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show KeyViewLoop Debug Window", ShowHideDetailDebuggerWindow), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show First Responder Overlay", ShowFirstResponderOverlayHandler), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show Next Responder Overlay", ShowNextResponderOverlayHandler), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler), menuCount++);
 
-			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", ShowHideDetailDebuggerWindow), menuCount++);
 			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
 		}
 
@@ -75,18 +74,27 @@ namespace MonoDevelop.Mac.Debug
 		{
 			ShowFirstResponderOverlay = !ShowFirstResponderOverlay;
 			RefreshDebugData (FirstResponder);
+
+			var menuItem = (NSMenuItem)sender;
+			menuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (ShowFirstResponderOverlay));
 		}
 
 		void ShowPreviousResponderOverlayHandler (object sender, EventArgs e)
 		{
 			ShowPreviousResponderOverlay = !ShowPreviousResponderOverlay;
 			RefreshDebugData (FirstResponder);
+
+			var menuItem = (NSMenuItem)sender;
+			menuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (ShowPreviousResponderOverlay));
 		}
 
 		void ShowNextResponderOverlayHandler (object sender, EventArgs e)
 		{
 			ShowNextResponderOverlay = !ShowNextResponderOverlay;
 			RefreshDebugData (FirstResponder);
+
+			var menuItem = (NSMenuItem)sender;
+			menuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (ShowNextResponderOverlay));
 		}
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
@@ -94,9 +102,9 @@ namespace MonoDevelop.Mac.Debug
 			debugStatusWindow.IsVisible = !debugStatusWindow.IsVisible;
 		}
 
-		void DebugKeyViewLoopHandler (object sender, EventArgs e)
+		string ToMenuAction (bool value)
 		{
-
+			return value ? "Show" : "Hide";
 		}
 
 		void RefreshDebugData (NSResponder firstResponder)
