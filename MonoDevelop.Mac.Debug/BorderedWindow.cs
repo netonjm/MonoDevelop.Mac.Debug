@@ -41,6 +41,13 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
+		public bool Visible { get {
+				return !box.Transparent;
+			} 
+			set {
+				box.Transparent = !value;
+			}
+		}
 
 		public BorderedWindow (IntPtr handle) : base (handle)
 		{
@@ -66,6 +73,7 @@ namespace MonoDevelop.Mac.Debug
 			BorderWidth = borderWidth;
 			BorderColor = borderColor;
 			BorderType = borderType;
+			Visible = false;
 		}
 
 		internal void AlignWith (NSView view)

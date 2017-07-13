@@ -18,28 +18,34 @@ namespace MonoDevelop.Mac.Debug
 
 		bool ShowNextResponderOverlay {
 			get {
-				return debugNextOverlayWindow?.IsVisible ?? false;
+				return debugNextOverlayWindow?.Visible ?? false;
 			}
 			set {
-				debugNextOverlayWindow.IsVisible = value;
+				if (debugNextOverlayWindow == null)
+					return;
+				debugNextOverlayWindow.Visible = value;
 			}
 		}
 
 		bool ShowPreviousResponderOverlay {
 			get {
-				return debugPreviousOverlayWindow?.IsVisible ?? false;
+				return debugPreviousOverlayWindow?.Visible ?? false;
 			}
 			set {
-				debugPreviousOverlayWindow.IsVisible = value;
+				if (debugPreviousOverlayWindow == null)
+					return;
+				debugPreviousOverlayWindow.Visible = value;
 			}
 		}
 
 		bool ShowFirstResponderOverlay {
 			get {
-				return debugOverlayWindow?.IsVisible ?? false;
+				return debugOverlayWindow?.Visible ?? false;
 			}
 			set {
-				debugOverlayWindow.IsVisible = value;
+				if (debugOverlayWindow == null)
+					return;
+				debugOverlayWindow.Visible = value;
 			}
 		}
 
