@@ -18,7 +18,7 @@ namespace MonoDevelop.Mac.Debug
 
 		bool ShowNextResponderOverlay {
 			get {
-				return debugNextOverlayWindow.IsVisible;
+				return debugNextOverlayWindow?.IsVisible ?? false;
 			}
 			set {
 				debugNextOverlayWindow.IsVisible = value;
@@ -27,7 +27,7 @@ namespace MonoDevelop.Mac.Debug
 
 		bool ShowPreviousResponderOverlay {
 			get {
-				return debugPreviousOverlayWindow.IsVisible;
+				return debugPreviousOverlayWindow?.IsVisible ?? false;
 			}
 			set {
 				debugPreviousOverlayWindow.IsVisible = value;
@@ -36,7 +36,7 @@ namespace MonoDevelop.Mac.Debug
 
 		bool ShowFirstResponderOverlay {
 			get {
-				return debugOverlayWindow.IsVisible;
+				return debugOverlayWindow?.IsVisible ?? false;
 			}
 			set {
 				debugOverlayWindow.IsVisible = value;
@@ -52,19 +52,34 @@ namespace MonoDevelop.Mac.Debug
 		{
 			this.menu = menu ?? throw new NullReferenceException ("Menu cannot be null");
 
+			int menuCount = 0;
+
 			var submenu = this.menu.ItemAt (0).Submenu;
-			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", DebugKeyViewLoopHandler), 0);
+			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", DebugKeyViewLoopHandler), menuCount++);
 
-			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
-			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), 1);
+			submenu.InsertItem (new NSMenuItem ("Show/Hide First Responder Overlay", ShowFirstResponderOverlayHandler), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show/Hide Next Responder Overlay", ShowNextResponderOverlayHandler), menuCount++);
+			submenu.InsertItem (new NSMenuItem ("Show/Hide Previous Responder Overlay", ShowPreviousResponderOverlayHandler), menuCount++);
 
-			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", ShowHideDetailDebuggerWindow), 2);
-			submenu.InsertItem (NSMenuItem.SeparatorItem, 3);
+			submenu.InsertItem (new NSMenuItem ("Debug Key View Loop", ShowHideDetailDebuggerWindow), menuCount++);
+			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
 		}
 
 		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
 		{
 			ShowFirstResponderOverlay = !ShowFirstResponderOverlay;
+			RefreshDebugData (FirstResponder);
+		}
+
+		void ShowPreviousResponderOverlayHandler (object sender, EventArgs e)
+		{
+			ShowPreviousResponderOverlay = !ShowPreviousResponderOverlay;
+			RefreshDebugData (FirstResponder);
+		}
+
+		void ShowNextResponderOverlayHandler (object sender, EventArgs e)
+		{
+			ShowNextResponderOverlay = !ShowNextResponderOverlay;
 			RefreshDebugData (FirstResponder);
 		}
 

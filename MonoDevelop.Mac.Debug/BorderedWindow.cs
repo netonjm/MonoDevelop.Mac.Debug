@@ -70,9 +70,8 @@ namespace MonoDevelop.Mac.Debug
 
 		internal void AlignWith (NSView view)
 		{
-
-			var frame = view.AccessibilityFrame; //.Add(this.ParentWindow.Frame.Location);
-			this.SetFrame (frame, true);
+			var frame = view.AccessibilityFrame;
+			SetFrame (frame, true);
 		}
 	}
 }
