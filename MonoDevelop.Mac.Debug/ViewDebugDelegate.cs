@@ -16,8 +16,8 @@ namespace MonoDevelop.Mac.Debug
 		readonly BorderedWindow debugNextOverlayWindow;
 		readonly BorderedWindow debugPreviousOverlayWindow;
 		readonly StatusWindow debugStatusWindow;
+		readonly NSFirstResponderWatcher watcher;
 
-		NSFirstResponderWatcher watcher;
 		readonly List<NSMenuItem> menuItems;
 
 		#region Properties
@@ -89,8 +89,12 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 			menuItems = new List<NSMenuItem> ();
-
 			PopulateSubmenu ();
+
+			watcher = new NSFirstResponderWatcher (window);
+			watcher.Changed += (sender, e) => {
+				RefreshDebugData (e);
+			};
 		}
 
 		void ShowStatusWindow (bool value)
@@ -123,13 +127,6 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			debugStatusWindow.GenerateStatusView (elements);
-
-			watcher = new NSFirstResponderWatcher (window);
-			watcher.Changed += (sender, e) => {
-				if (e != null)
-					RefreshDebugData (e);
-			};
-			watcher.Start ();
 		}
 
 		void PopulateSubmenu ()
@@ -229,6 +226,11 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 			RefreshStatusWindow ();
+		}
+
+		internal void StartWatcher ()
+		{
+			watcher.Start ();
 		}
 
 		string GetAssemblyVersion ()

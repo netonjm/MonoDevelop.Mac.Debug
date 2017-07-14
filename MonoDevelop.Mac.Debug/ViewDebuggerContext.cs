@@ -16,7 +16,9 @@ namespace MonoDevelop.Mac.Debug
 		public static void Attach (NSWindow window) 
 		{
 			if (!items.ContainsKey (window)) {
-				items.Add (window, new ViewDebugDelegate (window));
+				var viewDebugDelegate = new ViewDebugDelegate (window);
+				viewDebugDelegate.StartWatcher ();
+				items.Add (window,viewDebugDelegate);
 			}
 		}
 
