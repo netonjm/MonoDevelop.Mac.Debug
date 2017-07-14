@@ -6,10 +6,11 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class ViewDebugDelegate
+	public class ViewDebugDelegate : IDisposable
 	{
 		readonly NSWindow window;
 		NSView view, nextKeyView, previousKeyView;
+		NSFirstResponderWatcher watcher;
 
 		BorderedWindow debugOverlayWindow;
 		BorderedWindow debugNextOverlayWindow;
@@ -113,6 +114,13 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			debugStatusWindow.GenerateStatusView (elements);
+
+			watcher = new NSFirstResponderWatcher (window);
+			watcher.Changed += (sender, e) => {
+				if (e != null)
+					RefreshDebugData (e);
+			};
+			watcher.Start ();
 		}
 
 		void PopulateMenu (NSMenu menu)
@@ -200,13 +208,9 @@ namespace MonoDevelop.Mac.Debug
 			return fileVersionInfo.ProductVersion;
 		}
 
-		#region Public API
-
-		public void MakeFirstResponder (NSResponder aResponder)
+		public void Dispose ()
 		{
-			RefreshDebugData (aResponder);
+			watcher.Dispose ();
 		}
-
-		#endregion
 	}
 }
