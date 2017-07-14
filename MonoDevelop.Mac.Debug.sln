@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Mac.Debug", "Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugExample", "DebugExample\DebugExample.csproj", "{5902EBEE-983D-4E64-A337-C748AB00B5BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugExampleDebugWindow", "DebugExampleDebugWindow\DebugExampleDebugWindow.csproj", "{29C0F99C-6E9F-4936-B965-2E7AA3CE4D32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,5 +21,9 @@ Global
 		{5902EBEE-983D-4E64-A337-C748AB00B5BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5902EBEE-983D-4E64-A337-C748AB00B5BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5902EBEE-983D-4E64-A337-C748AB00B5BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29C0F99C-6E9F-4936-B965-2E7AA3CE4D32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29C0F99C-6E9F-4936-B965-2E7AA3CE4D32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29C0F99C-6E9F-4936-B965-2E7AA3CE4D32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29C0F99C-6E9F-4936-B965-2E7AA3CE4D32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
