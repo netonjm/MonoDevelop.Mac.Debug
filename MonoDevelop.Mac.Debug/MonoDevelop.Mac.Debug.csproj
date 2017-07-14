@@ -58,6 +58,7 @@
     <Compile Include="ViewDebugDelegate.cs" />
     <Compile Include="NSFirstResponderWatcher.cs" />
     <Compile Include="ViewDebuggerContext.cs" />
+    <Compile Include="DebugWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

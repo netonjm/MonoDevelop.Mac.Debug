@@ -208,7 +208,7 @@ namespace MonoDevelop.Mac.Debug
 			return value ? "Show" : "Hide";
 		}
 
-		void RefreshDebugData (NSResponder firstResponder)
+		internal void RefreshDebugData (NSResponder firstResponder)
 		{
 			view = firstResponder as NSView;
 			if (view != null) {
