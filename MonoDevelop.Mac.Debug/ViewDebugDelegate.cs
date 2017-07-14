@@ -3,20 +3,22 @@
 using System;
 using CoreGraphics;
 using AppKit;
+using System.Collections.Generic;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class ViewDebugDelegate : IDisposable
+	class ViewDebugDelegate : IDisposable
 	{
 		readonly NSWindow window;
 		NSView view, nextKeyView, previousKeyView;
+
+		readonly BorderedWindow debugOverlayWindow;
+		readonly BorderedWindow debugNextOverlayWindow;
+		readonly BorderedWindow debugPreviousOverlayWindow;
+		readonly StatusWindow debugStatusWindow;
+
 		NSFirstResponderWatcher watcher;
-
-		BorderedWindow debugOverlayWindow;
-		BorderedWindow debugNextOverlayWindow;
-		BorderedWindow debugPreviousOverlayWindow;
-
-		StatusWindow debugStatusWindow;
+		readonly List<NSMenuItem> menuItems;
 
 		#region Properties
 
@@ -56,6 +58,12 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
+		NSMenu Submenu {
+			get {
+				return NSApplication.SharedApplication.Menu?.ItemAt (0)?.Submenu;
+			}
+		}
+
 		#endregion
 
 		public ViewDebugDelegate (NSWindow window)
@@ -80,8 +88,9 @@ namespace MonoDevelop.Mac.Debug
 				debugStatusWindow = new StatusWindow (new CGRect (10, 10, 300, 500));
 			}
 
-			var mainMenu = NSApplication.SharedApplication.Menu;
-			PopulateMenu (mainMenu);
+			menuItems = new List<NSMenuItem> ();
+
+			PopulateSubmenu ();
 		}
 
 		void ShowStatusWindow (bool value)
@@ -123,22 +132,43 @@ namespace MonoDevelop.Mac.Debug
 			watcher.Start ();
 		}
 
-		void PopulateMenu (NSMenu menu)
+		void PopulateSubmenu ()
 		{
-			if (menu == null)
+			var submenu = Submenu;
+			if (submenu == null)
 				throw new NullReferenceException ("Menu cannot be null");
 
 			int menuCount = 0;
-			var submenu = menu.ItemAt (0).Submenu;
 			submenu.AutoEnablesItems = false;
-			submenu.InsertItem (new NSMenuItem (string.Format ("KeyViewLoop Debugger v{0}", GetAssemblyVersion ()), ShowHideDetailDebuggerWindow) { Enabled = false }, menuCount++);
-			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show KeyViewLoop Debug Window", ShowHideDetailDebuggerWindow), menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show First Responder Overlay", ShowFirstResponderOverlayHandler), menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show Next Responder Overlay", ShowNextResponderOverlayHandler), menuCount++);
-			submenu.InsertItem (new NSMenuItem ("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler), menuCount++);
 
-			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
+			ClearSubmenuItems (submenu);
+
+			menuItems.Clear ();
+			menuItems.AddRange (GetDefaultMenuItems ());
+
+			foreach (var item in menuItems) {
+				submenu.InsertItem (item, menuCount++);
+			}
+		}
+
+		void ClearSubmenuItems (NSMenu submenu)
+		{
+			foreach (var item in menuItems) {
+				submenu.RemoveItem (item);
+			}
+		}
+
+		List<NSMenuItem> GetDefaultMenuItems ()
+		{
+			return new List<NSMenuItem> {
+				new NSMenuItem (string.Format ("KeyViewLoop Debugger v{0}", GetAssemblyVersion ()), ShowHideDetailDebuggerWindow) { Enabled = false },
+				NSMenuItem.SeparatorItem,
+				new NSMenuItem ("Show KeyViewLoop Debug Window", ShowHideDetailDebuggerWindow),
+				new NSMenuItem ("Show First Responder Overlay", ShowFirstResponderOverlayHandler),
+				new NSMenuItem ("Show Next Responder Overlay", ShowNextResponderOverlayHandler),
+				new NSMenuItem ("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler),
+				NSMenuItem.SeparatorItem
+			};
 		}
 
 		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
@@ -210,6 +240,11 @@ namespace MonoDevelop.Mac.Debug
 
 		public void Dispose ()
 		{
+			ClearSubmenuItems (Submenu);
+			debugOverlayWindow?.Close ();
+			debugNextOverlayWindow?.Close ();
+			debugPreviousOverlayWindow?.Close ();
+			debugStatusWindow?.Close ();
 			watcher.Dispose ();
 		}
 	}
