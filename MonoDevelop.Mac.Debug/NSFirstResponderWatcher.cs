@@ -13,7 +13,7 @@ namespace MonoDevelop.Mac.Debug
 		NSResponder responder;
 		NSWindow window;
 		public EventHandler<NSResponder> Changed;
-		public double Interval { get; set; } = 0.25;
+		public double Interval { get; set; } = 0.2;
 
 		public NSFirstResponderWatcher (NSWindow window)
 		{
