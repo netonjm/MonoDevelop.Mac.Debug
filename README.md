@@ -15,6 +15,8 @@ After ViewDebuggerContext.Attach a set of four new menus will be added to your m
 - Reference the assembly in Xamarin.Mac application
 - ViewDebuggerContext.Attach (window);
 
+![ScreenShot](docs/ScreenShot.png?raw=true)
+
 ## Contributing
 
 1. Fork it!
