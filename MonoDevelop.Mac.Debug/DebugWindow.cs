@@ -8,7 +8,6 @@ namespace MonoDevelop.Mac.Debug
 {
 	public class DebugWindow : NSWindow
 	{
-		NSMenu menu;
 		NSView view, nextKeyView, previousKeyView;
 
 		BorderedWindow debugOverlayWindow;
@@ -76,6 +75,9 @@ namespace MonoDevelop.Mac.Debug
 			if (debugStatusWindow == null) {
 				debugStatusWindow = new StatusWindow (new CGRect (10, 10, 300, 500));
 			}
+
+			var mainMenu = NSApplication.SharedApplication.Menu;
+			PopulateMenu (mainMenu);
 		}
 
 		void ShowStatusWindow (bool value)
@@ -110,13 +112,13 @@ namespace MonoDevelop.Mac.Debug
 			debugStatusWindow.GenerateStatusView (elements);
 		}
 
-		#region Public API
-
-		public void SetMenu (NSMenu menu)
+		void PopulateMenu (NSMenu menu)
 		{
-			this.menu = menu ?? throw new NullReferenceException ("Menu cannot be null");
+			if (menu == null)
+				throw new NullReferenceException ("Menu cannot be null");
+			
 			int menuCount = 0;
-			var submenu = this.menu.ItemAt (0).Submenu;
+			var submenu = menu.ItemAt (0).Submenu;
 			submenu.AutoEnablesItems = false;
 			submenu.InsertItem (new NSMenuItem (string.Format ("KeyViewLoop Debugger v{0}",GetAssemblyVersion ()), ShowHideDetailDebuggerWindow) { Enabled = false }, menuCount++);
 			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
@@ -127,8 +129,6 @@ namespace MonoDevelop.Mac.Debug
 
 			submenu.InsertItem (NSMenuItem.SeparatorItem, menuCount++);
 		}
-
-		#endregion
 
 		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
 		{
