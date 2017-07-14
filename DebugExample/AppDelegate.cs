@@ -1,5 +1,7 @@
 ﻿using AppKit;
 using Foundation;
+using MonoDevelop.Mac.Debug;
+using System.Linq;
 
 namespace DebugExample
 {
@@ -13,6 +15,11 @@ namespace DebugExample
 		public override void DidFinishLaunching(NSNotification notification)
 		{
 			// Insert code here to initialize your application
+			var window = NSApplication.SharedApplication.Windows
+				 .OfType<NSWindow> ()
+				 .FirstOrDefault ();
+			// Do any additional setup after loading the view.
+			ViewDebuggerContext.Attach (window);
 		}
 
 		public override void WillTerminate(NSNotification notification)
