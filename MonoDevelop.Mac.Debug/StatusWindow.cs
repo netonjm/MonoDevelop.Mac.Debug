@@ -16,7 +16,7 @@ namespace MonoDevelop.Mac.Debug
 
 		}
 
-		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled, NSBackingStore.Buffered, false)
+		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
 			IsOpaque = false;
 			ShowsToolbarButton = false;
