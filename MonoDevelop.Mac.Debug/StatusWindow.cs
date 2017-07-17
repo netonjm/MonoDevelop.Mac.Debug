@@ -18,9 +18,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
-			IsOpaque = false;
 			ShowsToolbarButton = false;
-			IgnoresMouseEvents = true;
 			this.Title = "KeyViewLoop Debug Window";
 
 			var containerView = new NSScrollView (this.Frame) {
