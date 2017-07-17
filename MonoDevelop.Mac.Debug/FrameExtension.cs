@@ -26,11 +26,18 @@ namespace AppKit
 		{
 			return new List<string> () {
 				string.Format("============={0}==========", title),
+				string.Format("Identifier: {0}", view.Identifier),
 				string.Format("Type: {0}", view.GetType()),
 				string.Format("Frame: {0}", view.Frame),
-				string.Format("AccessibilityFrame: {0}", view.AccessibilityFrame),
 				string.Format("Bounds: {0}", view.Bounds),
 				string.Format("VisibleRect: {0}", view.VisibleRect()),
+				string.Format("AccessibilityIdentifier: {0}", string.IsNullOrEmpty (view.AccessibilityIdentifier) ? "<null>" : view.AccessibilityIdentifier),
+				string.Format("AccessibilityFrame: {0}", view.AccessibilityFrame),
+				string.Format("AccessibilityTitle: {0}", string.IsNullOrEmpty (view.AccessibilityTitle) ? "<null>" : view.AccessibilityTitle),
+				string.Format("AccessibilityHelp: {0}",string.IsNullOrEmpty (view.AccessibilityHelp) ? "<null>" : view.AccessibilityHelp),
+				string.Format("AccessibilityIndex: {0}", view.AccessibilityIndex),
+				string.Format("AccessibilityRole: {0}", string.IsNullOrEmpty (view.AccessibilityRole) ? "<null>" : view.AccessibilityRole),
+				string.Format("AccessibilityRoleDescription: {0}", string.IsNullOrEmpty (view.AccessibilityRoleDescription) ? "<null>" : view.AccessibilityRoleDescription),
 			};
 		}
 	}
