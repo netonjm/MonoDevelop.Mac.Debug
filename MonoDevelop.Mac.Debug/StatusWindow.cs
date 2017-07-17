@@ -9,7 +9,7 @@ namespace MonoDevelop.Mac.Debug
 {
 	public class StatusWindow : NSWindow
 	{
-		NSStackView stackContainer;
+		NSTextView textView;
 
 		public StatusWindow (IntPtr handle) : base (handle)
 		{
@@ -22,40 +22,23 @@ namespace MonoDevelop.Mac.Debug
 			ShowsToolbarButton = false;
 			IgnoresMouseEvents = true;
 			this.Title = "KeyViewLoop Debug Window";
-			var containerView = new NSView {
-				TranslatesAutoresizingMaskIntoConstraints = false
+
+			var containerView = new NSScrollView (this.Frame) {
+				BorderType = NSBorderType.NoBorder, 
+				HasVerticalScroller = true,
+				HasHorizontalScroller = false
 			};
 
+			textView = new NSTextView (Frame) {
+				VerticallyResizable = true, 
+			};
+			containerView.DocumentView = textView;
 			ContentView = containerView;
-
-			stackContainer = new NSStackView {
-				Orientation = NSUserInterfaceLayoutOrientation.Vertical,
-				Alignment = NSLayoutAttribute.Leading,
-				TranslatesAutoresizingMaskIntoConstraints = false
-			};
-			containerView.AddSubview (stackContainer);
-
-			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Left, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Left, 1, 10);
-			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Right, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Right, 1, 10);
-			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Top, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Top, 1, 10);
-			NSLayoutConstraint.Create (stackContainer, NSLayoutAttribute.Bottom, NSLayoutRelation.Equal, containerView, NSLayoutAttribute.Bottom, 1, 10);
 		}
 
 		public void GenerateStatusView (List<string> elements)
 		{
-			CleanViews ();
-			NSTextField label = null;
-
-			foreach (var item in elements) {
-				label = GetLabel (item);
-				stackContainer.AddView (label, NSStackViewGravity.Leading);
-				var content = label.GetContentHuggingPriorityForOrientation (NSLayoutConstraintOrientation.Vertical);
-				label.SetContentHuggingPriorityForOrientation (750, NSLayoutConstraintOrientation.Vertical);
-			}
-
-			if (label != null) {
-				label.SetContentHuggingPriorityForOrientation (300, NSLayoutConstraintOrientation.Vertical);
-			}
+			textView.Value = string.Join (Environment.NewLine, elements);
 		}
 
 		public void AlignWith (CGRect targetFrame)
@@ -65,23 +48,5 @@ namespace MonoDevelop.Mac.Debug
 			SetFrame (frame, true);
 		}
 
-		void CleanViews ()
-		{
-			var views = stackContainer.Views;
-			foreach (var item in views) {
-				item.RemoveFromSuperview ();
-			}
-		}
-
-		NSTextField GetLabel (string title)
-		{
-			return new NSTextField (new CGRect (10, 10, 200, 17)) {
-				StringValue = title,
-				Bezeled = false,
-				DrawsBackground = false,
-				Editable = false,
-				Selectable = false
-			};
-		}
 	}
 }
