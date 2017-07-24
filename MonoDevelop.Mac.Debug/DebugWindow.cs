@@ -9,7 +9,7 @@ namespace MonoDevelop.Mac.Debug
 	[Register ("DebugWindow")]
 	public class DebugWindow : NSWindow
 	{
-		ViewDebugDelegate debuggerDelegate;
+		readonly ViewDebugDelegate debuggerDelegate;
 
 		// Called when created from unmanaged code
 		public DebugWindow (IntPtr handle) : base (handle)
