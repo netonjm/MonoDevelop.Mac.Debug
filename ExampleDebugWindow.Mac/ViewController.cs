@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Reflection;
 using AppKit;
 using Foundation;
 
@@ -14,17 +15,12 @@ namespace DebugExampleDebugWindow
 		public override void ViewDidLoad ()
 		{
 			base.ViewDidLoad ();
-
-			// Do any additional setup after loading the view.
 		}
 
 		public override NSObject RepresentedObject {
-			get {
-				return base.RepresentedObject;
-			}
+			get  => base.RepresentedObject;
 			set {
 				base.RepresentedObject = value;
-				// Update the view, if already loaded.
 			}
 		}
 	}

@@ -2,11 +2,26 @@
 
 using System.Collections.Generic;
 using CoreGraphics;
+using MonoDevelop.Mac.Debug;
 
 namespace AppKit
 {
-	public static class FrameExtension
+	public static class Extensions
 	{
+		public static void AlignRight (this NSWindow sender, NSWindow toView, int pixels)
+		{
+			var frame = sender.Frame;
+			frame.Location = new CGPoint(toView.Frame.Right + pixels, toView.Frame.Bottom - frame.Height);
+			sender.SetFrame(frame, true);
+		}
+
+		public static void AlignTop (this NSWindow from, NSWindow toView, int pixels)
+		{
+			var frame = from.Frame;
+			frame.Location = new CGPoint(toView.Frame.Left, toView.AccessibilityFrame.Y + toView.Frame.Height + pixels);
+			from.SetFrame(frame, true);
+		}
+
 		public static CGRect Add (this CGRect sender, CGRect toAdd)
 		{
 			return new CGRect (sender.X + toAdd.X, sender.Y + toAdd.Y, sender.Width + toAdd.Width, sender.Height + toAdd.Height);

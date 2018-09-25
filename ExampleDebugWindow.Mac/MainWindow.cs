@@ -10,7 +10,7 @@ namespace DebugExampleDebugWindow
 {
 	public partial class MainWindow : DebugWindow
 	{
-		public MainWindow (IntPtr handle) : base (handle)
+		public MainWindow(IntPtr handle) : base(handle)
 		{
 		}
 	}
