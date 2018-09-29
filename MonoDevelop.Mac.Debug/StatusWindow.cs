@@ -11,6 +11,7 @@ namespace MonoDevelop.Mac.Debug
 {
 	class StatusWindow : NSWindow
 	{
+		public const int ButtonWidth = 30;
 		const int margin = 10;
 
 		readonly MockEditorProvider editorProvider;
@@ -32,7 +33,8 @@ namespace MonoDevelop.Mac.Debug
 		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
 			ShowsToolbarButton = false;
-			//Title = InspectorEngine.Title;
+			Title = ViewDebugDelegate.Title;
+		
 
 			propertyEditorPanel = new PropertyEditorPanel();
 
@@ -74,12 +76,14 @@ namespace MonoDevelop.Mac.Debug
 			var titleContainter = NativeViewHelpers.CreateHorizontalStackView();
 			stackView.AddArrangedSubview(titleContainter);
 
-		
-			titleContainter.AddArrangedSubview (CreateLabel ("Result: "));
+			var invokeButton = new ImageButton(NSImage.ImageNamed("execute-16"));
+			invokeButton.ToolTip = "Invoke Method!";
+			invokeButton.WidthAnchor.ConstraintEqualToConstant(ButtonWidth).Active = true;
 
-			var invokeButton = NativeViewHelpers.CreateButton($"Invoke!");
 			titleContainter.AddArrangedSubview(invokeButton);
 			invokeButton.Activated += (s, e) => InvokeSelectedView();
+
+			titleContainter.AddArrangedSubview(CreateLabel("Result: "));
 
 			resultMessage = CreateLabel("");
 			resultMessage.LineBreakMode = NSLineBreakMode.ByWordWrapping;

@@ -10,6 +10,8 @@ namespace MonoDevelop.Mac.Debug
 {
 	class ViewDebugDelegate : IDisposable
 	{
+		const int ToolbarWindowWidth = 350;
+		const int WindowMargin = 10;
 		const int MaxIssues = 50;
 	 	public static string Title = "Accessibility Inspector.NET";
 
@@ -156,16 +158,16 @@ namespace MonoDevelop.Mac.Debug
 			this.window = window;
 
 			if (debugOverlayWindow == null) {
-				debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
+				debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
 				this.window.AddChildWindow (debugOverlayWindow, NSWindowOrderingMode.Above);
 			}
 			if (debugNextOverlayWindow == null) {
-				debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Yellow);
+				debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
 				this.window.AddChildWindow (debugNextOverlayWindow, NSWindowOrderingMode.Above);
 			}
 
 			if (debugPreviousOverlayWindow == null) {
-				debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
+				debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
 				this.window.AddChildWindow (debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
 			}
 
@@ -179,13 +181,25 @@ namespace MonoDevelop.Mac.Debug
 			if (toolbarWindow == null)
 			{
 				toolbarWindow = new ToolbarWindow();
-				toolbarWindow.SetContentSize(new CGSize(400, 30));
+				toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
 				toolbarWindow.ShowIssues += (sender, e) => {
 					ShowDetectedErrors = !ShowDetectedErrors;
 				};
 
 				toolbarWindow.ScanForIssues += (sender, e) => {
 					ScanForErrors();
+				};
+
+				toolbarWindow.KeyViewLoop += (sender, e) => {
+					ShowFirstResponderOverlayHandler(null, EventArgs.Empty);
+				};
+
+				toolbarWindow.NextKeyViewLoop += (sender, e) => {
+					ShowNextResponderOverlayHandler(null, EventArgs.Empty);
+				};
+
+				toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
+					ShowPreviousResponderOverlayHandler(null, EventArgs.Empty);
 				};
 			}
 
@@ -225,8 +239,6 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		const int WindowMargin = 4;
-
 		void RefreshStatusWindow ()
 		{
 			toolbarWindow.AlignTop(window, WindowMargin);
@@ -250,12 +262,25 @@ namespace MonoDevelop.Mac.Debug
 			ClearSubmenuItems (submenu);
 
 			menuItems.Clear ();
-			menuItems.AddRange (GetDefaultMenuItems ());
+
+			menuItems.Add(new NSMenuItem(string.Format("{0} v{1}", Title, GetAssemblyVersion()), ShowHideDetailDebuggerWindow) { Enabled = false });
+			menuItems.Add(NSMenuItem.SeparatorItem);
+
+			inspectorMenuItem = new NSMenuItem($"Show {Title}", ShowHideDetailDebuggerWindow);
+			menuItems.Add(inspectorMenuItem);
+			firstOverlayMenuItem = new NSMenuItem("Show First Responder Overlay", ShowFirstResponderOverlayHandler);
+			menuItems.Add(firstOverlayMenuItem);
+			nextOverlayMenuItem = new NSMenuItem("Show Next Responder Overlay", ShowNextResponderOverlayHandler);
+			menuItems.Add(nextOverlayMenuItem);
+			previousOverlayMenuItem = new NSMenuItem("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler);
+			menuItems.Add(previousOverlayMenuItem);
 
 			foreach (var item in menuItems) {
 				submenu.InsertItem (item, menuCount++);
 			}
 		}
+
+		NSMenuItem inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
 
 		void ClearSubmenuItems (NSMenu submenu)
 		{
@@ -264,26 +289,11 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		List<NSMenuItem> GetDefaultMenuItems ()
-		{
-			return new List<NSMenuItem> {
-				new NSMenuItem (string.Format ("{0} v{1}",Title, GetAssemblyVersion ()), ShowHideDetailDebuggerWindow) { Enabled = false },
-				NSMenuItem.SeparatorItem,
-				new NSMenuItem ($"Show {Title}", ShowHideDetailDebuggerWindow),
-				new NSMenuItem ("Show First Responder Overlay", ShowFirstResponderOverlayHandler),
-				new NSMenuItem ("Show Next Responder Overlay", ShowNextResponderOverlayHandler),
-				new NSMenuItem ("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler),
-				NSMenuItem.SeparatorItem
-			};
-		}
-
 		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
 		{
 			IsFirstResponderOverlayVisible = !IsFirstResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
-
-			var menuItem = (NSMenuItem)sender;
-			menuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (!IsFirstResponderOverlayVisible));
+			firstOverlayMenuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (!IsFirstResponderOverlayVisible));
 		}
 
 		void ShowPreviousResponderOverlayHandler (object sender, EventArgs e)
@@ -291,25 +301,20 @@ namespace MonoDevelop.Mac.Debug
 			IsPreviousResponderOverlayVisible = !IsPreviousResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
 
-			var menuItem = (NSMenuItem)sender;
-			menuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (!IsPreviousResponderOverlayVisible));
+			previousOverlayMenuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (!IsPreviousResponderOverlayVisible));
 		}
 
 		void ShowNextResponderOverlayHandler (object sender, EventArgs e)
 		{
 			IsNextResponderOverlayVisible = !IsNextResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
-
-			var menuItem = (NSMenuItem)sender;
-			menuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (!IsNextResponderOverlayVisible));
+			nextOverlayMenuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (!IsNextResponderOverlayVisible));
 		}
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{
 			IsStatusWindowVisible = !IsStatusWindowVisible;
-
-			var menuItem = (NSMenuItem)sender;
-			menuItem.Title = string.Format ("{1} {0}", Title, ToMenuAction (!IsStatusWindowVisible));
+			inspectorMenuItem.Title = string.Format ("{1} {0}", Title, ToMenuAction (!IsStatusWindowVisible));
 		}
 
 		string ToMenuAction (bool value)

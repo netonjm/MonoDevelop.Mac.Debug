@@ -10,47 +10,89 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler ShowIssues;
 		public event EventHandler ScanForIssues;
 
+		public event EventHandler KeyViewLoop;
+		public event EventHandler NextKeyViewLoop;
+		public event EventHandler PreviousKeyViewLoop;
+
+		const int MenuItemSeparation = 3;
+		const int LeftPadding = 5;
+
 		int issuesFound = 0;
+
+		NSButton errorTextButton;
+
+		NSTextField errorLabel;
+
 		public int IssuesFound
 		{
 			get => issuesFound;
 			set
 			{
 				issuesFound = value;
-				errorTextButton.Title = $"{value} issues found";
+				errorLabel.StringValue = $"{value} issues found";
 			}
 		}
 
-		NSButton errorTextButton;
-
 		public ToolbarWindow ()
 		{
-			StyleMask = NSWindowStyle.Borderless;
-			var stackView = NativeViewHelpers.CreateHorizontalStackView (10);
+			//BackgroundColor = NSColor.Clear;
+			IsOpaque = false;
+			StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
+			TitlebarAppearsTransparent = true;
+			TitleVisibility = NSWindowTitleVisibility.Hidden;
+			ShowsToolbarButton = false;
+
+			var stackView = NativeViewHelpers.CreateHorizontalStackView (MenuItemSeparation);
 			ContentView.AddSubview (stackView);
-			stackView.TopAnchor.ConstraintEqualToAnchor (stackView.TopAnchor, 0).Active = true;
-			stackView.LeftAnchor.ConstraintEqualToAnchor (stackView.LeftAnchor, 0).Active = true;
+			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
+			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;
 
 			//Visual issues view
-			var titleContainter = NativeViewHelpers.CreateHorizontalStackView();
+			var keyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-actual"));
+			stackView.AddArrangedSubview(keyViewLoopButton);
+			keyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			keyViewLoopButton.Activated += (s, e) => {
+				KeyViewLoop?.Invoke(this, EventArgs.Empty);
+			};
 
-			stackView.AddArrangedSubview(titleContainter);
+			var prevKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-previous"));
+			stackView.AddArrangedSubview(prevKeyViewLoopButton);
+			prevKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			prevKeyViewLoopButton.Activated += (s, e) => {
+				PreviousKeyViewLoop?.Invoke(this, EventArgs.Empty);
+			};
 
-			var title = NativeViewHelpers.CreateLabel("Scan result: ");
-			titleContainter.AddArrangedSubview(title);
+			var nextKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-next"));
+			stackView.AddArrangedSubview(nextKeyViewLoopButton);
+			nextKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			nextKeyViewLoopButton.Activated += (s, e) => {
+				NextKeyViewLoop?.Invoke(this, EventArgs.Empty);
+			};
 
-			var btn = new ImageButton (NSImage.ImageNamed("22"));
+			stackView.AddArrangedSubview(new VerticalSeparator());
 
-			errorTextButton = NativeViewHelpers.CreateButton($"{IssuesFound} issues");
-			titleContainter.AddArrangedSubview(errorTextButton);
+			errorTextButton = new ToggleButton (NSImage.ImageNamed("error-16"));
+
+			stackView.AddArrangedSubview(errorTextButton);
+			errorTextButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
 
 			errorTextButton.Activated += ErrorTextButton_Activated;
 
-			var scanIssuesButton = NativeViewHelpers.CreateButton(NSBezelStyle.RoundRect, NSFont.SystemFontOfSize(NSFont.SystemFontSize), "Scan now");
-			titleContainter.AddArrangedSubview(scanIssuesButton);
-			scanIssuesButton.Activated += (s, e) => {
-				ScanForIssues?.Invoke(this, EventArgs.Empty);
-			};
+			var rescanButton = new ImageButton(NSImage.ImageNamed("rescan-16"));
+			stackView.AddArrangedSubview(rescanButton);
+			rescanButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+
+			rescanButton.Activated += RescanButton_Activated;
+
+			stackView.AddArrangedSubview(new VerticalSeparator());
+
+			errorLabel = NativeViewHelpers.CreateLabel ($"{IssuesFound} issues");
+			stackView.AddArrangedSubview(errorLabel);
+		}
+
+		void RescanButton_Activated(object sender, EventArgs e)
+		{
+			ScanForIssues?.Invoke(this, EventArgs.Empty);
 		}
 
 		void ErrorTextButton_Activated(object sender, EventArgs e)

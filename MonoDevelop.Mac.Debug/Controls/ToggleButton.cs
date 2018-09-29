@@ -14,11 +14,13 @@ namespace MonoDevelop.Mac.Debug
 		public override void MouseDown(NSEvent theEvent)
 		{
 			base.MouseDown(theEvent);
+			Toggled?.Invoke(this, EventArgs.Empty);
 		}
 
 		public override void PerformClick (NSObject sender)
 		{
 			base.PerformClick(sender);
+			Toggled?.Invoke(this, EventArgs.Empty);
 		}
 
 		public bool IsToggled

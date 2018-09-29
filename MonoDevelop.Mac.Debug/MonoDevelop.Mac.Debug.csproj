@@ -69,10 +69,12 @@
     <Compile Include="Controls\ToggleButton.cs" />
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="ViewDebugDelegate.cs" />
+    <Compile Include="VerticalSeparator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
     <Folder Include="Controls\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">
@@ -83,6 +85,34 @@
       <Project>{E8F4F0EB-C2B1-4116-8459-E076E0E0E485}</Project>
       <Name>Xamarin.PropertyEditing.Mac</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\error-16.png" />
+    <BundleResource Include="Resources\error-16%402x.png" />
+    <BundleResource Include="Resources\rescan-16.png" />
+    <BundleResource Include="Resources\rescan-16%402x.png" />
+    <BundleResource Include="Resources\rescan-16~dark.png" />
+    <BundleResource Include="Resources\rescan-16~dark%402x.png" />
+    <BundleResource Include="Resources\execute-16.png" />
+    <BundleResource Include="Resources\execute-16%402x.png" />
+    <BundleResource Include="Resources\execute-16~dark.png" />
+    <BundleResource Include="Resources\execute-16~dark%402x.png" />
+    <BundleResource Include="Resources\project-32.png" />
+    <BundleResource Include="Resources\pad-dock-9.png" />
+    <BundleResource Include="Resources\overlay-actual.png" />
+    <BundleResource Include="Resources\overlay-next.png" />
+    <BundleResource Include="Resources\overlay-previous.png" />
+    <BundleResource Include="Resources\overlay-next%402x.png" />
+    <BundleResource Include="Resources\overlay-previous%402x.png" />
+    <BundleResource Include="Resources\overlay-actual%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\error-16~dark~error.png">
+      <LogicalName>error-16~dark~error.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\error-16~dark~error%402x.png">
+      <LogicalName>error-16~dark~error@2x.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
