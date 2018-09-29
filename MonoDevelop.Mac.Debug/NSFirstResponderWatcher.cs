@@ -7,7 +7,7 @@ using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class NSFirstResponderWatcher : IDisposable
+	class NSFirstResponderWatcher : IDisposable
 	{
 		NSTimer timer;
 		NSResponder responder;
