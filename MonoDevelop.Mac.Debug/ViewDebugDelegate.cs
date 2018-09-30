@@ -199,15 +199,18 @@ namespace MonoDevelop.Mac.Debug
 				};
 
 				toolbarWindow.KeyViewLoop += (sender, e) => {
-					ShowFirstResponderOverlayHandler(null, EventArgs.Empty);
+					IsFirstResponderOverlayVisible = e;
+					RefreshDebugData (window.FirstResponder);
 				};
 
 				toolbarWindow.NextKeyViewLoop += (sender, e) => {
-					ShowNextResponderOverlayHandler(null, EventArgs.Empty);
+					IsNextResponderOverlayVisible = e;
+					RefreshDebugData (window.FirstResponder);
 				};
 
 				toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
-					ShowPreviousResponderOverlayHandler(null, EventArgs.Empty);
+					IsPreviousResponderOverlayVisible = e;
+					RefreshDebugData (window.FirstResponder);
 				};
 			}
 
@@ -289,27 +292,6 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		void ShowFirstResponderOverlayHandler (object sender, EventArgs e)
-		{
-			IsFirstResponderOverlayVisible = !IsFirstResponderOverlayVisible;
-			RefreshDebugData (window.FirstResponder);
-			//firstOverlayMenuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (!IsFirstResponderOverlayVisible));
-		}
-
-		void ShowPreviousResponderOverlayHandler (object sender, EventArgs e)
-		{
-			IsPreviousResponderOverlayVisible = !IsPreviousResponderOverlayVisible;
-			RefreshDebugData (window.FirstResponder);
-
-			//previousOverlayMenuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (!IsPreviousResponderOverlayVisible));
-		}
-
-		void ShowNextResponderOverlayHandler (object sender, EventArgs e)
-		{
-			IsNextResponderOverlayVisible = !IsNextResponderOverlayVisible;
-			RefreshDebugData (window.FirstResponder);
-			//nextOverlayMenuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (!IsNextResponderOverlayVisible));
-		}
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{

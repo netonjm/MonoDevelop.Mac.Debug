@@ -10,9 +10,9 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler ShowIssues;
 		public event EventHandler ScanForIssues;
 
-		public event EventHandler KeyViewLoop;
-		public event EventHandler NextKeyViewLoop;
-		public event EventHandler PreviousKeyViewLoop;
+		public event EventHandler<bool> KeyViewLoop;
+		public event EventHandler<bool> NextKeyViewLoop;
+		public event EventHandler<bool> PreviousKeyViewLoop;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
@@ -52,21 +52,21 @@ namespace MonoDevelop.Mac.Debug
 			stackView.AddArrangedSubview(keyViewLoopButton);
 			keyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
 			keyViewLoopButton.Activated += (s, e) => {
-				KeyViewLoop?.Invoke(this, EventArgs.Empty);
+				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
 			var prevKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-previous"));
 			stackView.AddArrangedSubview(prevKeyViewLoopButton);
 			prevKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
 			prevKeyViewLoopButton.Activated += (s, e) => {
-				PreviousKeyViewLoop?.Invoke(this, EventArgs.Empty);
+				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
 			var nextKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-next"));
 			stackView.AddArrangedSubview(nextKeyViewLoopButton);
 			nextKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
 			nextKeyViewLoopButton.Activated += (s, e) => {
-				NextKeyViewLoop?.Invoke(this, EventArgs.Empty);
+				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
 			};
 
 			stackView.AddArrangedSubview(new VerticalSeparator());
