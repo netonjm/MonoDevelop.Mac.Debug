@@ -60,7 +60,7 @@
     <Compile Include="DebugWindow.cs" />
     <Compile Include="ViewEditorProvider.cs" />
     <Compile Include="ViewWrapper.cs" />
-    <Compile Include="ListView.cs" />
+    <Compile Include="TableView.cs" />
     <Compile Include="MethodListView.cs" />
     <Compile Include="PropertyPanel\MockBindingProvider.cs" />
     <Compile Include="PropertyPanel\MockResourceProvider.cs" />
@@ -70,6 +70,7 @@
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="ViewDebugDelegate.cs" />
     <Compile Include="VerticalSeparator.cs" />
+    <Compile Include="OutlineView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />

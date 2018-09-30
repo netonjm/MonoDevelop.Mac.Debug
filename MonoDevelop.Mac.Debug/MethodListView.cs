@@ -17,7 +17,7 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	class MethodListView : ListView
+	class MethodListView : TableView
 	{
 		public bool ShowAllMethods { get; set; }
 		public void SetObject (object element)

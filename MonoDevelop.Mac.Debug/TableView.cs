@@ -88,7 +88,7 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	public class ListView : NSTableView
+	public class TableView : NSTableView
 	{
 		public event EventHandler SelectionChanged;
 		List<TableViewItem> data = new List<TableViewItem> ();
@@ -115,7 +115,7 @@ namespace MonoDevelop.Mac.Debug
 			base.TakeDoubleValueFrom(sender);
 		}
 
-		public ListView ()
+		public TableView ()
 		{
 			AllowsColumnSelection = true;
 			AllowsExpansionToolTips = true;

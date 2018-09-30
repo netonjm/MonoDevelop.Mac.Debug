@@ -28,6 +28,8 @@ namespace MonoDevelop.Mac.Debug
 
 		ToolbarWindow toolbarWindow;
 
+		NSMenuItem inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
+
 		#region Properties
 
 		bool IsNextResponderOverlayVisible {
@@ -91,11 +93,9 @@ namespace MonoDevelop.Mac.Debug
 				foreach (var item in detectedErrors)
 				{
 					item.AlignWindowWithContentView();
-					//item.AlignWith(window.Frame);
 					item.Visible = value;
 				}
 			}
-			
 		}
 
 	 	static bool IsBlockedType (NSView view)
@@ -107,7 +107,7 @@ namespace MonoDevelop.Mac.Debug
 			return false;
 		}
 
-		void Recursively (NSView customView)
+		void Recursively (NSView customView, NodeView node)
 		{
 			if (string.IsNullOrEmpty (customView.AccessibilityLabel) && string.IsNullOrEmpty(customView.AccessibilityLabel) && !customView.Hidden) {
 				if (!detectedErrors.Any (s => s.ContentViewIdentifier == customView.Identifier)) {
@@ -129,9 +129,11 @@ namespace MonoDevelop.Mac.Debug
 
 			foreach (var item in customView.Subviews)
 			{
+				var nodel = new NodeView (item);
+				node.AddChild (nodel);
 				try
 				{
-					Recursively(item);
+					Recursively(item, nodel);
 				}
 				catch (Exception ex)
 				{
@@ -140,7 +142,7 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		void ScanForErrors ()
+		void ScanForViews ()
 		{
 			foreach (var item in detectedErrors)
 			{
@@ -149,7 +151,12 @@ namespace MonoDevelop.Mac.Debug
 			}
 			detectedErrors.Clear ();
 
-			Recursively (window.ContentView);
+			var nodeBase = new NodeView (window.ContentView);
+
+			Recursively (window.ContentView, nodeBase);
+
+			debugStatusWindow.SetOutlineData (nodeBase);
+
 			toolbarWindow.IssuesFound = detectedErrors.Count;
 		}
 
@@ -172,10 +179,11 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 			if (debugStatusWindow == null) {
-
-
-				debugStatusWindow = new StatusWindow (new CGRect(10, 10, 600, 500));
-			
+				debugStatusWindow = new StatusWindow (new CGRect(10, 10, 600, 700));
+				debugStatusWindow.RaiseFirstResponder += (s, e) => {
+					IsFirstResponderOverlayVisible = true;
+					debugOverlayWindow.AlignWith (e);
+				};
 			}
 
 			if (toolbarWindow == null)
@@ -187,7 +195,7 @@ namespace MonoDevelop.Mac.Debug
 				};
 
 				toolbarWindow.ScanForIssues += (sender, e) => {
-					ScanForErrors();
+					ScanForViews();
 				};
 
 				toolbarWindow.KeyViewLoop += (sender, e) => {
@@ -211,17 +219,16 @@ namespace MonoDevelop.Mac.Debug
 				RefreshDebugData (e);
 			};
 
-			ScanForErrors();
+			ScanForViews();
 
-			//window.DidResize += (sender, e) =>
-			//{
-			//	AlignRight(window, debugStatusWindow, WindowMargin);
-			//};
+			window.DidResize += OnRespositionViews;
+			window.DidMove += OnRespositionViews;
+		}
 
-			//window.DidMove += (sender, e) =>
-			//{
-			//	AlignRight(window, debugStatusWindow, WindowMargin);
-			//};
+		void OnRespositionViews (object sender, EventArgs e)
+		{
+			debugStatusWindow.AlignRight (window, WindowMargin);
+			toolbarWindow.AlignTop (window, WindowMargin);
 		}
 
 		void ShowStatusWindow (bool value)
@@ -264,23 +271,16 @@ namespace MonoDevelop.Mac.Debug
 			menuItems.Clear ();
 
 			menuItems.Add(new NSMenuItem(string.Format("{0} v{1}", Title, GetAssemblyVersion()), ShowHideDetailDebuggerWindow) { Enabled = false });
+			inspectorMenuItem = new NSMenuItem ($"Show Window", ShowHideDetailDebuggerWindow);
+			inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
+			inspectorMenuItem.KeyEquivalent = "D";
+			menuItems.Add (inspectorMenuItem);
 			menuItems.Add(NSMenuItem.SeparatorItem);
-
-			inspectorMenuItem = new NSMenuItem($"Show {Title}", ShowHideDetailDebuggerWindow);
-			menuItems.Add(inspectorMenuItem);
-			firstOverlayMenuItem = new NSMenuItem("Show First Responder Overlay", ShowFirstResponderOverlayHandler);
-			menuItems.Add(firstOverlayMenuItem);
-			nextOverlayMenuItem = new NSMenuItem("Show Next Responder Overlay", ShowNextResponderOverlayHandler);
-			menuItems.Add(nextOverlayMenuItem);
-			previousOverlayMenuItem = new NSMenuItem("Show Previous Responder Overlay", ShowPreviousResponderOverlayHandler);
-			menuItems.Add(previousOverlayMenuItem);
 
 			foreach (var item in menuItems) {
 				submenu.InsertItem (item, menuCount++);
 			}
 		}
-
-		NSMenuItem inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
 
 		void ClearSubmenuItems (NSMenu submenu)
 		{
@@ -293,7 +293,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			IsFirstResponderOverlayVisible = !IsFirstResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
-			firstOverlayMenuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (!IsFirstResponderOverlayVisible));
+			//firstOverlayMenuItem.Title = string.Format ("{0} First Responder Overlay", ToMenuAction (!IsFirstResponderOverlayVisible));
 		}
 
 		void ShowPreviousResponderOverlayHandler (object sender, EventArgs e)
@@ -301,20 +301,20 @@ namespace MonoDevelop.Mac.Debug
 			IsPreviousResponderOverlayVisible = !IsPreviousResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
 
-			previousOverlayMenuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (!IsPreviousResponderOverlayVisible));
+			//previousOverlayMenuItem.Title = string.Format ("{0} Previous Responder Overlay", ToMenuAction (!IsPreviousResponderOverlayVisible));
 		}
 
 		void ShowNextResponderOverlayHandler (object sender, EventArgs e)
 		{
 			IsNextResponderOverlayVisible = !IsNextResponderOverlayVisible;
 			RefreshDebugData (window.FirstResponder);
-			nextOverlayMenuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (!IsNextResponderOverlayVisible));
+			//nextOverlayMenuItem.Title = string.Format ("{0} Next Responder Overlay", ToMenuAction (!IsNextResponderOverlayVisible));
 		}
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{
 			IsStatusWindowVisible = !IsStatusWindowVisible;
-			inspectorMenuItem.Title = string.Format ("{1} {0}", Title, ToMenuAction (!IsStatusWindowVisible));
+			inspectorMenuItem.Title = string.Format ("{0} Window", ToMenuAction (!IsStatusWindowVisible));
 		}
 
 		string ToMenuAction (bool value)

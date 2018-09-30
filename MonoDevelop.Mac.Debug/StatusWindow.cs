@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
-using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
 	class StatusWindow : NSWindow
 	{
+		public event EventHandler<NSView> RaiseFirstResponder;
+
 		public const int ButtonWidth = 30;
 		const int margin = 10;
-
+		const int ScrollViewSize = 150;
 		readonly MockEditorProvider editorProvider;
 		readonly MockResourceProvider resourceProvider;
 		readonly MockBindingProvider bindingProvider;
@@ -24,8 +25,9 @@ namespace MonoDevelop.Mac.Debug
 		NSView contentView;
 		MethodListView methodListView;
 
+		public OutlineView outlineView { get; private set; }
 
-		public StatusWindow(IntPtr handle) : base(handle)
+		public StatusWindow (IntPtr handle) : base(handle)
 		{
 
 		}
@@ -34,7 +36,6 @@ namespace MonoDevelop.Mac.Debug
 		{
 			ShowsToolbarButton = false;
 			Title = ViewDebugDelegate.Title;
-		
 
 			propertyEditorPanel = new PropertyEditorPanel();
 
@@ -60,8 +61,17 @@ namespace MonoDevelop.Mac.Debug
 			constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height-margin * 2);
 			constraint.Active = true;
 
-			DidResize += Handle_DidResize;
+			outlineView = new OutlineView ();
 
+			var outlineViewScrollView = new ScrollContainerView (outlineView);
+			stackView.AddArrangedSubview (outlineViewScrollView);
+			outlineViewScrollView.HeightAnchor.ConstraintEqualToConstant (ScrollViewSize).Active = true;
+
+			outlineView.SelectionNodeChanged += (s, e) => {
+				if (outlineView.SelectedNode is NodeView nodeView) {
+					RaiseFirstResponder?.Invoke (this, nodeView.View);
+				}
+			};
 
 			//Method list view
 			methodListView = new MethodListView();
@@ -71,7 +81,7 @@ namespace MonoDevelop.Mac.Debug
 			var scrollView = new ScrollContainerView (methodListView);
 
 			stackView.AddArrangedSubview(scrollView);
-			scrollView.HeightAnchor.ConstraintEqualToConstant(150).Active = true;
+			scrollView.HeightAnchor.ConstraintEqualToConstant(ScrollViewSize).Active = true;
 
 			var titleContainter = NativeViewHelpers.CreateHorizontalStackView();
 			stackView.AddArrangedSubview(titleContainter);
@@ -83,9 +93,9 @@ namespace MonoDevelop.Mac.Debug
 			titleContainter.AddArrangedSubview(invokeButton);
 			invokeButton.Activated += (s, e) => InvokeSelectedView();
 
-			titleContainter.AddArrangedSubview(CreateLabel("Result: "));
+			titleContainter.AddArrangedSubview(NativeViewHelpers.CreateLabel ("Result: "));
 
-			resultMessage = CreateLabel("");
+			resultMessage = NativeViewHelpers.CreateLabel ("");
 			resultMessage.LineBreakMode = NSLineBreakMode.ByWordWrapping;
 			resultMessage.SetContentCompressionResistancePriority (250, NSLayoutConstraintOrientation.Vertical);
 			resultMessage.SetContentHuggingPriorityForOrientation (250, NSLayoutConstraintOrientation.Vertical);
@@ -102,6 +112,8 @@ namespace MonoDevelop.Mac.Debug
 					invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
 				}
 			};
+
+			DidResize += Handle_DidResize;
 		}
 
 		NSTextField resultMessage;
@@ -141,11 +153,9 @@ namespace MonoDevelop.Mac.Debug
 			constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
-
-		NSTextField CreateLabel(string title)
+		public void SetOutlineData (Node data)
 		{
-			var label = NativeViewHelpers.CreateLabel(title);
-			return label;
+			outlineView.SetData (data);
 		}
 
 		NSView viewSelected;
