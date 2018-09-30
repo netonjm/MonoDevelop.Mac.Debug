@@ -31,19 +31,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-	<Reference Include="Xamarin.Mac" />
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
+	<Reference Include="Mono.Cecil">
+	  <HintPath>..\packages\Mono.Cecil.0.10.1\lib\net40\Mono.Cecil.dll</HintPath>
+	</Reference>
+	<Reference Include="Mono.Cecil.Mdb">
+	  <HintPath>..\packages\Mono.Cecil.0.10.1\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+	</Reference>
+	<Reference Include="Mono.Cecil.Pdb">
+	  <HintPath>..\packages\Mono.Cecil.0.10.1\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+	</Reference>
+	<Reference Include="Mono.Cecil.Rocks">
+	  <HintPath>..\packages\Mono.Cecil.0.10.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -52,13 +51,13 @@
     <Compile Include="AppDebuggerContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DebuggerLib\DebuggerLib.csproj">
-      <Project>{C2C2E382-2A76-4A2E-910B-AEFE2BE4CFC3}</Project>
-      <Name>DebuggerLib</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\MonoDevelop.Mac.Debug\MonoDevelop.Mac.Debug.csproj">
+      <Project>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</Project>
+      <Name>MonoDevelop.Mac.Debug</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

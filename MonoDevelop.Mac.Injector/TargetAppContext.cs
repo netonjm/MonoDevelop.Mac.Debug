@@ -15,18 +15,28 @@ namespace MonoDevelop.Mac.Injector
 			public readonly ModuleDefinition mainModule;
 			public readonly ModuleDefinition debugModule;
 
-			static  string debuglib = "/Users/josemedranojimenez/CloudStation/Projects/profiler/external/MonoDevelop.Mac.Debug/MonoDevelop.Mac.Debug/bin/Debug/MonoDevelop.Mac.Debug.dll";
+			const string XamarinMacDirectory = "/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/Xamarin.Mac";
+
+			string macDebugDll;
 
 			public TargetAppContext (string assemblyPath)
 			{
+
+				if (!Directory.Exists (XamarinMacDirectory)) {
+					throw new DirectoryNotFoundException (XamarinMacDirectory);
+				}
+
+				var currentPath = Path.GetDirectoryName (GetType ().Assembly.Location);
+				macDebugDll = Path.Combine (currentPath, "MonoDevelop.Mac.Debug.dll");
+
 				var resolver = new DefaultAssemblyResolver ();
-				resolver.AddSearchDirectory ("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/Xamarin.Mac");
-				resolver.AddSearchDirectory ("/Users/josemedranojimenez/CloudStation/Projects/profiler/external/MonoDevelop.Mac.Debug/MonoDevelop.Mac.Debug/bin/Debug");
+				resolver.AddSearchDirectory (XamarinMacDirectory);
+				resolver.AddSearchDirectory (currentPath);
 				assemblyDefinition = AssemblyDefinition.ReadAssembly (assemblyPath, new ReaderParameters { AssemblyResolver = resolver });
 
 				mainModule = assemblyDefinition.MainModule;
 
-				var assDebug = AssemblyDefinition.ReadAssembly (debuglib);
+				var assDebug = AssemblyDefinition.ReadAssembly (macDebugDll);
 				debugModule = assDebug.MainModule;
 				foreach (var item in assDebug.Modules) {
 					assemblyDefinition.Modules.Add (item);
@@ -175,11 +185,13 @@ namespace MonoDevelop.Mac.Injector
 
 			public void Run ()
 			{
-				var elements = loadFile (debuglib);
+				//var elements = loadFile (macDebugDll);
 
 				var generateAssembly = GenerateAssembly ();
+
+
 				//AppDomain.CurrentDomain.Load (generateAssembly);
-				generateAssembly.LoadModule ("", elements);
+				//generateAssembly.LoadModule ("", elements);
 				if (generateAssembly != null) {
 					try {
 						// Get the main class type..
@@ -212,9 +224,7 @@ namespace MonoDevelop.Mac.Injector
 
 					return buffer;
 				}
-
 			}
 		}
-
 	}
 }

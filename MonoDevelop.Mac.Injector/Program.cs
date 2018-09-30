@@ -7,10 +7,10 @@ namespace MonoDevelop.Mac.Injector
 
 		public static void Main (string[] args)
 		{
-			var targetExecutablePath = "/Users/josemedranojimenez/CloudStation/Projects/profiler/src/XamarinProfiler.Mac/bin/Debug/Xamarin Profiler.exe";
+			var targetExecutablePath = "/Users/josemedranojimenez/MonoDevelop.Mac.Debug/MacDebugExample.Mac/bin/Debug/DebugExample.exe";
 			var appTarget = new TargetAppContext (targetExecutablePath);
-			//appTarget.Inject (0);
-			appTarget.Run ();
+			appTarget.Inject (0);
+			//appTarget.Run ();
 		}
 	}
 }
