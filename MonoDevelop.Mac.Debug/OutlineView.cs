@@ -7,7 +7,7 @@ namespace MonoDevelop.Mac.Debug
 {
 	class OutlineView : NSOutlineView
 	{
-		readonly MainNode data = new MainNode ();
+		readonly MainNode Data = new MainNode ();
 
 		public event EventHandler SelectionNodeChanged;
 
@@ -39,16 +39,16 @@ namespace MonoDevelop.Mac.Debug
 			OutlineTableColumn = column;
 
 			Delegate = new OutlineViewDelegate ();
-			DataSource = new OutlineViewDataSource (data);
+			DataSource = new OutlineViewDataSource (Data);
 		}
 
 		public void SetData (Node data)
 		{
-			this.data.Node = data;
+			this.Data.Node = data;
 			ReloadData ();
+			ExpandItem (ItemAtRow (0), true);
 		}
 
-		// Delegates recieve events associated with user action and determine how an item should be visualized
 		class OutlineViewDelegate : NSOutlineViewDelegate
 		{
 			public OutlineViewDelegate ()
@@ -58,9 +58,6 @@ namespace MonoDevelop.Mac.Debug
 			const string identifer = "myCellIdentifier";
 			public override NSView GetView (NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
 			{
-				// This pattern allows you reuse existing views when they are no-longer in use.
-				// If the returned view is null, you instance up a new view
-				// If a non-null view is returned, you modify it enough to reflect the new data
 				NSTextField view = (NSTextField)outlineView.MakeView (identifer, this);
 				if (view == null) {
 					view = new NSTextField () {
@@ -75,12 +72,21 @@ namespace MonoDevelop.Mac.Debug
 				return view;
 			}
 
-			// An example of responding to user input 
 			public override bool ShouldSelectItem (NSOutlineView outlineView, NSObject item)
 			{
 				((OutlineView) outlineView).SelectedNode = (Node)item;
-				Console.WriteLine ("ShouldSelectItem: {0}", ((Node)item).Name);
 				return true;
+			}
+		}
+
+		internal void FocusNode (Node node)
+		{
+			if (this.RowCount < 0 ) {
+				return;
+			}
+			var index = RowForItem (node);
+			if (index >= 0) {
+				SelectRow (index, false);
 			}
 		}
 	}
@@ -145,10 +151,6 @@ namespace MonoDevelop.Mac.Debug
 		public bool IsLeaf { get { return ChildCount == 0; } }
 	}
 
-
-
-	// Data sources walk a given data source and respond to questions from AppKit to generate
-	// the data used in your Delegate. In this example, we walk a simple tree.
 	class OutlineViewDataSource : NSOutlineViewDataSource
 	{
 		MainNode mainNode;
@@ -159,25 +161,20 @@ namespace MonoDevelop.Mac.Debug
 
 		public override nint GetChildrenCount (NSOutlineView outlineView, NSObject item)
 		{
-			// If item is null, we are referring to the root element in the tree
 			item = item == null ? mainNode.Node : item;
 			return ((Node)item).ChildCount;
 		}
 
 		public override NSObject GetChild (NSOutlineView outlineView, nint childIndex, NSObject item)
 		{
-			// If item is null, we are referring to the root element in the tree
 			item = item == null ? mainNode.Node : item;
 			return ((Node)item).GetChild ((int)childIndex);
 		}
 
 		public override bool ItemExpandable (NSOutlineView outlineView, NSObject item)
 		{
-			// If item is null, we are referring to the root element in the tree
 			item = item == null ? mainNode.Node : item;
 			return !((Node)item).IsLeaf;
 		}
 	}
-
-
 }

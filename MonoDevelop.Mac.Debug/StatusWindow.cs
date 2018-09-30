@@ -153,8 +153,10 @@ namespace MonoDevelop.Mac.Debug
 			constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
-		public void SetOutlineData (Node data)
+		NodeView data;
+		public void SetOutlineData (NodeView data)
 		{
+			this.data = data;
 			outlineView.SetData (data);
 		}
 
@@ -165,7 +167,14 @@ namespace MonoDevelop.Mac.Debug
 			viewSelected = view;
 			propertyEditorPanel.Select(new ViewWrapper[] { viewSelected.GetWrapper () });
 			methodListView.SetObject (view);
+			if (data != null) {
+				var found = data.Recursively (view);
+				if (found != null) {
+					outlineView.FocusNode (found);
+				}
+			}
 		}
+
 
 		protected override void Dispose(bool disposing)
 		{

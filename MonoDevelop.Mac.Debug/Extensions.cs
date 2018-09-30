@@ -8,6 +8,25 @@ namespace AppKit
 {
 	public static class Extensions
 	{
+		internal static NodeView Recursively (this NodeView nodeView, NSView view)
+		{
+			if (nodeView.View == view) {
+				return nodeView;
+			}
+
+			if (nodeView.ChildCount == 0) {
+				return null;
+			}
+
+			for (int i = 0; i < nodeView.ChildCount; i++) {
+				var node = (NodeView) nodeView.GetChild (i);
+				var found = Recursively (node, view);
+				if (found != null) {
+					return found;
+				}
+			}
+			return null;
+		}
 		public static void AlignRight (this NSWindow sender, NSWindow toView, int pixels)
 		{
 			var frame = sender.Frame;
