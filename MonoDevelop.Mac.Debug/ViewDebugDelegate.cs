@@ -5,6 +5,8 @@ using CoreGraphics;
 using AppKit;
 using System.Collections.Generic;
 using System.Linq;
+using Xamarin.PropertyEditing.Mac;
+using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -109,7 +111,7 @@ namespace MonoDevelop.Mac.Debug
 
 		void Recursively (NSView customView, NodeView node)
 		{
-			if (string.IsNullOrEmpty (customView.AccessibilityLabel) && string.IsNullOrEmpty(customView.AccessibilityLabel) && !customView.Hidden) {
+			if (string.IsNullOrEmpty (customView.AccessibilityLabel) && string.IsNullOrEmpty(customView.AccessibilityLabel) && customView.CanBecomeKeyView && !customView.Hidden) {
 				if (!detectedErrors.Any (s => s.ContentViewIdentifier == customView.Identifier)) {
 					var borderer = new BorderedWindow(customView, NSColor.Red);
 					detectedErrors.Add(borderer);
@@ -117,26 +119,20 @@ namespace MonoDevelop.Mac.Debug
 				}
 			}
 
-			if (customView.Subviews == null || IsBlockedType(customView))
-			{
+			if (customView.Subviews == null || IsBlockedType(customView)) {
 				return;
 			}
 
-			if (detectedErrors.Count >= MaxIssues)
-			{
+			if (detectedErrors.Count >= MaxIssues) {
 				return;
 			}
 
-			foreach (var item in customView.Subviews)
-			{
+			foreach (var item in customView.Subviews) {
 				var nodel = new NodeView (item);
 				node.AddChild (nodel);
-				try
-				{
+				try {
 					Recursively(item, nodel);
-				}
-				catch (Exception ex)
-				{
+				} catch (Exception ex) {
 					Console.WriteLine(ex);
 				}
 			}
@@ -192,6 +188,16 @@ namespace MonoDevelop.Mac.Debug
 				toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
 				toolbarWindow.ShowIssues += (sender, e) => {
 					ShowDetectedErrors = !ShowDetectedErrors;
+				};
+
+				toolbarWindow.ThemeChanged += (sender, pressed) => {
+					if (pressed) {
+						PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
+						debugStatusWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
+					} else {
+						PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
+						debugStatusWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
+					}
 				};
 
 				toolbarWindow.ScanForIssues += (sender, e) => {

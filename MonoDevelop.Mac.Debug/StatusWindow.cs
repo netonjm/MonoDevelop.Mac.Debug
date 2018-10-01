@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
+using Xamarin.PropertyEditing.Themes;
+using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -47,6 +49,9 @@ namespace MonoDevelop.Mac.Debug
 				SupportsCustomExpressions = true,
 				SupportsMaterialDesign = true,
 			};
+
+			var currentThemeStyle = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle") ?? "Light";
+			PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark :  PropertyEditorTheme.Light;
 
 			contentView = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
 			ContentView = contentView;
@@ -107,8 +112,7 @@ namespace MonoDevelop.Mac.Debug
 
 			methodListView.SelectionChanged += (s, e) =>
 			{
-				if (methodListView.SelectedItem is MethodTableViewItem itm)
-				{
+				if (methodListView.SelectedItem is MethodTableViewItem itm) {
 					invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
 				}
 			};

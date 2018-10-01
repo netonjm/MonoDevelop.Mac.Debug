@@ -2,6 +2,8 @@
 
 using System;
 using AppKit;
+using Xamarin.PropertyEditing.Mac;
+using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -13,6 +15,8 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
+
+		public event EventHandler<bool> ThemeChanged;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
@@ -33,6 +37,8 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
+		readonly NSStackView stackView;
+
 		public ToolbarWindow ()
 		{
 			//BackgroundColor = NSColor.Clear;
@@ -41,53 +47,65 @@ namespace MonoDevelop.Mac.Debug
 			TitlebarAppearsTransparent = true;
 			TitleVisibility = NSWindowTitleVisibility.Hidden;
 			ShowsToolbarButton = false;
+			MovableByWindowBackground = false;
 
-			var stackView = NativeViewHelpers.CreateHorizontalStackView (MenuItemSeparation);
+			stackView = NativeViewHelpers.CreateHorizontalStackView (MenuItemSeparation);
 			ContentView.AddSubview (stackView);
 			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
 			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;
 
 			//Visual issues view
 			var keyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-actual"));
-			stackView.AddArrangedSubview(keyViewLoopButton);
-			keyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			Attach (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
 			var prevKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-previous"));
-			stackView.AddArrangedSubview(prevKeyViewLoopButton);
-			prevKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			Attach (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
 			var nextKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-next"));
-			stackView.AddArrangedSubview(nextKeyViewLoopButton);
-			nextKeyViewLoopButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
+			Attach (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
 			};
 
+			stackView.AddArrangedSubview (new VerticalSeparator ());
+
+			var themeButton = new ToggleButton (NSImage.ImageNamed ("style-16"));
+			Attach (themeButton);
+			themeButton.Activated += ThemeButton_Activated;
+
 			stackView.AddArrangedSubview(new VerticalSeparator());
 
 			errorTextButton = new ToggleButton (NSImage.ImageNamed("error-16"));
-
-			stackView.AddArrangedSubview(errorTextButton);
-			errorTextButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
-
+			Attach (errorTextButton);
 			errorTextButton.Activated += ErrorTextButton_Activated;
 
 			var rescanButton = new ImageButton(NSImage.ImageNamed("rescan-16"));
-			stackView.AddArrangedSubview(rescanButton);
-			rescanButton.WidthAnchor.ConstraintEqualToConstant(StatusWindow.ButtonWidth).Active = true;
-
+			Attach (rescanButton);
 			rescanButton.Activated += RescanButton_Activated;
 
 			stackView.AddArrangedSubview(new VerticalSeparator());
 
 			errorLabel = NativeViewHelpers.CreateLabel ($"{IssuesFound} issues");
 			stackView.AddArrangedSubview(errorLabel);
+		}
+
+		void ThemeButton_Activated (object sender, EventArgs e)
+		{
+			if (sender is ToggleButton btn) {
+				ThemeChanged?.Invoke (this, btn.IsToggled);
+			}
+		}
+
+		void Attach (NSView view)
+		{
+			stackView.AddArrangedSubview (view);
+			view.WidthAnchor.ConstraintEqualToConstant (StatusWindow.ButtonWidth).Active = true;
 		}
 
 		void RescanButton_Activated(object sender, EventArgs e)
