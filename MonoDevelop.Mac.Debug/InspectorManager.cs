@@ -151,8 +151,8 @@ namespace MonoDevelop.Mac.Debug
 					ShowErrors(true);
 
 				inspectorWindow.GenerateTree(window);
+				window.RecalculateKeyViewLoop();
 			};
-
 
 			debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
 			debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
@@ -176,6 +176,10 @@ namespace MonoDevelop.Mac.Debug
 				IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
+			inspectorWindow.RaiseDeleteItem += (s, e) =>
+			{
+				RemoveView(e);
+			};
 
 			toolbarWindow = new ToolbarWindow();
 			toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
@@ -188,6 +192,11 @@ namespace MonoDevelop.Mac.Debug
 					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
 					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
 				}
+			};
+
+			toolbarWindow.ItemDeleted += (sender, e) =>
+			{
+				RemoveView(view);
 			};
 
 			toolbarWindow.KeyViewLoop += (sender, e) => {
@@ -226,6 +235,13 @@ namespace MonoDevelop.Mac.Debug
 				IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
+		}
+
+		void RemoveView (NSView toRemove)
+		{
+			var parent = toRemove?.PreviousValidKeyView;
+			toRemove.RemoveFromSuperview();
+			ChangeFocusedView(parent);
 		}
 
 		void OnRespositionViews (object sender, EventArgs e)

@@ -8,6 +8,14 @@ namespace MonoDevelop.Mac.Debug
 {
 	class OutlineView : NSOutlineView
 	{
+		public event EventHandler<ushort> KeyPress;
+
+		public override void KeyDown(NSEvent theEvent)
+		{
+			base.KeyDown(theEvent);
+			KeyPress?.Invoke(this, theEvent.KeyCode);
+		}
+
 		readonly MainNode Data = new MainNode ();
 
 		public event EventHandler SelectionNodeChanged;

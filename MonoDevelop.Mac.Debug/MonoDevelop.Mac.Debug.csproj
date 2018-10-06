@@ -111,6 +111,7 @@
     <BundleResource Include="Resources\overlay-previous%402x.png" />
     <BundleResource Include="Resources\overlay-actual%402x.png" />
     <BundleResource Include="Resources\style-16.png" />
+    <BundleResource Include="Resources\delete-16.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\error-16~dark~error.png">

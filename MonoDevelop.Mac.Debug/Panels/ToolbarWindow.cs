@@ -2,10 +2,6 @@
 
 using System;
 using AppKit;
-using Foundation;
-using Xamarin.PropertyEditing.Mac;
-using Xamarin.PropertyEditing.Themes;
-using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -16,6 +12,8 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler<bool> PreviousKeyViewLoop;
 
 		public event EventHandler<bool> ThemeChanged;
+
+		public event EventHandler ItemDeleted;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
@@ -63,6 +61,27 @@ namespace MonoDevelop.Mac.Debug
 			themeButton.Activated += ThemeButton_Activated;
 
 			AddSeparator ();
+
+			deleteButton = new ImageButton(NSImage.ImageNamed("delete-16"));
+
+			AddButton(deleteButton);
+			deleteButton.Activated += (s,e) =>
+			{
+				ItemDeleted?.Invoke(this, EventArgs.Empty);
+			};
+
+			AddSeparator();
+		}
+
+		public override bool CanBecomeKeyWindow => false;
+		public override bool CanBecomeMainWindow => false;
+
+		ImageButton deleteButton;
+
+		public bool DeleteEnabled
+		{
+			get => deleteButton.Enabled;
+			set => deleteButton.Enabled = value;
 		}
 
 		void ThemeButton_Activated (object sender, EventArgs e)

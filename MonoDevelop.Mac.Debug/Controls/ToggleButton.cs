@@ -37,8 +37,13 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
+		public bool BecomeKeyView = true;
+
+		public override bool CanBecomeKeyView => BecomeKeyView;
+
 		public ToggleButton(NSImage image)
 		{
+			BecomeKeyView = false;
 			Bordered = true;
 			BezelStyle = NSBezelStyle.Rounded;
 			Title = "";

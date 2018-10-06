@@ -12,7 +12,10 @@ namespace MonoDevelop.Mac.Debug
 {
 	class InspectorWindow : NSWindow
 	{
+		const ushort DeleteKey = 51;
+
 		public event EventHandler<NSView> RaiseFirstResponder;
+		public event EventHandler<NSView> RaiseDeleteItem;
 
 		public const int ButtonWidth = 30;
 		const int margin = 10;
@@ -78,6 +81,16 @@ namespace MonoDevelop.Mac.Debug
 				}
 			};
 
+			outlineView.KeyPress += (sender, e) =>
+			{
+				if (e == DeleteKey) {
+					if (outlineView.SelectedNode is NodeView nodeView)
+					{
+						RaiseDeleteItem?.Invoke(this, nodeView.View);
+					}
+				}
+			};
+
 			//Method list view
 			methodListView = new MethodListView();
 			methodListView.AddColumn(new NSTableColumn("col") { Title = "Methods" });
@@ -120,13 +133,13 @@ namespace MonoDevelop.Mac.Debug
 			DidResize += Handle_DidResize;
 		}
 
+		NodeView data;
+
 		internal void GenerateTree(NSWindow window)
 		{
-			var nodeBase = new NodeView(window.ContentView);
-
-			window.ContentView.ToNodes (nodeBase);
-
-			SetOutlineData(nodeBase);
+			data = new NodeView(window.ContentView);
+			window.ContentView.ToNodes (data);
+			outlineView.SetData(data);
 		}
 
 		NSTextField resultMessage;
@@ -166,13 +179,6 @@ namespace MonoDevelop.Mac.Debug
 			constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
-		NodeView data;
-		void SetOutlineData (NodeView newData)
-		{
-			this.data = newData;
-			outlineView.SetData (data);
-		}
-
 		NSView viewSelected;
 
 		public void GenerateStatusView (NSView view, NSView nextKeyView, NSView previousKeyView)
@@ -185,6 +191,14 @@ namespace MonoDevelop.Mac.Debug
 				if (found != null) {
 					outlineView.FocusNode (found);
 				}
+			}
+		}
+
+		internal void RemoveItem()
+		{
+			if (outlineView.SelectedNode is NodeView nodeView)
+			{
+				RaiseDeleteItem?.Invoke(this, nodeView.View);
 			}
 		}
 

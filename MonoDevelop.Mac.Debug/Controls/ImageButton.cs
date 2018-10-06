@@ -7,13 +7,17 @@ namespace MonoDevelop.Mac.Debug
 {
 	class ImageButton : NSButton
 	{
-		bool isPressed;
+		public bool BecomeKeyView = true;
+
+		public override bool CanBecomeKeyView => BecomeKeyView;
+
 		public ImageButton(NSImage image)
 		{
 			Bordered = true;
 			BezelStyle = NSBezelStyle.Rounded;
 			Title = "";
 			Image = image;
+			BecomeKeyView = false;
 			ImageScaling = NSImageScale.AxesIndependently;
 			TranslatesAutoresizingMaskIntoConstraints = false;
 		}
