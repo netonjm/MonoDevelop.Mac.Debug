@@ -68,15 +68,17 @@
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="VerticalSeparator.cs" />
     <Compile Include="OutlineView.cs" />
-    <Compile Include="Panels\InspectorManager.cs" />
-    <Compile Include="Panels\StatusWindow.cs" />
+    <Compile Include="Panels\InspectorWindow.cs" />
     <Compile Include="Panels\ToolbarWindow.cs" />
+    <Compile Include="InspectorManager.cs" />
+    <Compile Include="Services\AccessibilityService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
     <Folder Include="Controls\" />
     <Folder Include="Resources\" />
     <Folder Include="Panels\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">

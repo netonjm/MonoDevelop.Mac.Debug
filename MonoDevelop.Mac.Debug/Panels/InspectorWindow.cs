@@ -10,7 +10,7 @@ using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class StatusWindow : NSWindow
+	class InspectorWindow : NSWindow
 	{
 		public event EventHandler<NSView> RaiseFirstResponder;
 
@@ -29,15 +29,14 @@ namespace MonoDevelop.Mac.Debug
 
 		public OutlineView outlineView { get; private set; }
 
-		public StatusWindow (IntPtr handle) : base(handle)
+		public InspectorWindow (IntPtr handle) : base(handle)
 		{
 
 		}
 
-		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+		public InspectorWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
 			ShowsToolbarButton = false;
-			Title = InspectorManager.Title;
 			MovableByWindowBackground = false;
 
 			propertyEditorPanel = new PropertyEditorPanel();
@@ -121,6 +120,38 @@ namespace MonoDevelop.Mac.Debug
 			DidResize += Handle_DidResize;
 		}
 
+		internal void GenerateTree(NSWindow window)
+		{
+			var nodeBase = new NodeView(window.ContentView);
+
+			Recursively(window.ContentView, nodeBase);
+
+			SetOutlineData(nodeBase);
+		}
+
+		void Recursively (NSView customView, NodeView node)
+		{
+			if (customView.Subviews == null)
+			{
+				return;
+			}
+
+			foreach (var item in customView.Subviews)
+			{
+				var nodel = new NodeView(item);
+				node.AddChild(nodel);
+				try
+				{
+					Recursively(item, nodel);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+			}
+		}
+
+
 		NSTextField resultMessage;
 
 		void InvokeSelectedView ()
@@ -159,9 +190,9 @@ namespace MonoDevelop.Mac.Debug
 		}
 
 		NodeView data;
-		public void SetOutlineData (NodeView data)
+		void SetOutlineData (NodeView newData)
 		{
-			this.data = data;
+			this.data = newData;
 			outlineView.SetData (data);
 		}
 

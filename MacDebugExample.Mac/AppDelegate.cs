@@ -19,7 +19,7 @@ namespace DebugExample
 				 .OfType<NSWindow> ()
 				 .FirstOrDefault ();
 			// Do any additional setup after loading the view.
-			InspectorContext.Attach (window);
+			InspectorContext.Attach (window, true);
 		}
 
 		public override void WillTerminate(NSNotification notification)
