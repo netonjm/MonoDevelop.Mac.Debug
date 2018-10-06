@@ -8,6 +8,7 @@ using System.Linq;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Mac.Debug.Services;
+using System.Threading.Tasks;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -199,6 +200,25 @@ namespace MonoDevelop.Mac.Debug
 				RemoveView(view);
 			};
 
+			toolbarWindow.ItemImageChanged += async (sender, e) =>
+			{
+				if (view is NSImageView imageView)
+				{
+					var image = await OpenDialogSelectImage();
+					if (image != null)
+					{
+						imageView.Image = image;
+					}
+				} else if (view is NSButton btn)
+				{
+					var image = await OpenDialogSelectImage();
+					if (image != null)
+					{
+						btn.Image = image;
+					}
+				}
+			};
+
 			toolbarWindow.KeyViewLoop += (sender, e) => {
 				IsFirstResponderOverlayVisible = e;
 				ChangeFocusedView (window.FirstResponder as NSView);
@@ -236,6 +256,28 @@ namespace MonoDevelop.Mac.Debug
 				ChangeFocusedView(e);
 			};
 		}
+
+		async Task<NSImage> OpenDialogSelectImage ()
+		{
+			var panel = new NSOpenPanel();
+			panel.AllowedFileTypes = new[] { "png" };
+			panel.Prompt = "Select a image";
+			NSImage rtrn = null;
+			processingCompletion = new TaskCompletionSource<object>();
+
+			panel.BeginSheet (window, result => {
+				if (result == 1 && panel.Url != null)
+				{
+					rtrn = new NSImage(panel.Url.Path);
+
+				}
+				processingCompletion.TrySetResult(null);
+			});
+			await processingCompletion.Task;
+			return rtrn;
+		}
+
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
 
 		void RemoveView (NSView toRemove)
 		{
@@ -331,6 +373,11 @@ namespace MonoDevelop.Mac.Debug
 			view = nextView;
 			if (view != null) {
 				debugOverlayWindow.AlignWith (view);
+				toolbarWindow.ImageChangedEnabled = view is NSImageView || view is NSButton;
+			}
+			else
+			{
+				toolbarWindow.ImageChangedEnabled = false;
 			}
 
 			nextKeyView = view?.NextValidKeyView as NSView;

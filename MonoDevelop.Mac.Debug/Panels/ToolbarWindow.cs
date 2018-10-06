@@ -14,6 +14,7 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler<bool> ThemeChanged;
 
 		public event EventHandler ItemDeleted;
+		public event EventHandler ItemImageChanged;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
@@ -70,18 +71,32 @@ namespace MonoDevelop.Mac.Debug
 				ItemDeleted?.Invoke(this, EventArgs.Empty);
 			};
 
+			changeImage = new ImageButton(NSImage.ImageNamed("image-16"));
+
+			AddButton(changeImage);
+			changeImage.Activated += (s, e) =>
+			{
+				ItemImageChanged?.Invoke(this, EventArgs.Empty);
+			};
+
 			AddSeparator();
 		}
 
 		public override bool CanBecomeKeyWindow => false;
 		public override bool CanBecomeMainWindow => false;
 
-		ImageButton deleteButton;
+		ImageButton deleteButton, changeImage;
 
 		public bool DeleteEnabled
 		{
 			get => deleteButton.Enabled;
 			set => deleteButton.Enabled = value;
+		}
+
+		public bool ImageChangedEnabled
+		{
+			get => changeImage.Enabled;
+			set => changeImage.Enabled = value;
 		}
 
 		void ThemeButton_Activated (object sender, EventArgs e)
