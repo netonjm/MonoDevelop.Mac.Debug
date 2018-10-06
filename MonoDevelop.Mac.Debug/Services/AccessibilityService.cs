@@ -7,11 +7,54 @@ using System.Linq;
 
 namespace MonoDevelop.Mac.Debug.Services
 {
+	[Flags]
+	public enum DetectedErrorType
+	{
+		None = 0 << 0,
+		AccessibilityTitle = 1 << 0,
+		AccessibilityHelp = 1 << 1
+	}
+
+	public class DetectedError
+	{
+		public NSView View { get; set; }
+
+		public DetectedErrorType ErrorType { get; set; }
+
+		public string GetTitleMessage()
+		{
+ 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp) || ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
+ 			{
+				return "Element has no description";
+			}
+			return "";
+		}
+
+		public string GetChildMessage ()
+		{
+			if (ErrorType == DetectedErrorType.None)
+			{
+				return "";
+			}
+			List<string> errors = new List<string>();
+			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
+			{
+				errors.Add(nameof (DetectedErrorType.AccessibilityHelp));
+			}
+			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityTitle))
+			{
+				errors.Add(nameof(DetectedErrorType.AccessibilityTitle));
+			}
+			var result = string.Format ("Issue: Element has no {0}. This view is missing useful accessibility information.", string.Join(",", errors));
+			return result;
+		}
+	}
+
 	public class AccessibilityService
 	{
 		const int MaxIssues = 200000;
-		readonly public List<NSView> DetectedErrors = new List<NSView> ();
-		public event EventHandler ScanFinished;
+		readonly public List<DetectedError> DetectedErrors = new List<DetectedError> ();
+		public event EventHandler<NSWindow> ScanFinished;
 
 		NSWindow window;
 
@@ -22,6 +65,11 @@ namespace MonoDevelop.Mac.Debug.Services
 
 		public int IssuesFound {
 			get => DetectedErrors.Count;
+		}
+
+		bool IsSelectableView (NSView customView)
+		{
+			return !customView.CanBecomeKeyView && !customView.Hidden;
 		}
 
 		bool HasError (NSView customView)
@@ -46,9 +94,21 @@ namespace MonoDevelop.Mac.Debug.Services
 				return;
 			}
 
-			if (HasError (customView)) {
-				if (!DetectedErrors.Any (s => s.Identifier == customView.Identifier)) {
-					DetectedErrors.Add (customView);
+			if (IsSelectableView(customView))
+			{
+				var errorType = DetectedErrorType.None;
+				if (string.IsNullOrEmpty(customView.AccessibilityTitle)) {
+					errorType |= DetectedErrorType.AccessibilityTitle;
+				}
+				if (string.IsNullOrEmpty(customView.AccessibilityHelp))
+				{
+					errorType |= DetectedErrorType.AccessibilityHelp;
+				}
+
+				if (errorType != DetectedErrorType.None)
+				{
+					var detectedError = new DetectedError() { View = customView, ErrorType = errorType };
+					DetectedErrors.Add(detectedError);
 				}
 			}
 
@@ -79,7 +139,7 @@ namespace MonoDevelop.Mac.Debug.Services
 			window = currentWindow;
 			DetectedErrors.Clear();
 			Recursively (window.ContentView);
-			ScanFinished?.Invoke (this, EventArgs.Empty);
+			ScanFinished?.Invoke (this, window);
 		}
 
 		public static AccessibilityService Current { get; } = new AccessibilityService();

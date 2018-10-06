@@ -11,9 +11,6 @@ namespace MonoDevelop.Mac.Debug
 {
 	class ToolbarWindow : NSWindow
 	{
-		public event EventHandler ShowIssues;
-		public event EventHandler ScanForIssues;
-
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
@@ -22,9 +19,6 @@ namespace MonoDevelop.Mac.Debug
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
-
-		NSButton errorTextButton;
-		NSTextField errorLabel;
 
 		readonly NSStackView stackView;
 
@@ -69,30 +63,6 @@ namespace MonoDevelop.Mac.Debug
 			themeButton.Activated += ThemeButton_Activated;
 
 			AddSeparator ();
-
-			errorTextButton = new ToggleButton (NSImage.ImageNamed("error-16"));
-			AddButton (errorTextButton);
-			errorTextButton.Activated += ErrorTextButton_Activated;
-
-			var rescanButton = new ImageButton(NSImage.ImageNamed("rescan-16"));
-			AddButton (rescanButton);
-			rescanButton.Activated += RescanButton_Activated;
-
-			AddSeparator ();
-
-			errorLabel = NativeViewHelpers.CreateLabel ("");
-			stackView.AddArrangedSubview(errorLabel);
-
-			var accessibilityService = AccessibilityService.Current;
-			accessibilityService.ScanFinished += (s, e) =>
-			{
-				errorLabel.StringValue = string.Format ("{0} errors found.", accessibilityService.IssuesFound);
-			};
-		}
-
-		public string IssuesLabel {
-			get => errorLabel.StringValue;
-			set => errorLabel.StringValue = value;
 		}
 
 		void ThemeButton_Activated (object sender, EventArgs e)
@@ -110,21 +80,9 @@ namespace MonoDevelop.Mac.Debug
 			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
 		}
 
-		void RescanButton_Activated(object sender, EventArgs e)
-		{
-			ScanForIssues?.Invoke(this, EventArgs.Empty);
-		}
-
-		void ErrorTextButton_Activated(object sender, EventArgs e)
-		{
-			ShowIssues?.Invoke(this, EventArgs.Empty);
-		}
-
 		protected override void Dispose(bool disposing)
 		{
-			errorTextButton.Activated -= ErrorTextButton_Activated;
 			base.Dispose(disposing);
-		
 		}
 	}
 }

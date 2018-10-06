@@ -34,6 +34,13 @@ namespace AppKit
 			sender.SetFrame(frame, true);
 		}
 
+		public static void AlignLeft (this NSWindow sender, NSWindow toView, int pixels)
+		{
+			var frame = sender.Frame;
+			frame.Location = new CGPoint(toView.Frame.Left - sender.Frame.Width - pixels, toView.Frame.Bottom - frame.Height);
+			sender.SetFrame(frame, true);
+		}
+
 		public static void AlignTop (this NSWindow from, NSWindow toView, int pixels)
 		{
 			var frame = from.Frame;

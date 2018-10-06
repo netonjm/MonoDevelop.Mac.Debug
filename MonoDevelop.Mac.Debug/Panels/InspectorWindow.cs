@@ -24,7 +24,7 @@ namespace MonoDevelop.Mac.Debug
 		PropertyEditorPanel propertyEditorPanel;
 		NSLayoutConstraint constraint;
 
-		NSView contentView;
+		readonly NSView contentView;
 		MethodListView methodListView;
 
 		public OutlineView outlineView { get; private set; }
@@ -124,33 +124,10 @@ namespace MonoDevelop.Mac.Debug
 		{
 			var nodeBase = new NodeView(window.ContentView);
 
-			Recursively(window.ContentView, nodeBase);
+			window.ContentView.ToNodes (nodeBase);
 
 			SetOutlineData(nodeBase);
 		}
-
-		void Recursively (NSView customView, NodeView node)
-		{
-			if (customView.Subviews == null)
-			{
-				return;
-			}
-
-			foreach (var item in customView.Subviews)
-			{
-				var nodel = new NodeView(item);
-				node.AddChild(nodel);
-				try
-				{
-					Recursively(item, nodel);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex);
-				}
-			}
-		}
-
 
 		NSTextField resultMessage;
 
@@ -210,7 +187,6 @@ namespace MonoDevelop.Mac.Debug
 				}
 			}
 		}
-
 
 		protected override void Dispose(bool disposing)
 		{

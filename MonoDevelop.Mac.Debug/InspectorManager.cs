@@ -24,6 +24,7 @@ namespace MonoDevelop.Mac.Debug
 		readonly BorderedWindow debugNextOverlayWindow;
 		readonly BorderedWindow debugPreviousOverlayWindow;
 		readonly InspectorWindow inspectorWindow;
+		readonly AccessibilityWindow accessibilityWindow;
 		readonly NSFirstResponderWatcher watcher;
 
 		readonly List<NSMenuItem> menuItems;
@@ -99,6 +100,7 @@ namespace MonoDevelop.Mac.Debug
 				this.window.RemoveChildWindow(debugNextOverlayWindow);
 				this.window.RemoveChildWindow(debugPreviousOverlayWindow);
 				this.window.RemoveChildWindow(inspectorWindow);
+				this.window.RemoveChildWindow(accessibilityWindow);
 				this.window.RemoveChildWindow(toolbarWindow);
 
 				AccessibilityService.Current.Reset ();
@@ -140,78 +142,68 @@ namespace MonoDevelop.Mac.Debug
 				detectedErrors.Clear();
 
 				foreach (var error in accessibilityService.DetectedErrors) {
-					var borderer = new BorderedWindow(error, NSColor.Red);
+					var borderer = new BorderedWindow(error.View, NSColor.Red);
 					detectedErrors.Add(borderer);
 					window.AddChildWindow (borderer, NSWindowOrderingMode.Above);
 				}
 
 				if (showDetectedErrors)
-				{
 					ShowErrors(true);
-				}
 
 				inspectorWindow.GenerateTree(window);
 			};
 
-			if (debugOverlayWindow == null) {
-				debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
-			}
 
-			if (debugNextOverlayWindow == null) {
-				debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
-			}
+			debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
+			debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
+			debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
 
-			if (debugPreviousOverlayWindow == null) {
-				debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
-			}
+			accessibilityWindow = new AccessibilityWindow(new CGRect(10, 10, 600, 700));
+			accessibilityWindow.Title = "Accessibility Panel";
+			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
+				ShowDetectedErrors = !ShowDetectedErrors;
+			};
+			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(window);
 
-			if (inspectorWindow == null) {
-				inspectorWindow = new InspectorWindow (new CGRect(10, 10, 600, 700));
-				inspectorWindow.Title = "Inspector Window";
-				inspectorWindow.RaiseFirstResponder += (s, e) => {
-					if (window.ChildWindows.Contains (debugOverlayWindow))
-						window.RemoveChildWindow(debugOverlayWindow);
-					window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
 
-					IsFirstResponderOverlayVisible = true;
-					ChangeFocusedView(e);
-				};
-			}
+			inspectorWindow = new InspectorWindow (new CGRect(10, 10, 600, 700));
+			inspectorWindow.Title = "Inspector Panel";
+			inspectorWindow.RaiseFirstResponder += (s, e) => {
+				if (window.ChildWindows.Contains (debugOverlayWindow))
+					window.RemoveChildWindow(debugOverlayWindow);
+				window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
 
-			if (toolbarWindow == null)
-			{
-				toolbarWindow = new ToolbarWindow();
-				toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
-				toolbarWindow.ShowIssues += (sender, e) => {
-					ShowDetectedErrors = !ShowDetectedErrors;
-				};
+				IsFirstResponderOverlayVisible = true;
+				ChangeFocusedView(e);
+			};
 
-				toolbarWindow.ThemeChanged += (sender, pressed) => {
-					if (pressed) {
-						PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
-						inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
-					} else {
-						PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
-						inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
-					}
-				};
+			toolbarWindow = new ToolbarWindow();
+			toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
+		
+			toolbarWindow.ThemeChanged += (sender, pressed) => {
+				if (pressed) {
+					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
+					inspectorWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
+				} else {
+					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
+					inspectorWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
+				}
+			};
 
-				toolbarWindow.ScanForIssues += (sender, e) => accessibilityService.ScanErrors (window);
-				toolbarWindow.KeyViewLoop += (sender, e) => {
-					IsFirstResponderOverlayVisible = e;
-					ChangeFocusedView (window.FirstResponder as NSView);
-				};
+			toolbarWindow.KeyViewLoop += (sender, e) => {
+				IsFirstResponderOverlayVisible = e;
+				ChangeFocusedView (window.FirstResponder as NSView);
+			};
 
-				toolbarWindow.NextKeyViewLoop += (sender, e) => {
-					IsNextResponderOverlayVisible = e;
-					ChangeFocusedView (window.FirstResponder as NSView);
-				};
+			toolbarWindow.NextKeyViewLoop += (sender, e) => {
+				IsNextResponderOverlayVisible = e;
+				ChangeFocusedView (window.FirstResponder as NSView);
+			};
 
-				toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
-					IsPreviousResponderOverlayVisible = e;
-					ChangeFocusedView (window.FirstResponder as NSView);
-				};
-			}
+			toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
+				IsPreviousResponderOverlayVisible = e;
+				ChangeFocusedView (window.FirstResponder as NSView);
+			};
 
 			menuItems = new List<NSMenuItem> ();
 			PopulateSubmenu ();
@@ -221,24 +213,42 @@ namespace MonoDevelop.Mac.Debug
 				ChangeFocusedView (e as NSView);
 			};
 
+			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
+			{
+				if (e == null)
+				{
+					return;
+				}
+				if (window.ChildWindows.Contains(debugOverlayWindow))
+					window.RemoveChildWindow(debugOverlayWindow);
+				window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+
+				IsFirstResponderOverlayVisible = true;
+				ChangeFocusedView(e);
+			};
 		}
 
 		void OnRespositionViews (object sender, EventArgs e)
 		{
 			inspectorWindow.AlignRight (window, WindowMargin);
+			accessibilityWindow.AlignLeft(window, WindowMargin);
 			toolbarWindow.AlignTop (window, WindowMargin);
 		}
 
 		void ShowStatusWindow (bool value)
 		{
+
 			if (value) {
 				if (!IsStatusWindowVisible) {
+					window.AddChildWindow(accessibilityWindow, NSWindowOrderingMode.Above);
 					window.AddChildWindow (inspectorWindow, NSWindowOrderingMode.Above);
 					window.AddChildWindow(toolbarWindow, NSWindowOrderingMode.Above);
 					RefreshStatusWindow ();
 				}
 			}
 			else {
+
+				accessibilityWindow?.Close();
 				toolbarWindow?.Close();
 				inspectorWindow?.Close ();
 			}
@@ -248,6 +258,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			toolbarWindow.AlignTop(window, WindowMargin);
 			inspectorWindow.AlignRight(window, WindowMargin);
+			accessibilityWindow.AlignLeft (window, WindowMargin);
 			var anyFocusedView = view != null;
 			if (!anyFocusedView)
 				return;
@@ -338,6 +349,7 @@ namespace MonoDevelop.Mac.Debug
 			debugNextOverlayWindow?.Close ();
 			debugPreviousOverlayWindow?.Close ();
 			inspectorWindow?.Close ();
+			accessibilityWindow?.Close();
 			watcher.Dispose ();
 		}
 	}

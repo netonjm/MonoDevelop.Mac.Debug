@@ -96,6 +96,28 @@ namespace MonoDevelop.Mac.Debug
 			TranslatesAutoresizingMaskIntoConstraints = false
 		};
 
+		internal static void ToNodes (this NSView customView, NodeView node)
+		{
+			if (customView.Subviews == null)
+			{
+				return;
+			}
+
+			foreach (var item in customView.Subviews)
+			{
+				var nodel = new NodeView(item);
+				node.AddChild(nodel);
+				try
+				{
+					ToNodes(item, nodel);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+			}
+		}
+
 		public static NSFont GetSystemFont(bool bold, float size = 0.0f)
 		{
 			if (size <= 0)

@@ -72,6 +72,7 @@
     <Compile Include="Panels\ToolbarWindow.cs" />
     <Compile Include="InspectorManager.cs" />
     <Compile Include="Services\AccessibilityService.cs" />
+    <Compile Include="Panels\AccessibilityWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
