@@ -2,12 +2,14 @@
 
 using System;
 using AppKit;
+using Foundation;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
+using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class ToolbarWindow : NSWindow
+	class ToolbarWindow : NSWindow
 	{
 		public event EventHandler ShowIssues;
 		public event EventHandler ScanForIssues;
@@ -21,21 +23,8 @@ namespace MonoDevelop.Mac.Debug
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
-		int issuesFound = 0;
-
 		NSButton errorTextButton;
-
 		NSTextField errorLabel;
-
-		public int IssuesFound
-		{
-			get => issuesFound;
-			set
-			{
-				issuesFound = value;
-				errorLabel.StringValue = $"{value} issues found";
-			}
-		}
 
 		readonly NSStackView stackView;
 
@@ -56,43 +45,54 @@ namespace MonoDevelop.Mac.Debug
 
 			//Visual issues view
 			var keyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-actual"));
-			Attach (keyViewLoopButton);
+			AddButton (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
 			var prevKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-previous"));
-			Attach (prevKeyViewLoopButton);
+			AddButton (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
 			var nextKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-next"));
-			Attach (nextKeyViewLoopButton);
+			AddButton (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
 			};
 
-			stackView.AddArrangedSubview (new VerticalSeparator ());
+			AddSeparator ();
 
 			var themeButton = new ToggleButton (NSImage.ImageNamed ("style-16"));
-			Attach (themeButton);
+			AddButton (themeButton);
 			themeButton.Activated += ThemeButton_Activated;
 
-			stackView.AddArrangedSubview(new VerticalSeparator());
+			AddSeparator ();
 
 			errorTextButton = new ToggleButton (NSImage.ImageNamed("error-16"));
-			Attach (errorTextButton);
+			AddButton (errorTextButton);
 			errorTextButton.Activated += ErrorTextButton_Activated;
 
 			var rescanButton = new ImageButton(NSImage.ImageNamed("rescan-16"));
-			Attach (rescanButton);
+			AddButton (rescanButton);
 			rescanButton.Activated += RescanButton_Activated;
 
-			stackView.AddArrangedSubview(new VerticalSeparator());
+			AddSeparator ();
 
-			errorLabel = NativeViewHelpers.CreateLabel ($"{IssuesFound} issues");
+			errorLabel = NativeViewHelpers.CreateLabel ("");
 			stackView.AddArrangedSubview(errorLabel);
+
+			var accessibilityService = AccessibilityService.Current;
+			accessibilityService.ScanFinished += (s, e) =>
+			{
+				errorLabel.StringValue = string.Format ("{0} errors found.", accessibilityService.IssuesFound);
+			};
+		}
+
+		public string IssuesLabel {
+			get => errorLabel.StringValue;
+			set => errorLabel.StringValue = value;
 		}
 
 		void ThemeButton_Activated (object sender, EventArgs e)
@@ -102,10 +102,12 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		void Attach (NSView view)
+		void AddSeparator () => stackView.AddArrangedSubview (new VerticalSeparator ());
+
+		void AddButton (NSButton view)
 		{
 			stackView.AddArrangedSubview (view);
-			view.WidthAnchor.ConstraintEqualToConstant (StatusWindow.ButtonWidth).Active = true;
+			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
 		}
 
 		void RescanButton_Activated(object sender, EventArgs e)

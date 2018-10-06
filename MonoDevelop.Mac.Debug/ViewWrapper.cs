@@ -9,89 +9,74 @@ namespace MonoDevelop.Mac.Debug
 {
 	class TextViewWrapper : ViewWrapper
 	{
-		NSTextView textView => (NSTextView)view;
-
+		readonly NSTextView textView;
 		public TextViewWrapper(NSTextView view) : base(view)
 		{
-
+			textView = view;
 		}
 
-		public string Text
+		public string Value
 		{
 			get => textView.Value;
-			set
-			{
-				textView.Value = value;
-			}
+			set => textView.Value = value;
 		}
 	}
 
 	class TextFieldViewWrapper : ViewWrapper
 	{
-		NSTextField textView => (NSTextField)view;
+		readonly NSTextField textView;
 
 		public TextFieldViewWrapper (NSTextField view) : base(view)
 		{
-
+			textView = view;
 		}
 
 		public string StringValue
 		{
 			get => textView.StringValue;
-			set
-			{
-				textView.StringValue = value;
-			}
+			set => textView.StringValue = value;
 		}
 	}
 
-
 	class ButtonViewWrapper : ViewWrapper
 	{
-		NSButton textView => (NSButton)view;
+		readonly NSButton buttonView;
 
 		public ButtonViewWrapper(NSButton view) : base(view)
 		{
-
+			buttonView = view;
 		}
 
 		public string Title
 		{
-			get => textView.Title;
-			set
-			{
-				textView.Title = value;
-			}
+			get => buttonView.Title;
+			set => buttonView.Title = value;
 		}
 	}
 
 	public class ViewWrapper
 	{
 		protected readonly NSView view;
+
+		public string Identifier
+		{
+			get => view.Identifier;
+			set => view.Identifier = value;
+		}
+
 		public ViewWrapper (NSView view)
 		{
 			this.view = view;
 		}
 
-		public string AccessibilityLabel {
-			get => view.AccessibilityLabel;
-			set {
-				view.AccessibilityLabel = value;
-			}
-		}
-
 		public string AccessibilityTitle {
 			get => view.AccessibilityTitle;
-			set {
-				view.AccessibilityTitle = value;
-			}
+			set => view.AccessibilityTitle = value;
 		}
 
 		public string AccessibilityHelp {
 			get => view.AccessibilityHelp;
-			set {
-				view.AccessibilityHelp = value;
-			}
+			set => view.AccessibilityHelp = value;
 		}
 
 		public bool AccessibilityElement {
@@ -99,11 +84,15 @@ namespace MonoDevelop.Mac.Debug
 			set => view.AccessibilityElement = value;
 		}
 
+		public bool TranslatesAutoresizingMaskIntoConstraints
+		{
+			get => view.TranslatesAutoresizingMaskIntoConstraints;
+			set => view.TranslatesAutoresizingMaskIntoConstraints = value;
+		}
+
 		public CGRect AccessibilityFrame {
 			get => view.AccessibilityFrame;
-			set {
-				view.AccessibilityFrame = value;
-			}
+			set => view.AccessibilityFrame = value;
 		}
 
 		public string AccessibilityChildren
@@ -143,8 +132,6 @@ namespace MonoDevelop.Mac.Debug
 				view.Frame = value;
 			}
 		}
-
-
 
 		public Type CurrentType {
 			get => view.GetType ();
