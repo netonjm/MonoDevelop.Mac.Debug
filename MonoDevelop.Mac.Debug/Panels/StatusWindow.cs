@@ -37,7 +37,8 @@ namespace MonoDevelop.Mac.Debug
 		public StatusWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
 			ShowsToolbarButton = false;
-			Title = ViewDebugDelegate.Title;
+			Title = InspectorManager.Title;
+			MovableByWindowBackground = false;
 
 			propertyEditorPanel = new PropertyEditorPanel();
 

@@ -9,17 +9,15 @@ namespace MonoDevelop.Mac.Debug
 	[Register ("DebugWindow")]
 	public class DebugWindow : NSWindow
 	{
-		readonly ViewDebugDelegate debuggerDelegate;
-
 		// Called when created from unmanaged code
 		public DebugWindow (IntPtr handle) : base (handle)
 		{
-			debuggerDelegate = new ViewDebugDelegate (this);
+			InspectorContext.Attach (this);
 		}
 
 		public override bool MakeFirstResponder (NSResponder aResponder)
 		{
-			debuggerDelegate.RefreshDebugData (aResponder);
+			InspectorContext.ChangeFocusedView(aResponder as NSView);
 			return base.MakeFirstResponder (aResponder);
 		}
 	}

@@ -10,14 +10,25 @@ using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class ViewDebugDelegate : IDisposable
+	class InspectorManager : IDisposable
 	{
 		const int ToolbarWindowWidth = 350;
 		const int WindowMargin = 10;
 		const int MaxIssues = 50;
 	 	public static string Title = "Accessibility Inspector.NET";
 
-		readonly NSWindow window;
+		NSWindow window;
+		public NSWindow Window
+		{
+			get => window;
+			set
+			{
+				if (window == value)
+					return;
+				window = value;
+			}
+		}
+
 		NSView view, nextKeyView, previousKeyView;
 
 		readonly BorderedWindow debugOverlayWindow;
@@ -156,22 +167,60 @@ namespace MonoDevelop.Mac.Debug
 			toolbarWindow.IssuesFound = detectedErrors.Count;
 		}
 
-		public ViewDebugDelegate (NSWindow window)
+		public void SetWindow (NSWindow window)
 		{
-			this.window = window;
+			if (this.window != null)
+			{
+				this.window.RemoveChildWindow(debugOverlayWindow);
+				this.window.RemoveChildWindow(debugNextOverlayWindow);
+				this.window.RemoveChildWindow(debugPreviousOverlayWindow);
+				this.window.RemoveChildWindow(debugStatusWindow);
+				this.window.RemoveChildWindow(toolbarWindow);
 
+				ClearErrors();
+
+				this.window.DidResize -= OnRespositionViews;
+				this.window.DidMove -= OnRespositionViews;
+			}
+
+			if (window == null)
+			{
+				return;
+			}
+
+			this.window = window;
+			this.window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+			this.window.AddChildWindow(debugNextOverlayWindow, NSWindowOrderingMode.Above);
+			this.window.AddChildWindow(debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
+
+			ScanForViews();
+
+			this.window.DidResize += OnRespositionViews;
+			this.window.DidMove += OnRespositionViews;
+		}
+
+		void ClearErrors ()
+		{
+			foreach (var item in detectedErrors)
+			{
+				window.RemoveChildWindow(item);
+			}
+			detectedErrors.Clear();
+		}
+
+		public InspectorManager ()
+		{
 			if (debugOverlayWindow == null) {
 				debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
-				this.window.AddChildWindow (debugOverlayWindow, NSWindowOrderingMode.Above);
+
 			}
 			if (debugNextOverlayWindow == null) {
 				debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
-				this.window.AddChildWindow (debugNextOverlayWindow, NSWindowOrderingMode.Above);
+
 			}
 
 			if (debugPreviousOverlayWindow == null) {
 				debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
-				this.window.AddChildWindow (debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
 			}
 
 			if (debugStatusWindow == null) {
@@ -206,17 +255,17 @@ namespace MonoDevelop.Mac.Debug
 
 				toolbarWindow.KeyViewLoop += (sender, e) => {
 					IsFirstResponderOverlayVisible = e;
-					RefreshDebugData (window.FirstResponder);
+					ChangeFocusedView (window.FirstResponder as NSView);
 				};
 
 				toolbarWindow.NextKeyViewLoop += (sender, e) => {
 					IsNextResponderOverlayVisible = e;
-					RefreshDebugData (window.FirstResponder);
+					ChangeFocusedView (window.FirstResponder as NSView);
 				};
 
 				toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
 					IsPreviousResponderOverlayVisible = e;
-					RefreshDebugData (window.FirstResponder);
+					ChangeFocusedView (window.FirstResponder as NSView);
 				};
 			}
 
@@ -225,13 +274,9 @@ namespace MonoDevelop.Mac.Debug
 
 			watcher = new NSFirstResponderWatcher (window);
 			watcher.Changed += (sender, e) => {
-				RefreshDebugData (e);
+				ChangeFocusedView (e as NSView);
 			};
 
-			ScanForViews();
-
-			window.DidResize += OnRespositionViews;
-			window.DidMove += OnRespositionViews;
 		}
 
 		void OnRespositionViews (object sender, EventArgs e)
@@ -310,9 +355,13 @@ namespace MonoDevelop.Mac.Debug
 			return value ? "Show" : "Hide";
 		}
 
-		internal void RefreshDebugData (NSResponder firstResponder)
+		internal void ChangeFocusedView (NSView nextView)
 		{
-			view = firstResponder as NSView;
+			if (nextView == null || view == nextView) {
+				return;
+			}
+
+			view = nextView;
 			if (view != null) {
 				debugOverlayWindow.AlignWith (view);
 			}

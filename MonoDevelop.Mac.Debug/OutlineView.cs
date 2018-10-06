@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using AppKit;
 using Foundation;
 
@@ -101,7 +102,11 @@ namespace MonoDevelop.Mac.Debug
 	{
 		static string GetName (NSView view)
 		{
-			return view.GetType ().ToString ();
+			var name = string.Format("{0} ({1})", view.GetType(), view.Identifier ?? "N.I");
+			if (view.Hidden) {
+				name += " (hidden)";
+			}
+			return name;
 		}
 
 		public readonly NSView View;

@@ -8,24 +8,16 @@ namespace MonoDevelop.Mac.Debug
 {
 	public class BorderedWindow : NSWindow
 	{
-		NSView ObjContent
-		{
-			get;
-			set;
-		}
 		readonly NSBox box;
+		NSView ObjContent { get; set; }
 
 		public NSColor BorderColor {
-			get { return box.BorderColor; }
-			set {
-				box.BorderColor = value;
-			}
+			get => box.BorderColor;
+			set => box.BorderColor = value;
 		}
 
 		public NSColor FillColor {
-			get {
-				return box.FillColor;
-			}
+			get => box.FillColor;
 			set {
 				BackgroundColor = value;
 				box.FillColor = value;
@@ -33,22 +25,17 @@ namespace MonoDevelop.Mac.Debug
 		}
 
 		public float BorderWidth {
-			get { return (float)box.BorderWidth; }
-			set {
-				box.BorderWidth = value;
-			}
+			get => (float)box.BorderWidth;
+			set => box.BorderWidth = value;
 		}
 
 		public NSBorderType BorderType {
-			get { return box.BorderType; }
-			set {
-				box.BorderType = value;
-			}
+			get => box.BorderType;
+			set => box.BorderType = value;
 		}
 
-		public bool Visible { get {
-				return !box.Transparent;
-			} 
+		public bool Visible { 
+			get => !box.Transparent;
 			set {
 				box.Transparent = !value;
 			}
@@ -64,7 +51,6 @@ namespace MonoDevelop.Mac.Debug
 		public BorderedWindow(NSView content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 			ObjContent = content;
-			//AlignWith (ObjContent);
 		}
 
 		public BorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
@@ -77,9 +63,7 @@ namespace MonoDevelop.Mac.Debug
 			IsOpaque = false;
 			ShowsToolbarButton = false;
 			IgnoresMouseEvents = true;
-			box = new NSBox () {
-				BoxType = NSBoxType.NSBoxCustom
-			};
+			box = new NSBox { BoxType = NSBoxType.NSBoxCustom };
 			ContentView = box;
 
 			FillColor = fillColor;
@@ -97,8 +81,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AlignWindowWithContentView ()
 		{
-			if (ObjContent != null)
-			{
+			if (ObjContent != null) {
 				AlignWith(ObjContent);
 			}
 		}
