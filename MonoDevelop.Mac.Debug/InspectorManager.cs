@@ -183,10 +183,10 @@ namespace MonoDevelop.Mac.Debug
 			toolbarWindow.ThemeChanged += (sender, pressed) => {
 				if (pressed) {
 					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
-					inspectorWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
+					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
 				} else {
 					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
-					inspectorWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
+					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
 				}
 			};
 
