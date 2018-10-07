@@ -81,6 +81,8 @@ namespace MonoDevelop.Mac.Debug
 	{
 		public ScrollContainerView (NSView content)
 		{
+			AutomaticallyAdjustsContentInsets = false;
+			ContentInsets = new NSEdgeInsets(0, 0, 0, 0);
 			HasVerticalScroller = true;
 			HasHorizontalScroller = false;
 			TranslatesAutoresizingMaskIntoConstraints = false;

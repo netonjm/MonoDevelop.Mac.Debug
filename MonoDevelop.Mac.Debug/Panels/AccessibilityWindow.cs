@@ -30,8 +30,7 @@ namespace MonoDevelop.Mac.Debug
 			buttonContainer.Distribution = NSStackViewDistribution.FillEqually;
 			contentView.AddArrangedSubview(buttonContainer);
 			buttonContainer.WidthAnchor.ConstraintEqualToConstant (370).Active = true;
-			buttonContainer.HeightAnchor.ConstraintEqualToConstant(50).Active = true;
-			buttonContainer.CenterXAnchor.ConstraintEqualToAnchor(contentView.CenterXAnchor, 20).Active = true;
+			buttonContainer.CenterXAnchor.ConstraintEqualToAnchor(contentView.CenterXAnchor, 0).Active = true;
 
 			var runAuditButton = NativeViewHelper.CreateButton("Run Audit");
 			buttonContainer.AddArrangedSubview(runAuditButton);
@@ -51,9 +50,10 @@ namespace MonoDevelop.Mac.Debug
 				errorLabel.StringValue = string.Format("{0} errors found.", accessibilityService.IssuesFound);
 			};
 
-			outlineAccessibilityView = new OutlineView();
-			outlineAccessibilityView.HeaderView = null;
+			buttonContainer.HeightAnchor.ConstraintEqualToConstant(25).Active = true;
 
+			outlineAccessibilityView = new OutlineView();
+		
 			var outlineViewScrollView = new ScrollContainerView(outlineAccessibilityView);
 			contentView.AddArrangedSubview(outlineViewScrollView);
 
@@ -80,7 +80,8 @@ namespace MonoDevelop.Mac.Debug
 				}
 				outlineAccessibilityView.SetData(nodeBase);
 			};
-
+			outlineViewScrollView.SetContentCompressionResistancePriority(249, NSLayoutConstraintOrientation.Vertical);
+			outlineViewScrollView.SetContentHuggingPriorityForOrientation(249, NSLayoutConstraintOrientation.Vertical);
 		}
 
 		readonly OutlineView outlineAccessibilityView;

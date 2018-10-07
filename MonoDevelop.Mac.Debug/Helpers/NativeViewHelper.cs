@@ -28,6 +28,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			var button = new NSButton
 			{
+				TranslatesAutoresizingMaskIntoConstraints = false,
 				BezelStyle = bezelStyle,
 				Bordered = bordered,
 				ControlSize = controlSize,

@@ -35,13 +35,13 @@ namespace MonoDevelop.Mac.Debug
 
 		public OutlineView ()
 		{
+			TranslatesAutoresizingMaskIntoConstraints = false;
 			AllowsExpansionToolTips = true;
 			AllowsMultipleSelection = false;
 			AutosaveTableColumns = false;
 			FocusRingType = NSFocusRingType.None;
 			IndentationPerLevel = 16;
 			RowHeight = 17;
-
 			NSTableColumn column = new NSTableColumn ("Values");
 			column.Title = "View Outline";
 			AddColumn (column);
