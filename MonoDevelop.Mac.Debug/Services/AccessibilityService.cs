@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using AppKit;
 using System;
 using System.Linq;
-using Humanizer;
 using System.Reflection;
 
 namespace MonoDevelop.Mac.Debug.Services
@@ -48,7 +47,7 @@ namespace MonoDevelop.Mac.Debug.Services
 			{
 				errors.Add("constrast issues");
 			}
-			return string.Format("Element has {0}", errors.Humanize()); ;
+			return string.Format("Element has {0}", string.Join (",", errors)); ;
 		}
 
 		public string GetChildMessage ()

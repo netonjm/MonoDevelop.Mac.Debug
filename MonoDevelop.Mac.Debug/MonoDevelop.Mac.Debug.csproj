@@ -94,7 +94,6 @@
       <Project>{E8F4F0EB-C2B1-4116-8459-E076E0E0E485}</Project>
       <Name>Xamarin.PropertyEditing.Mac</Name>
     </ProjectReference>
-    <PackageReference Include="Humanizer.Core" Version="2.5.1" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\error-16.png" />

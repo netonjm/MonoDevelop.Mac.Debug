@@ -5,7 +5,6 @@ using CoreGraphics;
 using AppKit;
 using System.Text;
 using Foundation;
-using Humanizer;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,7 +24,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			get
 			{
-				var items = combo.Values.Select(s => s.ToString()).Humanize();
+				var items = string.Join (",", combo.Values.Select(s => s.ToString()));
 				return string.Format("{0} items. ({1})", combo.Values.Length, items);
 			}
 		}
