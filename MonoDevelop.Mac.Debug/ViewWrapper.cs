@@ -4,6 +4,7 @@ using System;
 using CoreGraphics;
 using AppKit;
 using System.Text;
+using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -19,6 +20,27 @@ namespace MonoDevelop.Mac.Debug
 		{
 			get => textView.Value;
 			set => textView.Value = value;
+		}
+		public NSFont Font
+		{
+			get => textView.Font;
+			set => textView.Font = value;
+		}
+
+		public NSColor TextColor
+		{
+			get => textView.TextColor;
+			set => textView.TextColor = value;
+		}
+		public NSColor BackgroundColor
+		{
+			get => textView.BackgroundColor;
+			set => textView.BackgroundColor = value;
+		}
+
+		public NSAttributedString AttributedStringValue
+		{
+			get => textView.AttributedString;
 		}
 	}
 
@@ -36,11 +58,40 @@ namespace MonoDevelop.Mac.Debug
 			get => textView.StringValue;
 			set => textView.StringValue = value;
 		}
+
+		public NSFont Font
+		{
+			get => textView.Font;
+			set => textView.Font = value;
+		}
+
+		public NSColor TextColor
+		{
+			get => textView.TextColor;
+			set => textView.TextColor = value;
+		}
+		public NSColor BackgroundColor
+		{
+			get => textView.BackgroundColor;
+			set => textView.BackgroundColor = value;
+		}
+
+		public NSAttributedString AttributedStringValue
+		{
+			get => textView.AttributedStringValue;
+			set => textView.AttributedStringValue = value;
+		}
 	}
 
 	class ButtonViewWrapper : ViewWrapper
 	{
 		readonly NSButton buttonView;
+
+		public NSImage Image
+		{
+			get => buttonView.Image;
+			set => buttonView.Image = value;
+		}
 
 		public ButtonViewWrapper(NSButton view) : base(view)
 		{
@@ -51,6 +102,76 @@ namespace MonoDevelop.Mac.Debug
 		{
 			get => buttonView.Title;
 			set => buttonView.Title = value;
+		}
+	}
+
+	class BoxViewWrapper : ViewWrapper
+	{
+		readonly NSBox buttonView;
+
+		public bool IsFlipped
+		{
+			get => buttonView.IsFlipped;
+		}
+
+		public BoxViewWrapper(NSBox view) : base(view)
+		{
+			buttonView = view;
+		}
+
+		public NSBoxType BoxType
+		{
+			get => buttonView.BoxType;
+			set => buttonView.BoxType = value;
+		}
+
+		public NSBorderType BorderType
+		{
+			get => buttonView.BorderType;
+			set => buttonView.BorderType = value;
+		}
+		public nfloat BoundsRotation
+		{
+			get => buttonView.BoundsRotation;
+			set => buttonView.BoundsRotation = value;
+		}
+		public NSColor BorderColor
+		{
+			get => buttonView.BorderColor;
+			set => buttonView.BorderColor = value;
+		}
+
+		public CGRect BorderRect
+		{
+			get => buttonView.BorderRect;
+		}
+	}
+
+	class ImageViewWrapper : ViewWrapper
+	{
+		readonly NSImageView buttonView;
+
+		public NSImage Image
+		{
+			get => buttonView.Image;
+			set => buttonView.Image = value;
+		}
+
+		public ImageViewWrapper(NSImageView view) : base(view)
+		{
+			buttonView = view;
+		}
+
+		public NSImageScale ImageScaling
+		{
+			get => buttonView.ImageScaling;
+			set => buttonView.ImageScaling = value;
+		}
+
+		public NSImageAlignment ImageAlignment
+		{
+			get => buttonView.ImageAlignment;
+			set => buttonView.ImageAlignment = value;
 		}
 	}
 
@@ -120,6 +241,44 @@ namespace MonoDevelop.Mac.Debug
 				builder.Append($"{type}");
 			}
 			return builder.ToString();
+		}
+
+		public NSView NextKeyView
+		{
+			get => view.NextKeyView;
+		}
+
+		public NSView NextValidKeyView
+		{
+			get => view.NextValidKeyView;
+		}
+
+		public NSView PreviousKeyView
+		{
+			get => view.PreviousKeyView;
+		}
+
+		public NSView PreviousValidKeyView
+		{
+			get => view.PreviousValidKeyView;
+		}
+
+		public NSFocusRingType FocusRingType
+		{
+			get => view.FocusRingType;
+			set => view.FocusRingType = value;
+		}
+
+		public string ToolTip
+		{
+			get => view.ToolTip;
+			set => view.ToolTip = value;
+		}
+
+		public bool Hidden
+		{
+			get => view.Hidden;
+			set => view.Hidden = value;
 		}
 
 		public CGRect VisibleRect {

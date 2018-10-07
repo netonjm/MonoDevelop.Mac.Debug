@@ -162,6 +162,15 @@ namespace MonoDevelop.Mac.Debug
 			{
 				return new ButtonViewWrapper(btn);
 			}
+			if (view is NSImageView img)
+			{
+				return new ImageViewWrapper(img);
+			}
+
+			if (view is NSBox box)
+			{
+				return new BoxViewWrapper(box);
+			}
 
 			return new ViewWrapper(view);
 		}
