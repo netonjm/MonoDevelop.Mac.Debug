@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AppKit;
 using System;
 using System.Linq;
+using Humanizer;
 
 namespace MonoDevelop.Mac.Debug.Services
 {
@@ -12,7 +13,8 @@ namespace MonoDevelop.Mac.Debug.Services
 	{
 		None = 0 << 0,
 		AccessibilityTitle = 1 << 0,
-		AccessibilityHelp = 1 << 1
+		AccessibilityHelp = 1 << 1,
+		AccessibilityParent = 1 << 2,
 	}
 
 	public class DetectedError
@@ -23,19 +25,20 @@ namespace MonoDevelop.Mac.Debug.Services
 
 		public string GetTitleMessage()
 		{
- 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp) || ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
+			List<string> errors = new List<string>();
+			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp) || ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
  			{
-				return "Element has no description";
+				errors.Add("description");
 			}
-			return "";
+			if (ErrorType.HasFlag (DetectedErrorType.AccessibilityParent))
+			{
+				errors.Add("accessibility parent set");
+			}
+			return string.Format("Element has no {0}", errors.Humanize()); ;
 		}
 
 		public string GetChildMessage ()
 		{
-			if (ErrorType == DetectedErrorType.None)
-			{
-				return "";
-			}
 			List<string> errors = new List<string>();
 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
 			{
@@ -45,7 +48,12 @@ namespace MonoDevelop.Mac.Debug.Services
 			{
 				errors.Add(nameof(DetectedErrorType.AccessibilityTitle));
 			}
-			var result = string.Format ("Issue: Element has no {0}. This view is missing useful accessibility information.", string.Join(",", errors));
+			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityParent))
+			{
+				errors.Add(nameof(DetectedErrorType.AccessibilityParent));
+			}
+
+			var result = string.Format("Issue: Element has no {0}. This view is missing useful accessibility information.", errors.Humanize());
 			return result;
 		}
 	}
@@ -103,6 +111,10 @@ namespace MonoDevelop.Mac.Debug.Services
 				if (string.IsNullOrEmpty(customView.AccessibilityHelp))
 				{
 					errorType |= DetectedErrorType.AccessibilityHelp;
+				}
+				if (customView.AccessibilityParent == null)
+				{
+					errorType |= DetectedErrorType.AccessibilityParent;
 				}
 
 				if (errorType != DetectedErrorType.None)
