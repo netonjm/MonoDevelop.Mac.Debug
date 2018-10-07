@@ -205,15 +205,12 @@ namespace MonoDevelop.Mac.Debug
 				if (view is NSImageView imageView)
 				{
 					var image = await OpenDialogSelectImage();
-					if (image != null)
-					{
+					if (image != null) {
 						imageView.Image = image;
 					}
-				} else if (view is NSButton btn)
-				{
+				} else if (view is NSButton btn) {
 					var image = await OpenDialogSelectImage();
-					if (image != null)
-					{
+					if (image != null) {
 						btn.Image = image;
 					}
 				}

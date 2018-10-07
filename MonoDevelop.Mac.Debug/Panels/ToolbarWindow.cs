@@ -31,7 +31,7 @@ namespace MonoDevelop.Mac.Debug
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			stackView = NativeViewHelpers.CreateHorizontalStackView (MenuItemSeparation);
+			stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
 			ContentView.AddSubview (stackView);
 			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
 			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;

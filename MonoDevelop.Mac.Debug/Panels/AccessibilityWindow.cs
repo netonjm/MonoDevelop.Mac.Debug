@@ -23,26 +23,26 @@ namespace MonoDevelop.Mac.Debug
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			contentView = NativeViewHelpers.CreateVerticalStackView(margin);
+			contentView = NativeViewHelper.CreateVerticalStackView(margin);
 			ContentView = contentView;
 
-			var buttonContainer = NativeViewHelpers.CreateHorizontalStackView();
+			var buttonContainer = NativeViewHelper.CreateHorizontalStackView();
 			buttonContainer.Distribution = NSStackViewDistribution.FillEqually;
 			contentView.AddArrangedSubview(buttonContainer);
 			buttonContainer.WidthAnchor.ConstraintEqualToConstant (370).Active = true;
 			buttonContainer.HeightAnchor.ConstraintEqualToConstant(50).Active = true;
 			buttonContainer.CenterXAnchor.ConstraintEqualToAnchor(contentView.CenterXAnchor, 20).Active = true;
 
-			var runAuditButton = NativeViewHelpers.CreateButton("Run Audit");
+			var runAuditButton = NativeViewHelper.CreateButton("Run Audit");
 			buttonContainer.AddArrangedSubview(runAuditButton);
 			runAuditButton.Activated += (sender, e) => AuditRequested?.Invoke (this, EventArgs.Empty);
 
-			var showHideErrorsButton = NativeViewHelpers.CreateButton("Show/Hide Errors");
+			var showHideErrorsButton = NativeViewHelper.CreateButton("Show/Hide Errors");
 			buttonContainer.AddArrangedSubview(showHideErrorsButton);
 			contentView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke(this, EventArgs.Empty);
 
-			errorLabel = NativeViewHelpers.CreateLabel("");
+			errorLabel = NativeViewHelper.CreateLabel("");
 			buttonContainer.AddArrangedSubview(errorLabel);
 
 			var accessibilityService = AccessibilityService.Current;
@@ -60,7 +60,7 @@ namespace MonoDevelop.Mac.Debug
 			outlineAccessibilityView.SelectionNodeChanged += (s, e) => {
 				if (outlineAccessibilityView.SelectedNode is NodeIssue nodeView)
 				{
-					RaiseAccessibilityIssueSelected?.Invoke(this, nodeView.Error?.View);
+					RaiseAccessibilityIssueSelected?.Invoke(this, nodeView.DetectedError?.View);
 				}
 			};
 
@@ -96,7 +96,8 @@ namespace MonoDevelop.Mac.Debug
 
 	class NodeIssue : Node
 	{
-		public DetectedError Error { get; }
+		public DetectedError DetectedError { get; }
+
 		static string GetName(DetectedError error)
 		{
 			var title = error.GetTitleMessage();
@@ -104,11 +105,34 @@ namespace MonoDevelop.Mac.Debug
 			return name;
 		}
 
-		public NodeIssue(DetectedError error) : base(GetName (error))
+		public NodeIssue(DetectedError detectedError) : base(GetName (detectedError))
 		{
-			this.Error = error;
-			var message = error.GetChildMessage();
-			AddChild(new NodeIssue(message));
+			this.DetectedError = detectedError;
+
+			List<string> children = new List<string>();
+			var type = detectedError.View.GetType().ToString();
+			if (detectedError.ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
+			{
+				children.Add($"This {type} needs set the AccessibilityHelp field");
+			}
+			if (detectedError.ErrorType.HasFlag(DetectedErrorType.AccessibilityTitle))
+			{
+				children.Add($"This {type} needs set the AccessibilityTitle field");
+			}
+			if (detectedError.ErrorType.HasFlag(DetectedErrorType.AccessibilityParent))
+			{
+				children.Add($"This {type} needs set the AccessibilityParent field");
+			}
+
+			if (detectedError.ErrorType.HasFlag(DetectedErrorType.Contrast))
+			{
+				children.Add(string.Format("The text constrast ratio is {0}. This is based in color {1} compared with color {2}", detectedError.ContrastRatio, detectedError.Color1, detectedError.Color2));
+			}
+
+			foreach (var item in children)
+			{
+				AddChild(new NodeIssue(item));
+			}
 		}
 
 		public NodeIssue(string view) : base(view)

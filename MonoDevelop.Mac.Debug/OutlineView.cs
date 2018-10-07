@@ -69,7 +69,7 @@ namespace MonoDevelop.Mac.Debug
 			{
 				var view = (NSTextField)outlineView.MakeView (identifer, this);
 				if (view == null) {
-					view = NativeViewHelpers.CreateLabel (((Node)item).Name);
+					view = NativeViewHelper.CreateLabel (((Node)item).Name);
 				}
 				return view;
 			}

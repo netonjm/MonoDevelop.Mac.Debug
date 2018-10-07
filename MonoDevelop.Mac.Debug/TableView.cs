@@ -35,7 +35,7 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			var item = data[(int)row];
-			result.AddArrangedSubview (NativeViewHelpers.CreateLabel(item.Name));
+			result.AddArrangedSubview (NativeViewHelper.CreateLabel(item.Name));
 			result.AddArrangedSubview (new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 			return result;
 		}

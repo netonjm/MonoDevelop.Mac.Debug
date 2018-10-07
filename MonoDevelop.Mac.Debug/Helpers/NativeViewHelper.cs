@@ -5,7 +5,7 @@ using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public static class NativeViewHelpers
+	public static class NativeViewHelper
 	{
 		public static NSButton CreateButton(string title) => CreateButton (NSBezelStyle.RoundRect, NSFont.SystemFontOfSize(NSFont.SystemFontSize), title);
 
@@ -148,6 +148,10 @@ namespace MonoDevelop.Mac.Debug
 
 		public static ViewWrapper GetWrapper (this NSView view)
 		{
+			if (view is NSComboBox comboBox)
+			{
+				return new ComboBoxWrapper(comboBox);
+			}
 			if (view is NSTextField textfield)
 			{
 				return new TextFieldViewWrapper(textfield);

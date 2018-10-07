@@ -11,7 +11,7 @@
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-  <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +29,7 @@
     <HttpClientHandler></HttpClientHandler>
     <LinkMode></LinkMode>
     <XamMacArch></XamMacArch>
+    <AOTMode>None</AOTMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -44,6 +45,7 @@
     <HttpClientHandler></HttpClientHandler>
     <LinkMode></LinkMode>
     <XamMacArch></XamMacArch>
+    <AOTMode>None</AOTMode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -63,7 +65,6 @@
     <Compile Include="MethodListView.cs" />
     <Compile Include="PropertyPanel\MockBindingProvider.cs" />
     <Compile Include="PropertyPanel\MockResourceProvider.cs" />
-    <Compile Include="NativeViewHelpers.cs" />
     <Compile Include="Controls\ToggleButton.cs" />
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="VerticalSeparator.cs" />
@@ -73,6 +74,8 @@
     <Compile Include="InspectorManager.cs" />
     <Compile Include="Services\AccessibilityService.cs" />
     <Compile Include="Panels\AccessibilityWindow.cs" />
+    <Compile Include="Helpers\NativeViewHelper.cs" />
+    <Compile Include="Helpers\ContrastHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -80,6 +83,7 @@
     <Folder Include="Resources\" />
     <Folder Include="Panels\" />
     <Folder Include="Services\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">

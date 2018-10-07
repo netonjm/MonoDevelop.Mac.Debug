@@ -59,7 +59,7 @@ namespace MonoDevelop.Mac.Debug
 			contentView = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
 			ContentView = contentView;
 
-			var stackView = NativeViewHelpers.CreateVerticalStackView(margin);
+			var stackView = NativeViewHelper.CreateVerticalStackView(margin);
 			contentView.AddSubview (stackView);
 
 			stackView.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
@@ -101,7 +101,7 @@ namespace MonoDevelop.Mac.Debug
 			stackView.AddArrangedSubview(scrollView);
 			scrollView.HeightAnchor.ConstraintEqualToConstant(ScrollViewSize).Active = true;
 
-			var titleContainter = NativeViewHelpers.CreateHorizontalStackView();
+			var titleContainter = NativeViewHelper.CreateHorizontalStackView();
 			stackView.AddArrangedSubview(titleContainter);
 
 			var invokeButton = new ImageButton(NSImage.ImageNamed("execute-16"));
@@ -111,9 +111,9 @@ namespace MonoDevelop.Mac.Debug
 			titleContainter.AddArrangedSubview(invokeButton);
 			invokeButton.Activated += (s, e) => InvokeSelectedView();
 
-			titleContainter.AddArrangedSubview(NativeViewHelpers.CreateLabel ("Result: "));
+			titleContainter.AddArrangedSubview(NativeViewHelper.CreateLabel ("Result: "));
 
-			resultMessage = NativeViewHelpers.CreateLabel ("");
+			resultMessage = NativeViewHelper.CreateLabel ("");
 			resultMessage.LineBreakMode = NSLineBreakMode.ByWordWrapping;
 			resultMessage.SetContentCompressionResistancePriority (250, NSLayoutConstraintOrientation.Vertical);
 			resultMessage.SetContentHuggingPriorityForOrientation (250, NSLayoutConstraintOrientation.Vertical);

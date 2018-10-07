@@ -5,10 +5,38 @@ using CoreGraphics;
 using AppKit;
 using System.Text;
 using Foundation;
+using Humanizer;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class TextViewWrapper : ViewWrapper
+	public class ComboBoxWrapper : TextFieldViewWrapper
+	{
+		NSComboBox combo;
+
+		public bool ButtonBordered
+		{
+			get => combo.ButtonBordered;
+			set => combo.ButtonBordered = value;
+		}
+
+		public string ComboItems
+		{
+			get
+			{
+				var items = combo.Values.Select(s => s.ToString()).Humanize();
+				return string.Format("{0} items. ({1})", combo.Values.Length, items);
+			}
+		}
+
+		public ComboBoxWrapper(NSComboBox view) : base(view)
+		{
+			this.combo = view;
+		}
+	}
+
+	public class TextViewWrapper : ViewWrapper
 	{
 		readonly NSTextView textView;
 		public TextViewWrapper(NSTextView view) : base(view)
@@ -44,7 +72,7 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	class TextFieldViewWrapper : ViewWrapper
+	public class TextFieldViewWrapper : ViewWrapper
 	{
 		readonly NSTextField textView;
 
@@ -83,9 +111,11 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	class ButtonViewWrapper : ViewWrapper
+	public class ButtonViewWrapper : ViewWrapper
 	{
 		readonly NSButton buttonView;
+
+		#region Image
 
 		public NSImage Image
 		{
@@ -93,19 +123,90 @@ namespace MonoDevelop.Mac.Debug
 			set => buttonView.Image = value;
 		}
 
-		public ButtonViewWrapper(NSButton view) : base(view)
+		public NSImage AlternateImage
 		{
-			buttonView = view;
+			get => buttonView.AlternateImage;
+			set => buttonView.AlternateImage = value;
 		}
+
+		#endregion
+
+		#region Text
 
 		public string Title
 		{
 			get => buttonView.Title;
 			set => buttonView.Title = value;
 		}
+
+		public NSFont Font
+		{
+			get => buttonView.Font;
+			set => buttonView.Font = value;
+		}
+
+		public string AlternateTitle
+		{
+			get => buttonView.AlternateTitle;
+			set => buttonView.AlternateTitle = value;
+		}
+
+		public NSTextAlignment Alignment
+		{
+			get => buttonView.Alignment;
+			set => buttonView.Alignment = value;
+		}
+
+		#endregion
+
+		public bool Bordered
+		{
+			get => buttonView.Bordered;
+			set => buttonView.Bordered = value;
+		}
+
+		NSButtonType buttonType;
+		public NSButtonType ButtonType
+		{
+			get => buttonType;
+			set
+			{
+				buttonType = value;
+				buttonView.SetButtonType(buttonType);
+			}
+		}
+
+		public ButtonViewWrapper(NSButton view) : base(view)
+		{
+			buttonView = view;
+		}
+
+		public bool IsSpringLoaded
+		{
+			get => buttonView.IsSpringLoaded;
+			set => buttonView.IsSpringLoaded = value;
+		}
+
+		public bool AllowsMixedState
+		{
+			get => buttonView.AllowsMixedState;
+			set => buttonView.AllowsMixedState = value;
+		}
+
+		public NSCellStateValue State
+		{
+			get => buttonView.State;
+			set => buttonView.State = value;
+		}
+
+		public NSBezelStyle BezelStyle
+		{
+			get => buttonView.BezelStyle;
+			set => buttonView.BezelStyle = value;
+		}
 	}
 
-	class BoxViewWrapper : ViewWrapper
+	public class BoxViewWrapper : ViewWrapper
 	{
 		readonly NSBox buttonView;
 
@@ -147,7 +248,7 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	class ImageViewWrapper : ViewWrapper
+	public class ImageViewWrapper : ViewWrapper
 	{
 		readonly NSImageView buttonView;
 
@@ -273,6 +374,11 @@ namespace MonoDevelop.Mac.Debug
 		{
 			get => view.ToolTip;
 			set => view.ToolTip = value;
+		}
+
+		public int Tag
+		{
+			get => (int) view.Tag;
 		}
 
 		public bool Hidden

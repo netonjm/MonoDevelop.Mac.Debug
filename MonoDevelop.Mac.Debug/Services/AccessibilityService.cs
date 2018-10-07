@@ -5,6 +5,7 @@ using AppKit;
 using System;
 using System.Linq;
 using Humanizer;
+using System.Reflection;
 
 namespace MonoDevelop.Mac.Debug.Services
 {
@@ -15,46 +16,65 @@ namespace MonoDevelop.Mac.Debug.Services
 		AccessibilityTitle = 1 << 0,
 		AccessibilityHelp = 1 << 1,
 		AccessibilityParent = 1 << 2,
+		Contrast = 1 << 3,
 	}
 
 	public class DetectedError
 	{
 		public NSView View { get; set; }
 
+		public NSView View2 { get; set; }
+
+		public nfloat ContrastRatio { get; set; }
+
+		public string Color1 { get; set; }
+
+		public string Color2 { get; set; }
+
 		public DetectedErrorType ErrorType { get; set; }
 
 		public string GetTitleMessage()
 		{
 			List<string> errors = new List<string>();
-			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp) || ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
+			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityTitle) || ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
  			{
-				errors.Add("description");
+				errors.Add("no description");
 			}
 			if (ErrorType.HasFlag (DetectedErrorType.AccessibilityParent))
 			{
-				errors.Add("accessibility parent set");
+				errors.Add("no accessibility parent set");
 			}
-			return string.Format("Element has no {0}", errors.Humanize()); ;
+			if (ErrorType.HasFlag(DetectedErrorType.Contrast))
+			{
+				errors.Add("constrast issues");
+			}
+			return string.Format("Element has {0}", errors.Humanize()); ;
 		}
 
 		public string GetChildMessage ()
 		{
 			List<string> errors = new List<string>();
+			List<string> additionalLines = new List<string>();
+			var type = View.GetType().ToString();
 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
 			{
-				errors.Add(nameof (DetectedErrorType.AccessibilityHelp));
+				additionalLines.Add($"This {type} needs set the AccessibilityHelp field");
 			}
 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityTitle))
 			{
-				errors.Add(nameof(DetectedErrorType.AccessibilityTitle));
+				additionalLines.Add($"This {type} needs set the AccessibilityTitle field");
 			}
 			if (ErrorType.HasFlag(DetectedErrorType.AccessibilityParent))
 			{
-				errors.Add(nameof(DetectedErrorType.AccessibilityParent));
+				additionalLines.Add($"This {type} needs set the AccessibilityParent field");
 			}
 
-			var result = string.Format("Issue: Element has no {0}. This view is missing useful accessibility information.", errors.Humanize());
-			return result;
+			if (ErrorType.HasFlag(DetectedErrorType.Contrast))
+			{
+				additionalLines.Add(string.Format("The text constrast ratio is {0}. This is based in color {1} compared with color {2}", ContrastRatio, Color1, Color2));
+			}
+
+			return string.Join(Environment.NewLine, additionalLines);
 		}
 	}
 
@@ -96,15 +116,72 @@ namespace MonoDevelop.Mac.Debug.Services
 			return false;
 		}
 
+		class ColorResult
+		{
+			public NSView View
+			{
+				get;
+				set;
+			}
+			public NSColor Color
+			{
+				get;
+				set;
+			}
+		}
+
+		ColorResult BackColorSearch (NSView view)
+		{
+		 	var properties = view.GetType().GetProperties().Where(s => s.Name.StartsWith("BackgroundColor")).ToArray ();
+
+			var property = view.GetProperty("BackgroundColor");
+			if (property != null)
+			{
+				var colorFound = property.GetValue(view.Superview) as NSColor;
+				return new ColorResult() { View = view, Color = colorFound };
+			}
+
+			if (view.Superview is NSView superView && superView != null)
+			{
+				var result = BackColorSearch(superView);
+				if (result != null)
+				{
+					return result;
+				}
+			}
+			return null;
+		}
+
 		void Recursively (NSView customView)
 		{
 			if (DetectedErrors.Count >= MaxIssues) {
 				return;
 			}
 
+			var errorType = DetectedErrorType.None;
+
+			ContrastAnalisys contrastAnalisys = null;
+			if (customView is NSTextField textField)
+			{
+				var parentColor = textField.BackgroundColor;
+				if (parentColor == null && textField.Superview != null)
+				{
+					var result = BackColorSearch(textField.Superview);
+					if (result != null)
+					{
+						contrastAnalisys = new ContrastAnalisys(textField.TextColor, result.Color, textField.Font);
+						contrastAnalisys.View1 = customView;
+						contrastAnalisys.View2 = textField.Superview;
+						if (!contrastAnalisys.IsPassed)
+						{
+							errorType |= DetectedErrorType.Contrast;
+						}
+					}
+				}
+			}
+
 			if (IsSelectableView(customView))
 			{
-				var errorType = DetectedErrorType.None;
 				if (string.IsNullOrEmpty(customView.AccessibilityTitle)) {
 					errorType |= DetectedErrorType.AccessibilityTitle;
 				}
@@ -116,12 +193,20 @@ namespace MonoDevelop.Mac.Debug.Services
 				{
 					errorType |= DetectedErrorType.AccessibilityParent;
 				}
+			}
 
-				if (errorType != DetectedErrorType.None)
+			if (errorType != DetectedErrorType.None)
+			{
+				var detectedError = new DetectedError() { View = customView, ErrorType = errorType };
+				if (contrastAnalisys != null)
 				{
-					var detectedError = new DetectedError() { View = customView, ErrorType = errorType };
-					DetectedErrors.Add(detectedError);
+					detectedError.Color1 = contrastAnalisys.Color1.ToHex();
+					detectedError.Color2 = contrastAnalisys.Color2.ToHex();
+					detectedError.ContrastRatio = contrastAnalisys.Contrast;
+					detectedError.View2 = contrastAnalisys.View2;
 				}
+
+				DetectedErrors.Add(detectedError);
 			}
 
 			if (customView.Subviews == null || IsBlockedType (customView)) {
