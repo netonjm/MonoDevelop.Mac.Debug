@@ -15,7 +15,8 @@ namespace MonoDevelop.Mac.Debug
 	class InspectorManager : IDisposable
 	{
 		const string Name = "Accessibility .NET Inspector";
-		const int ToolbarWindowWidth = 350;
+		const int ToolbarWindowWidth = 500;
+		const int ToolbarWindowHeight = 30;
 		const int WindowMargin = 10;
 	
 		NSWindow window;
@@ -68,7 +69,7 @@ namespace MonoDevelop.Mac.Debug
 		#region Error Detector
 
 		bool showDetectedErrors;
-		public bool ShowDetectedErrors 
+		internal bool ShowDetectedErrors 
 		{
 			get => showDetectedErrors;
 			set
@@ -174,7 +175,7 @@ namespace MonoDevelop.Mac.Debug
 					window.RemoveChildWindow(debugOverlayWindow);
 				window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
 
-				IsFirstResponderOverlayVisible = true;
+				//IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
 			inspectorWindow.RaiseDeleteItem += (s, e) =>
@@ -182,8 +183,8 @@ namespace MonoDevelop.Mac.Debug
 				RemoveView(e);
 			};
 
-			toolbarWindow = new ToolbarWindow();
-			toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, 30));
+			toolbarWindow = new ToolbarWindow (this);
+			toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, ToolbarWindowHeight));
 		
 			toolbarWindow.ThemeChanged += (sender, pressed) => {
 				if (pressed) {
@@ -198,6 +199,12 @@ namespace MonoDevelop.Mac.Debug
 			toolbarWindow.ItemDeleted += (sender, e) =>
 			{
 				RemoveView(view);
+			};
+
+			toolbarWindow.FontChanged += (sender, e) =>
+			{
+				var font = NSFont.FromFontName(e.font, e.size);
+				NativeViewHelper.SetFont(view, font);
 			};
 
 			toolbarWindow.ItemImageChanged += async (sender, e) =>
@@ -361,20 +368,18 @@ namespace MonoDevelop.Mac.Debug
 
 		string ToMenuAction (bool value) => value ? "Show" : "Hide";
 
+		public event EventHandler<NSView> FocusedViewChanged;
+
 		internal void ChangeFocusedView (NSView nextView)
 		{
 			if (nextView == null || view == nextView) {
+				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
 
 			view = nextView;
 			if (view != null) {
 				debugOverlayWindow.AlignWith (view);
-				toolbarWindow.ImageChangedEnabled = view is NSImageView || view is NSButton;
-			}
-			else
-			{
-				toolbarWindow.ImageChangedEnabled = false;
 			}
 
 			nextKeyView = view?.NextValidKeyView as NSView;
@@ -388,6 +393,8 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 			RefreshStatusWindow ();
+
+			FocusedViewChanged?.Invoke(this, nextView);
 		}
 
 		internal void StartWatcher ()

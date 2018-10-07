@@ -10,6 +10,8 @@ namespace MonoDevelop.Mac.Debug
 		public VerticalSeparator ()
 		{
 			TranslatesAutoresizingMaskIntoConstraints = false;
+			SetContentCompressionResistancePriority(850, NSLayoutConstraintOrientation.Horizontal);
+			SetContentHuggingPriorityForOrientation(850, NSLayoutConstraintOrientation.Horizontal);
 		}
 
 		CGSize size = new CGSize (10, 17);

@@ -7,6 +7,53 @@ namespace MonoDevelop.Mac.Debug
 {
 	public static class NativeViewHelper
 	{
+		public static (NSFont font, nfloat size) GetFont(NSView view)
+		{
+			nfloat size = 0;
+			NSFont result = null;
+			if (view is NSTextField textField)
+			{
+				result = textField.Font;
+				size = textField.Font.PointSize;
+			}
+			if (view is NSTextView textView)
+			{
+				result = textView.Font;
+				size = textView.Font.PointSize;
+			}
+			if (view is NSButton btn)
+			{
+				result = btn.Font;
+				size = btn.Font.PointSize;
+			}
+			if (view is NSSecureTextField secureTextField)
+			{
+				result = secureTextField.Font;
+				size = secureTextField.Font.PointSize;
+			}
+			return (result, size);
+		}
+
+		public static void SetFont(NSView view, NSFont font)
+		{
+			if (view is NSTextField)
+			{
+				((NSTextField)view).Font = font;
+			}
+			if (view is NSTextView)
+			{
+				 ((NSTextView)view).Font = font;
+			}
+			if (view is NSButton)
+			{
+				 ((NSButton)view).Font = font;
+			}
+			if (view is NSSecureTextField)
+			{
+				 ((NSSecureTextField)view).Font = font;
+			}
+		}
+
 		public static NSButton CreateButton(string title) => CreateButton (NSBezelStyle.RoundRect, NSFont.SystemFontOfSize(NSFont.SystemFontSize), title);
 
 		public static NSButton CreateClickableLabel(CGRect rect, NSFont font, NSAttributedString text)

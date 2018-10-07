@@ -2,11 +2,15 @@
 
 using System;
 using AppKit;
+using System.Linq;
+using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
 	class ToolbarWindow : NSWindow
 	{
+		public const string DefaultFontName = ".AppleSystemUIFont";
+
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
@@ -15,14 +19,19 @@ namespace MonoDevelop.Mac.Debug
 
 		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
+		public event EventHandler<(string font, int size)> FontChanged;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
 		readonly NSStackView stackView;
 
-		public ToolbarWindow ()
+		readonly InspectorManager inspectorManager;
+
+		public ToolbarWindow (InspectorManager inspectorManager)
 		{
+			this.inspectorManager = inspectorManager;
+
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
 			StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
@@ -35,6 +44,8 @@ namespace MonoDevelop.Mac.Debug
 			ContentView.AddSubview (stackView);
 			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
 			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;
+
+			//stackView.RightAnchor.ConstraintEqualToAnchor(ContentView.RightAnchor, -LeftPadding).Active = true;
 
 			//Visual issues view
 			var keyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-actual"));
@@ -74,24 +85,129 @@ namespace MonoDevelop.Mac.Debug
 			changeImage = new ImageButton(NSImage.ImageNamed("image-16"));
 
 			AddButton(changeImage);
+
 			changeImage.Activated += (s, e) =>
 			{
 				ItemImageChanged?.Invoke(this, EventArgs.Empty);
 			};
 
-			AddSeparator();
+			fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fonts = NSFontManager.SharedFontManager.AvailableFonts
+				.Select (s => new NSString(s))
+				.ToArray ();
+
+			fontsCombobox.Add(fonts);
+
+			stackView.AddArrangedSubview(fontsCombobox);
+			fontsCombobox.WidthAnchor.ConstraintEqualToConstant(220).Active = true;
+		
+			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
+			stackView.AddArrangedSubview(fontSizeTextView);
+			fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
+
+			fontsCombobox.SelectionChanged += (s, e) => {
+				OnFontChanged();
+			};
+
+			fontSizeTextView.Activated += (s, e) => {
+				OnFontChanged();
+			};
+			//AddSeparator();
+
+			inspectorManager.FocusedViewChanged += (sender, view) =>
+			{
+				bool showImage = false;
+				bool showFont = false;
+				//NSPopUpButton
+				var font = NativeViewHelper.GetFont(view);
+				if (font.font != null)
+				{
+					var currentFontName = font.font.FontName;
+					if (currentFontName == ".AppleSystemUIFont")
+					{
+						currentFontName = "HelveticaNeue";
+					}
+					var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
+					fontsCombobox.Select(name);
+
+					fontSizeTextView.IntValue = (int) font.size;
+					showFont = true;
+				}
+
+				if (view is NSImageView || view is NSButton)
+				{
+					showImage = true;
+				}
+
+				imageButtonVisible = showImage;
+				fontButtonsVisible = showFont;
+			};
+
+			stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 		}
 
-		public override bool CanBecomeKeyWindow => false;
-		public override bool CanBecomeMainWindow => false;
+		bool fontButtonsVisible
+		{
+			get => stackView.Subviews.Contains(fontsCombobox);
+			set
+			{
+				if (fontButtonsVisible == value)
+				{
+					return;
+				}
+
+				if (value)
+				{
+					stackView.AddArrangedSubview(fontsCombobox);
+					stackView.AddArrangedSubview(fontSizeTextView);
+				}
+				else
+				{
+					fontSizeTextView.RemoveFromSuperview();
+					fontsCombobox.RemoveFromSuperview();
+				}
+			}
+		}
+
+		bool imageButtonVisible
+		{
+			get => stackView.Subviews.Contains(changeImage);
+			set
+			{
+				if (imageButtonVisible == value)
+				{
+					return;
+				}
+
+				if (value)
+				{
+					stackView.AddArrangedSubview(changeImage);
+				}
+				else
+				{
+					changeImage.RemoveFromSuperview();
+				}
+			}
+		}
+
+		void OnFontChanged ()
+		{
+			var currentIndex = (int)fontsCombobox.SelectedIndex;
+			if (currentIndex >= -1)
+			{
+				var selected = fonts[currentIndex].ToString();
+				var fontSize = fontSizeTextView.IntValue;
+				FontChanged?.Invoke(this, (selected, fontSize));
+			}
+		}
+
+		NSString[] fonts;
+		NSComboBox fontsCombobox;
+		NSTextField fontSizeTextView;
+		//public override bool CanBecomeKeyWindow => false;
+		//public override bool CanBecomeMainWindow => false;
 
 		ImageButton deleteButton, changeImage;
-
-		public bool DeleteEnabled
-		{
-			get => deleteButton.Enabled;
-			set => deleteButton.Enabled = value;
-		}
 
 		public bool ImageChangedEnabled
 		{
