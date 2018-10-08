@@ -80,9 +80,9 @@ namespace MonoDevelop.Mac.Debug
 			return string.Format("#{0}{1}{2}", r, g, b);
 		}
 
-		static (nfloat R, nfloat G, nfloat B) NormalizeColor (NSColor color)
+		static NSColor NormalizeColor (NSColor color)
 		{
-			return (
+			return NSColor.FromRgb (
 			NormalizeColor(color.RedComponent),
 			NormalizeColor(color.GreenComponent),
 			NormalizeColor(color.BlueComponent)
@@ -116,8 +116,8 @@ namespace MonoDevelop.Mac.Debug
 		{
 			var bColor1 = NormalizeColor(color1);
 			var bColor2 = NormalizeColor(color2);
-			nfloat L1 = 0.2126f * bColor1.R + 0.7152f * bColor1.G + 0.0722f * bColor1.B;
-			nfloat L2 = 0.2126f * bColor2.R + 0.7152f * bColor2.G + 0.0722f * bColor2.G;
+			nfloat L1 = 0.2126f * bColor1.RedComponent + 0.7152f * bColor1.GreenComponent + 0.0722f * bColor1.BlueComponent;
+			nfloat L2 = 0.2126f * bColor2.RedComponent + 0.7152f * bColor2.GreenComponent + 0.0722f * bColor2.BlueComponent;
 			if (L1 <= L2)
 			{
 				var temp = L2;

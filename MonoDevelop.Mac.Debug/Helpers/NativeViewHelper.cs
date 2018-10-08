@@ -7,34 +7,31 @@ namespace MonoDevelop.Mac.Debug
 {
 	public static class NativeViewHelper
 	{
-		public static (NSFont font, nfloat size) GetFont(NSView view)
+		public static FontData GetFont (NSView view)
 		{
-			nfloat size = 0;
-			NSFont result = null;
-			if (view is NSTextField textField)
+			NSFont result = FontData.DefaultFont;
+			nfloat size = FontData.DefaultSize;
+			if (view is NSTextField textField && textField.Font != null)
 			{
 				result = textField.Font;
 				size = textField.Font.PointSize;
-			}
-			if (view is NSTextView textView)
+			} else if (view is NSTextView textView && textView.Font != null)
 			{
 				result = textView.Font;
 				size = textView.Font.PointSize;
-			}
-			if (view is NSButton btn)
+			} else if (view is NSButton btn && btn.Font != null)
 			{
 				result = btn.Font;
 				size = btn.Font.PointSize;
-			}
-			if (view is NSSecureTextField secureTextField)
+			} else if (view is NSSecureTextField secureTextField && secureTextField.Font != null)
 			{
 				result = secureTextField.Font;
 				size = secureTextField.Font.PointSize;
 			}
-			return (result, size);
+			return new FontData(result, size);
 		}
 
-		public static void SetFont(NSView view, NSFont font)
+		public static void SetFont (NSView view, NSFont font)
 		{
 			if (view is NSTextField)
 			{

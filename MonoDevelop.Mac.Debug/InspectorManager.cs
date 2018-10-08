@@ -9,6 +9,7 @@ using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Mac.Debug.Services;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -29,7 +30,7 @@ namespace MonoDevelop.Mac.Debug
 		readonly AccessibilityWindow accessibilityWindow;
 		readonly NSFirstResponderWatcher watcher;
 
-		readonly List<NSMenuItem> menuItems;
+	 	readonly List<NSMenuItem> menuItems = new List<NSMenuItem>();
 
 		ToolbarWindow toolbarWindow;
 
@@ -98,6 +99,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			if (this.window != null)
 			{
+
 				this.window.RemoveChildWindow(debugOverlayWindow);
 				this.window.RemoveChildWindow(debugNextOverlayWindow);
 				this.window.RemoveChildWindow(debugPreviousOverlayWindow);
@@ -105,14 +107,21 @@ namespace MonoDevelop.Mac.Debug
 				this.window.RemoveChildWindow(accessibilityWindow);
 				this.window.RemoveChildWindow(toolbarWindow);
 
+				var childWindro = this.window.ChildWindows.OfType<BorderedWindow>();
+				foreach (var item in childWindro)
+				{
+					window.RemoveChildWindow(item);
+				}
+
 				AccessibilityService.Current.Reset ();
 
 				this.window.DidResize -= OnRespositionViews;
 				this.window.DidMove -= OnRespositionViews;
 			}
 
-			this.window = window;
+			PopulateSubmenu();
 
+			this.window = window;
 			if (this.window == null)
 			{
 				return;
@@ -203,8 +212,7 @@ namespace MonoDevelop.Mac.Debug
 
 			toolbarWindow.FontChanged += (sender, e) =>
 			{
-				var font = NSFont.FromFontName(e.font, e.size);
-				NativeViewHelper.SetFont(view, font);
+				NativeViewHelper.SetFont(view, e.Font);
 			};
 
 			toolbarWindow.ItemImageChanged += async (sender, e) =>
@@ -237,9 +245,6 @@ namespace MonoDevelop.Mac.Debug
 				IsPreviousResponderOverlayVisible = e;
 				ChangeFocusedView (window.FirstResponder as NSView);
 			};
-
-			menuItems = new List<NSMenuItem> ();
-			PopulateSubmenu ();
 
 			watcher = new NSFirstResponderWatcher (window);
 			watcher.Changed += (sender, e) => {
@@ -331,16 +336,21 @@ namespace MonoDevelop.Mac.Debug
 		void PopulateSubmenu ()
 		{
 			var submenu = Submenu;
-			if (submenu == null)
-				throw new NullReferenceException ("Menu cannot be null");
+			if (submenu == null) {
+				using (EventLog eventLog = new EventLog("Application"))
+				{
+					eventLog.Source = "Application";
+					eventLog.WriteEntry("Submenu is null in Accessibility Inspector", EventLogEntryType.Error, 101, 1);
+				}
+				return;
+			}
 
-			int menuCount = 0;
+
+			ClearSubmenuItems(submenu);
+			menuItems.Clear();
 			submenu.AutoEnablesItems = false;
 
-			ClearSubmenuItems (submenu);
-
-			menuItems.Clear ();
-
+			int menuCount = 0;
 			menuItems.Add(new NSMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), ShowHideDetailDebuggerWindow) { Enabled = false });
 			inspectorMenuItem = new NSMenuItem ($"Show Window", ShowHideDetailDebuggerWindow);
 			inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
@@ -353,10 +363,11 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		void ClearSubmenuItems (NSMenu submenu)
+		void ClearSubmenuItems(NSMenu submenu)
 		{
-			foreach (var item in menuItems) {
-				submenu.RemoveItem (item);
+			foreach (var item in menuItems)
+			{
+				submenu.RemoveItem(item);
 			}
 		}
 
@@ -372,7 +383,7 @@ namespace MonoDevelop.Mac.Debug
 
 		internal void ChangeFocusedView (NSView nextView)
 		{
-			if (nextView == null || view == nextView) {
+			if (window == null || nextView == null || view == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}

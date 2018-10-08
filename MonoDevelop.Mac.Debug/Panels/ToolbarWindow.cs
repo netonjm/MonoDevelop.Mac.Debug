@@ -7,10 +7,31 @@ using Foundation;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class ToolbarWindow : NSWindow
+	public class FontData
 	{
+	 	readonly static public nfloat DefaultSize = NSFont.SystemFontSize;
+		readonly static public NSFont DefaultFont = NSFont.FromFontName(DefaultFontName, DefaultSize);
+
 		public const string DefaultFontName = ".AppleSystemUIFont";
 
+		public NSFont Font { get; private set; }
+		public nfloat Size { get; private set; }
+
+		public FontData (string font, nfloat size)
+		{
+			Size = size;
+			Font = NSFont.FromFontName(font, size);
+		}
+
+		public FontData (NSFont font, nfloat size)
+		{
+			this.Font = font;
+			Size = size;
+		}
+	}
+
+	class ToolbarWindow : NSWindow
+	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
@@ -19,7 +40,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
-		public event EventHandler<(string font, int size)> FontChanged;
+		public event EventHandler<FontData> FontChanged;
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
@@ -119,10 +140,10 @@ namespace MonoDevelop.Mac.Debug
 				bool showImage = false;
 				bool showFont = false;
 				//NSPopUpButton
-				var font = NativeViewHelper.GetFont(view);
-				if (font.font != null)
+				var fontData = NativeViewHelper.GetFont(view);
+				if (fontData?.Font != null)
 				{
-					var currentFontName = font.font.FontName;
+					var currentFontName = fontData.Font.FontName;
 					if (currentFontName == ".AppleSystemUIFont")
 					{
 						currentFontName = "HelveticaNeue";
@@ -130,7 +151,7 @@ namespace MonoDevelop.Mac.Debug
 					var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
 					fontsCombobox.Select(name);
 
-					fontSizeTextView.IntValue = (int) font.size;
+					fontSizeTextView.IntValue = (int)fontData.Size;
 					showFont = true;
 				}
 
@@ -197,7 +218,7 @@ namespace MonoDevelop.Mac.Debug
 			{
 				var selected = fonts[currentIndex].ToString();
 				var fontSize = fontSizeTextView.IntValue;
-				FontChanged?.Invoke(this, (selected, fontSize));
+				FontChanged?.Invoke(this, new FontData (selected, fontSize));
 			}
 		}
 

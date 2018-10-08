@@ -2,6 +2,7 @@
 
 using System;
 using AppKit;
+using CoreGraphics;
 using Foundation;
 
 namespace MonoDevelop.Mac.Debug
@@ -9,10 +10,37 @@ namespace MonoDevelop.Mac.Debug
 	[Register ("DebugWindow")]
 	public class DebugWindow : NSWindow
 	{
+		public DebugWindow() : base ()
+		{
+		
+		}
+
+		public override void BecomeMainWindow()
+		{
+			InspectorContext.Attach(this);
+			base.BecomeMainWindow();
+		}
+
 		// Called when created from unmanaged code
 		public DebugWindow (IntPtr handle) : base (handle)
 		{
-			InspectorContext.Attach (this);
+
+		}
+
+		public DebugWindow(NSCoder coder) : base(coder)
+		{
+		}
+
+		public DebugWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation) : base(contentRect, aStyle, bufferingType, deferCreation)
+		{
+		}
+
+		public DebugWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation, NSScreen screen) : base(contentRect, aStyle, bufferingType, deferCreation, screen)
+		{
+		}
+
+		protected DebugWindow(NSObjectFlag t) : base(t)
+		{
 		}
 
 		public override bool MakeFirstResponder (NSResponder aResponder)
