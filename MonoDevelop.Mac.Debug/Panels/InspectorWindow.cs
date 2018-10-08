@@ -7,6 +7,7 @@ using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
 using Xamarin.PropertyEditing.Themes;
 using Foundation;
+using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -104,7 +105,7 @@ namespace MonoDevelop.Mac.Debug
 			var titleContainter = NativeViewHelper.CreateHorizontalStackView();
 			stackView.AddArrangedSubview(titleContainter);
 
-			var invokeButton = new ImageButton(NSImage.ImageNamed("execute-16"));
+			var invokeButton = new ImageButton(ResourceService.GetNSImage("execute-16.png"));
 			invokeButton.ToolTip = "Invoke Method!";
 			invokeButton.WidthAnchor.ConstraintEqualToConstant(ButtonWidth).Active = true;
 

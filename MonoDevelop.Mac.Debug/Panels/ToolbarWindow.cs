@@ -4,9 +4,11 @@ using System;
 using AppKit;
 using System.Linq;
 using Foundation;
+using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
+
 	public class FontData
 	{
 	 	readonly static public nfloat DefaultSize = NSFont.SystemFontSize;
@@ -69,19 +71,19 @@ namespace MonoDevelop.Mac.Debug
 			//stackView.RightAnchor.ConstraintEqualToAnchor(ContentView.RightAnchor, -LeftPadding).Active = true;
 
 			//Visual issues view
-			var keyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-actual"));
+			var keyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-actual.png"));
 			AddButton (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
-			var prevKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-previous"));
+			var prevKeyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-previous.png"));
 			AddButton (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
-			var nextKeyViewLoopButton = new ToggleButton(NSImage.ImageNamed("overlay-next"));
+			var nextKeyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-next.png"));
 			AddButton (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
@@ -89,13 +91,13 @@ namespace MonoDevelop.Mac.Debug
 
 			AddSeparator ();
 
-			var themeButton = new ToggleButton (NSImage.ImageNamed ("style-16"));
+			var themeButton = new ToggleButton (ResourceService.GetNSImage("style-16.png"));
 			AddButton (themeButton);
 			themeButton.Activated += ThemeButton_Activated;
 
 			AddSeparator ();
 
-			deleteButton = new ImageButton(NSImage.ImageNamed("delete-16"));
+			deleteButton = new ImageButton(ResourceService.GetNSImage("delete-16.png"));
 
 			AddButton(deleteButton);
 			deleteButton.Activated += (s,e) =>
@@ -103,7 +105,7 @@ namespace MonoDevelop.Mac.Debug
 				ItemDeleted?.Invoke(this, EventArgs.Empty);
 			};
 
-			changeImage = new ImageButton(NSImage.ImageNamed("image-16"));
+			changeImage = new ImageButton(ResourceService.GetNSImage("image-16.png"));
 
 			AddButton(changeImage);
 
