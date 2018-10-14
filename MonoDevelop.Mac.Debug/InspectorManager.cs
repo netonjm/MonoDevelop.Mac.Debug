@@ -65,14 +65,25 @@ namespace MonoDevelop.Mac.Debug
 		NSMenu Submenu {
 			get {
 				var shared = NSApplication.SharedApplication;
-				if (shared.Menu == null)
-				{
+				if (shared.Menu == null) {
 					shared.Menu = new NSMenu();
-					var mainMenuItem = new NSMenuItem("Inspector");
-					shared.Menu.AddItem(mainMenuItem);
-					mainMenuItem.Submenu = new NSMenu();
 				}
-				return shared.Menu.ItemAt(0)?.Submenu;
+
+				NSMenuItem item;
+				if (shared.Menu.Count == 0)
+				{
+					item = new NSMenuItem("Inspector");
+					shared.Menu.AddItem(item);
+				}
+				else
+				{
+					item = shared.Menu.ItemAt(0);
+				}
+
+				if (item.Submenu == null) { 
+					item.Submenu = new NSMenu();
+				}
+				return item.Submenu;
 			}
 		}
 

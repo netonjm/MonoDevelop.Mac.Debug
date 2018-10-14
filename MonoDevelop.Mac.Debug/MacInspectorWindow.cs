@@ -222,14 +222,10 @@ namespace MonoDevelop.Mac.Debug
 
 		public override bool MakeFirstResponder(NSResponder aResponder)
 		{
-			if (aResponder is NSWindow win)
-			{
-
-			} else if (aResponder is NSView view)
+			if (aResponder is NSView view)
 			{
 				InspectorContext.ChangeFocusedView(new MacViewWrapper(view));
 			}
-
 			return base.MakeFirstResponder(aResponder);
 		}
 	}
