@@ -15,11 +15,11 @@ namespace DebugExample
 		public override void DidFinishLaunching(NSNotification notification)
 		{
 			// Insert code here to initialize your application
-			var window = NSApplication.SharedApplication.Windows
-				 .OfType<NSWindow> ()
-				 .FirstOrDefault ();
-			// Do any additional setup after loading the view.
-			InspectorContext.Attach (window, true);
+			//var window = NSApplication.SharedApplication.Windows
+			//	 .OfType<NSWindow> ()
+			//	 .FirstOrDefault ();
+			//// Do any additional setup after loading the view.
+			//InspectorContext.Attach (new Macwi window, true);
 		}
 
 		public override void WillTerminate(NSNotification notification)

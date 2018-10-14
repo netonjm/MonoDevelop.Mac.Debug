@@ -8,7 +8,7 @@ using MonoDevelop.Mac.Debug;
 
 namespace DebugExampleDebugWindow
 {
-	public partial class MainWindow : DebugWindow
+	public partial class MainWindow : MacInspectorWindow
 	{
 		public MainWindow(IntPtr handle) : base(handle)
 		{

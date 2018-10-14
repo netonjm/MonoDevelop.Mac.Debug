@@ -19,9 +19,10 @@ namespace MonoDevelop.Mac.Debug
 		const int ToolbarWindowWidth = 500;
 		const int ToolbarWindowHeight = 30;
 		const int WindowMargin = 10;
-	
-		NSWindow window;
-		NSView view, nextKeyView, previousKeyView;
+
+		NSWindow inspectedWindow => selectedWindow as NSWindow;
+		IViewWrapper view, nextKeyView, previousKeyView;
+		IWindowWrapper selectedWindow;
 
 		readonly BorderedWindow debugOverlayWindow;
 		readonly BorderedWindow debugNextOverlayWindow;
@@ -95,59 +96,69 @@ namespace MonoDevelop.Mac.Debug
 
 		#endregion
 
-		public void SetWindow (NSWindow window)
+		public void SetWindow (IWindowWrapper selectedWindow)
 		{
-			if (this.window != null)
+
+			if (inspectedWindow != null)
 			{
+				this.inspectedWindow.RemoveChildWindow(debugOverlayWindow);
+				this.inspectedWindow.RemoveChildWindow(debugNextOverlayWindow);
+				this.inspectedWindow.RemoveChildWindow(debugPreviousOverlayWindow);
+				this.inspectedWindow.RemoveChildWindow(inspectorWindow);
+				this.inspectedWindow.RemoveChildWindow(accessibilityWindow);
+				this.inspectedWindow.RemoveChildWindow(toolbarWindow);
 
-				this.window.RemoveChildWindow(debugOverlayWindow);
-				this.window.RemoveChildWindow(debugNextOverlayWindow);
-				this.window.RemoveChildWindow(debugPreviousOverlayWindow);
-				this.window.RemoveChildWindow(inspectorWindow);
-				this.window.RemoveChildWindow(accessibilityWindow);
-				this.window.RemoveChildWindow(toolbarWindow);
-
-				var childWindro = this.window.ChildWindows.OfType<BorderedWindow>();
+				var childWindro = this.inspectedWindow.ChildWindows.OfType<BorderedWindow>();
 				foreach (var item in childWindro)
 				{
-					window.RemoveChildWindow(item);
+					inspectedWindow.RemoveChildWindow(item);
 				}
-
-				AccessibilityService.Current.Reset ();
-
-				this.window.DidResize -= OnRespositionViews;
-				this.window.DidMove -= OnRespositionViews;
 			}
+
+			if (this.selectedWindow != null)
+			{
+				this.selectedWindow.ResizeRequested -= OnRespositionViews;
+				this.selectedWindow.MovedRequested -= OnRespositionViews;
+			}
+
+			AccessibilityService.Current.Reset();
+
 
 			PopulateSubmenu();
 
-			this.window = window;
-			if (this.window == null)
+			this.selectedWindow = selectedWindow;
+			//this.window = window;
+			if (this.selectedWindow == null)
 			{
 				return;
 			}
-		
-			this.window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
-			this.window.AddChildWindow(debugNextOverlayWindow, NSWindowOrderingMode.Above);
-			this.window.AddChildWindow(debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
 
-			AccessibilityService.Current.ScanErrors (this.window);
+			this.inspectedWindow.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+			this.inspectedWindow.AddChildWindow(debugNextOverlayWindow, NSWindowOrderingMode.Above);
+			this.inspectedWindow.AddChildWindow(debugPreviousOverlayWindow, NSWindowOrderingMode.Above);
 
-			this.window.DidResize += OnRespositionViews;
-			this.window.DidMove += OnRespositionViews;
+			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow);
+
+			this.selectedWindow.ResizeRequested += OnRespositionViews;
+			this.selectedWindow.MovedRequested += OnRespositionViews;
 		}
 
-		public InspectorManager ()
+		internal IInspectDelegate Delegate;
+
+		public NSWindow BackgroundWindow { get; set; }
+
+		public InspectorManager (IInspectDelegate inspectorDelegate)
 		{
+			Delegate = inspectorDelegate;
 			accessibilityService = AccessibilityService.Current;
 			accessibilityService.ScanFinished += (s, e) => {
 
 				foreach (var item in detectedErrors)
 				{
-					var child = window.ChildWindows.FirstOrDefault(d => d == item);
+					var child = inspectedWindow.ChildWindows.FirstOrDefault(d => d == item);
 					if (child != null)
 					{
-						window.RemoveChildWindow(child);
+						inspectedWindow.RemoveChildWindow(child);
 					}
 				}
 				detectedErrors.Clear();
@@ -155,14 +166,14 @@ namespace MonoDevelop.Mac.Debug
 				foreach (var error in accessibilityService.DetectedErrors) {
 					var borderer = new BorderedWindow(error.View, NSColor.Red);
 					detectedErrors.Add(borderer);
-					window.AddChildWindow (borderer, NSWindowOrderingMode.Above);
+					inspectedWindow.AddChildWindow (borderer, NSWindowOrderingMode.Above);
 				}
 
 				if (showDetectedErrors)
 					ShowErrors(true);
 
-				inspectorWindow.GenerateTree(window);
-				window.RecalculateKeyViewLoop();
+				inspectorWindow.GenerateTree(selectedWindow);
+				inspectedWindow.RecalculateKeyViewLoop();
 			};
 
 			debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
@@ -174,22 +185,22 @@ namespace MonoDevelop.Mac.Debug
 			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
 				ShowDetectedErrors = !ShowDetectedErrors;
 			};
-			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(window);
 
+			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow);
 
-			inspectorWindow = new InspectorWindow (new CGRect(10, 10, 600, 700));
+			inspectorWindow = new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
 			inspectorWindow.Title = "Inspector Panel";
 			inspectorWindow.RaiseFirstResponder += (s, e) => {
-				if (window.ChildWindows.Contains (debugOverlayWindow))
-					window.RemoveChildWindow(debugOverlayWindow);
-				window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+				if (inspectedWindow.ChildWindows.Contains (debugOverlayWindow))
+					inspectedWindow.RemoveChildWindow(debugOverlayWindow);
+				inspectedWindow.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
 
 				//IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
 			inspectorWindow.RaiseDeleteItem += (s, e) =>
 			{
-				RemoveView(e);
+				  RemoveView(e);
 			};
 
 			toolbarWindow = new ToolbarWindow (this);
@@ -198,10 +209,10 @@ namespace MonoDevelop.Mac.Debug
 			toolbarWindow.ThemeChanged += (sender, pressed) => {
 				if (pressed) {
 					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
-					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
+					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = inspectedWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
 				} else {
 					PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
-					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = window.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
+					accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = inspectedWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
 				}
 			};
 
@@ -212,7 +223,8 @@ namespace MonoDevelop.Mac.Debug
 
 			toolbarWindow.FontChanged += (sender, e) =>
 			{
-				NativeViewHelper.SetFont(view, e.Font);
+				Delegate.SetFont(view, e.Font);
+				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
 			toolbarWindow.ItemImageChanged += async (sender, e) =>
@@ -233,22 +245,22 @@ namespace MonoDevelop.Mac.Debug
 
 			toolbarWindow.KeyViewLoop += (sender, e) => {
 				IsFirstResponderOverlayVisible = e;
-				ChangeFocusedView (window.FirstResponder as NSView);
+				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
 			toolbarWindow.NextKeyViewLoop += (sender, e) => {
 				IsNextResponderOverlayVisible = e;
-				ChangeFocusedView (window.FirstResponder as NSView);
+				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
 			toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
 				IsPreviousResponderOverlayVisible = e;
-				ChangeFocusedView (window.FirstResponder as NSView);
+				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
-			watcher = new NSFirstResponderWatcher (window);
+			watcher = new NSFirstResponderWatcher (inspectedWindow);
 			watcher.Changed += (sender, e) => {
-				ChangeFocusedView (e as NSView);
+				ChangeFocusedView (e as IViewWrapper);
 			};
 
 			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
@@ -257,9 +269,9 @@ namespace MonoDevelop.Mac.Debug
 				{
 					return;
 				}
-				if (window.ChildWindows.Contains(debugOverlayWindow))
-					window.RemoveChildWindow(debugOverlayWindow);
-				window.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
+				if (inspectedWindow.ChildWindows.Contains(debugOverlayWindow))
+					inspectedWindow.RemoveChildWindow(debugOverlayWindow);
+				inspectedWindow.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
 
 				IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
@@ -274,7 +286,7 @@ namespace MonoDevelop.Mac.Debug
 			NSImage rtrn = null;
 			processingCompletion = new TaskCompletionSource<object>();
 
-			panel.BeginSheet (window, result => {
+			panel.BeginSheet (inspectedWindow, result => {
 				if (result == 1 && panel.Url != null)
 				{
 					rtrn = new NSImage(panel.Url.Path);
@@ -288,7 +300,7 @@ namespace MonoDevelop.Mac.Debug
 
 		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
 
-		void RemoveView (NSView toRemove)
+		void RemoveView (IViewWrapper toRemove)
 		{
 			var parent = toRemove?.PreviousValidKeyView;
 			toRemove.RemoveFromSuperview();
@@ -297,19 +309,18 @@ namespace MonoDevelop.Mac.Debug
 
 		void OnRespositionViews (object sender, EventArgs e)
 		{
-			inspectorWindow.AlignRight (window, WindowMargin);
-			accessibilityWindow.AlignLeft(window, WindowMargin);
-			toolbarWindow.AlignTop (window, WindowMargin);
+			inspectorWindow.AlignRight (inspectedWindow, WindowMargin);
+			accessibilityWindow.AlignLeft(inspectedWindow, WindowMargin);
+			toolbarWindow.AlignTop (inspectedWindow, WindowMargin);
 		}
 
 		void ShowStatusWindow (bool value)
 		{
-
 			if (value) {
 				if (!IsStatusWindowVisible) {
-					window.AddChildWindow(accessibilityWindow, NSWindowOrderingMode.Above);
-					window.AddChildWindow (inspectorWindow, NSWindowOrderingMode.Above);
-					window.AddChildWindow(toolbarWindow, NSWindowOrderingMode.Above);
+					inspectedWindow.AddChildWindow(accessibilityWindow, NSWindowOrderingMode.Above);
+					inspectedWindow.AddChildWindow (inspectorWindow, NSWindowOrderingMode.Above);
+					inspectedWindow.AddChildWindow(toolbarWindow, NSWindowOrderingMode.Above);
 					RefreshStatusWindow ();
 				}
 			}
@@ -323,14 +334,14 @@ namespace MonoDevelop.Mac.Debug
 
 		void RefreshStatusWindow ()
 		{
-			toolbarWindow.AlignTop(window, WindowMargin);
-			inspectorWindow.AlignRight(window, WindowMargin);
-			accessibilityWindow.AlignLeft (window, WindowMargin);
+			toolbarWindow.AlignTop(inspectedWindow, WindowMargin);
+			inspectorWindow.AlignRight(inspectedWindow, WindowMargin);
+			accessibilityWindow.AlignLeft (inspectedWindow, WindowMargin);
 			var anyFocusedView = view != null;
 			if (!anyFocusedView)
 				return;
 
-			inspectorWindow.GenerateStatusView (view, nextKeyView, previousKeyView);
+			inspectorWindow.GenerateStatusView (view, Delegate);
 		}
 
 		void PopulateSubmenu ()
@@ -344,7 +355,6 @@ namespace MonoDevelop.Mac.Debug
 				}
 				return;
 			}
-
 
 			ClearSubmenuItems(submenu);
 			menuItems.Clear();
@@ -379,11 +389,11 @@ namespace MonoDevelop.Mac.Debug
 
 		string ToMenuAction (bool value) => value ? "Show" : "Hide";
 
-		public event EventHandler<NSView> FocusedViewChanged;
+		public event EventHandler<IViewWrapper> FocusedViewChanged;
 
-		internal void ChangeFocusedView (NSView nextView)
+		internal void ChangeFocusedView (IViewWrapper nextView)
 		{
-			if (window == null || nextView == null || view == nextView) {
+			if (inspectedWindow == null || nextView == null || view == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
@@ -393,12 +403,12 @@ namespace MonoDevelop.Mac.Debug
 				debugOverlayWindow.AlignWith (view);
 			}
 
-			nextKeyView = view?.NextValidKeyView as NSView;
+			nextKeyView = view?.NextValidKeyView;
 			if (nextKeyView != null) {
 				debugNextOverlayWindow.AlignWith (nextKeyView);
 			}
 
-			previousKeyView = view?.PreviousValidKeyView as NSView;
+			previousKeyView = view?.PreviousValidKeyView;
 			if (previousKeyView != null) {
 				debugPreviousOverlayWindow.AlignWith (previousKeyView);
 			}
