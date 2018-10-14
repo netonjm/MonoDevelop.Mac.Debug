@@ -105,7 +105,7 @@ namespace MonoDevelop.Mac.Debug
 
 		bool IsSelectableView(IViewWrapper customView)
 		{
-			return !customView.CanBecomeKeyView && !customView.Hidden;
+			return customView.CanBecomeKeyView && !customView.Hidden;
 		}
 
 		public void Recursively(IViewWrapper customView, List<DetectedError> detectedErrors)
