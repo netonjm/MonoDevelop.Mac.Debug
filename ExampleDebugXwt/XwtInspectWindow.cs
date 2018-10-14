@@ -45,7 +45,7 @@ namespace DebugExampleDebugWindow
 			base.OnShown ();
 		}
 
-		public override void OnFocusedChanged (object focused)
+		public override void OnFocusChanged (object focused)
 		{
 			if (focused is NSView focusedView)
 			{
