@@ -106,26 +106,26 @@ namespace MonoDevelop.Mac.Debug
 		}
 	}
 
-	class NodeView : Node
+	public class NodeView : Node
 	{
-		static string GetName (NSView view)
+		static string GetName (IViewWrapper view)
 		{
-			var name = string.Format("{0} ({1})", view.GetType(), view.Identifier ?? "N.I");
+			var name = string.Format("{0} ({1})", view.Content.GetType (), view.Identifier ?? "N.I");
 			if (view.Hidden) {
 				name += " (hidden)";
 			}
 			return name;
 		}
 
-		public readonly NSView View;
+		public readonly IViewWrapper View;
 
-		public NodeView (NSView view) : base (GetName (view))
+		public NodeView (IViewWrapper view) : base (GetName (view))
 		{
 			this.View = view;
 		}
 	}
 
-	class Node : NSObject
+	public class Node : NSObject
 	{
 		public string Name { get; private set; }
 		List<Node> Children;

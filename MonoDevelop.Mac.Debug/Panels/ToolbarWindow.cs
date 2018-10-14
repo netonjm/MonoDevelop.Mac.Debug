@@ -142,7 +142,7 @@ namespace MonoDevelop.Mac.Debug
 				bool showImage = false;
 				bool showFont = false;
 				//NSPopUpButton
-				var fontData = NativeViewHelper.GetFont(view);
+				var fontData = inspectorManager.Delegate.GetFont(view); 
 				if (fontData?.Font != null)
 				{
 					var currentFontName = fontData.Font.FontName;

@@ -9,7 +9,7 @@ namespace MonoDevelop.Mac.Debug
 	public class BorderedWindow : NSWindow
 	{
 		readonly NSBox box;
-		NSView ObjContent { get; set; }
+		IViewWrapper ObjContent { get; set; }
 
 		public NSColor BorderColor {
 			get => box.BorderColor;
@@ -48,7 +48,7 @@ namespace MonoDevelop.Mac.Debug
 
 		}
 
-		public BorderedWindow(NSView content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public BorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 			ObjContent = content;
 		}
@@ -77,6 +77,12 @@ namespace MonoDevelop.Mac.Debug
 		{
 			var frame = view.AccessibilityFrame;
 			SetFrame (frame, true);
+		}
+
+		public void AlignWith (IViewWrapper view)
+		{
+			var frame = view.AccessibilityFrame;
+			SetFrame(frame, true);
 		}
 
 		public void AlignWindowWithContentView ()

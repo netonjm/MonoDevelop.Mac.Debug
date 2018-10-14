@@ -9,12 +9,21 @@ namespace AppKit
 {
 	public static class Extensions
 	{
+		public static bool IsBlockedType (this IViewWrapper customView)
+		{
+			if (customView is NSTableViewCell)
+			{
+				return true;
+			}
+			return false;
+		}
+
 		public static PropertyInfo GetProperty(this object obj, string propertyName)
 		{
 			return obj.GetType().GetProperty(propertyName);
 		}
 
-		internal static NodeView Recursively (this NodeView nodeView, NSView view)
+		internal static NodeView Search (this NodeView nodeView, IViewWrapper view)
 		{
 			if (nodeView.View == view) {
 				return nodeView;
@@ -26,7 +35,7 @@ namespace AppKit
 
 			for (int i = 0; i < nodeView.ChildCount; i++) {
 				var node = (NodeView) nodeView.GetChild (i);
-				var found = Recursively (node, view);
+				var found = Search (node, view);
 				if (found != null) {
 					return found;
 				}

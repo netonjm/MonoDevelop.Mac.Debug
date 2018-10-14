@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,10 +54,10 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BorderedWindow.cs" />
+    <Compile Include="MacInspectorWindow.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="NSFirstResponderWatcher.cs" />
     <Compile Include="InspectorContext.cs" />
-    <Compile Include="DebugWindow.cs" />
     <Compile Include="ViewEditorProvider.cs" />
     <Compile Include="ViewWrapper.cs" />
     <Compile Include="TableView.cs" />
@@ -77,6 +76,13 @@
     <Compile Include="Helpers\NativeViewHelper.cs" />
     <Compile Include="Helpers\ContrastHelper.cs" />
     <Compile Include="Services\ResourceService.cs" />
+    <Compile Include="IInspectDelegate.cs" />
+    <Compile Include="MacInspectorDelegate.cs" />
+    <Compile Include="IWindowWrapper.cs" />
+    <Compile Include="IViewWrapper.cs" />
+    <Compile Include="Services\DetectedError.cs" />
+    <Compile Include="Services\ITextBoxWrapper.cs" />
+    <Compile Include="Services\ColorResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -95,6 +101,9 @@
       <Project>{E8F4F0EB-C2B1-4116-8459-E076E0E0E485}</Project>
       <Name>Xamarin.PropertyEditing.Mac</Name>
     </ProjectReference>
+  </ItemGroup>
+      <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\error-16~dark~error.png">

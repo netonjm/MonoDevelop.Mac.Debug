@@ -5,8 +5,8 @@ namespace MonoDevelop.Mac.Debug
 {
 	public class ContrastAnalisys
 	{
-		public NSView View1 { get; set; }
-		public NSView View2 { get; set; }
+		public IViewWrapper View1 { get; set; }
+		public IViewWrapper View2 { get; set; }
 		public NSColor Color1 { get; private set; }
 		public NSColor Color2 { get; private set; }
 		public NSFont Font { get; private set; }

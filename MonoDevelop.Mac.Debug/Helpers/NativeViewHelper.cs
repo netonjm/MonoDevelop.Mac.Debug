@@ -141,28 +141,6 @@ namespace MonoDevelop.Mac.Debug
 			TranslatesAutoresizingMaskIntoConstraints = false
 		};
 
-		internal static void ToNodes (this NSView customView, NodeView node)
-		{
-			if (customView.Subviews == null)
-			{
-				return;
-			}
-
-			foreach (var item in customView.Subviews)
-			{
-				var nodel = new NodeView(item);
-				node.AddChild(nodel);
-				try
-				{
-					ToNodes(item, nodel);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex);
-				}
-			}
-		}
-
 		public static NSFont GetSystemFont(bool bold, float size = 0.0f)
 		{
 			if (size <= 0)
@@ -191,44 +169,11 @@ namespace MonoDevelop.Mac.Debug
 			return label;
 		}
 
-		public static ViewWrapper GetWrapper (this NSView view)
-		{
-			if (view is NSComboBox comboBox)
-			{
-				return new ComboBoxWrapper(comboBox);
-			}
-			if (view is NSTextField textfield)
-			{
-				return new TextFieldViewWrapper(textfield);
-			}
-
-			if (view is NSTextView text)
-			{
-				return new TextViewWrapper(text);
-			}
-
-			if (view is NSButton btn)
-			{
-				return new ButtonViewWrapper(btn);
-			}
-			if (view is NSImageView img)
-			{
-				return new ImageViewWrapper(img);
-			}
-
-			if (view is NSBox box)
-			{
-				return new BoxViewWrapper(box);
-			}
-
-			return new ViewWrapper(view);
-		}
-
 		public static NSAttributedString GetAttributedStringWithImage(string imageName, int imageSize, string text)
 		{
 			var attrString = new NSMutableAttributedString("");
 
-			if (!String.IsNullOrEmpty(imageName))
+			if (!string.IsNullOrEmpty(imageName))
 			{
 				var image = GetImageForSize(imageName, imageSize);
 				if (image != null)

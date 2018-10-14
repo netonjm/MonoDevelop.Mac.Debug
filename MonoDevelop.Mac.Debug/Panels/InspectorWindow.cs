@@ -15,8 +15,8 @@ namespace MonoDevelop.Mac.Debug
 	{
 		const ushort DeleteKey = 51;
 
-		public event EventHandler<NSView> RaiseFirstResponder;
-		public event EventHandler<NSView> RaiseDeleteItem;
+		public event EventHandler<IViewWrapper> RaiseFirstResponder;
+		public event EventHandler<IViewWrapper> RaiseDeleteItem;
 
 		public const int ButtonWidth = 30;
 		const int margin = 10;
@@ -38,8 +38,11 @@ namespace MonoDevelop.Mac.Debug
 
 		}
 
-		public InspectorWindow (CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+		readonly IInspectDelegate inspectorDelegate;
+
+		public InspectorWindow (IInspectDelegate inspectorDelegate, CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
+			this.inspectorDelegate = inspectorDelegate;
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
@@ -136,10 +139,10 @@ namespace MonoDevelop.Mac.Debug
 
 		NodeView data;
 
-		internal void GenerateTree(NSWindow window)
+		internal void GenerateTree(IWindowWrapper window)
 		{
 			data = new NodeView(window.ContentView);
-			window.ContentView.ToNodes (data);
+			inspectorDelegate.ConvertToNodes(window.ContentView, data);
 			outlineView.SetData(data);
 		}
 
@@ -180,15 +183,15 @@ namespace MonoDevelop.Mac.Debug
 			constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
-		NSView viewSelected;
+		IViewWrapper viewSelected;
 
-		public void GenerateStatusView (NSView view, NSView nextKeyView, NSView previousKeyView)
+		public void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate)
 		{
 			viewSelected = view;
-			propertyEditorPanel.Select(new ViewWrapper[] { viewSelected.GetWrapper () });
-			methodListView.SetObject (view);
+			propertyEditorPanel.Select(new ViewWrapper[] { inspectDelegate.GetWrapper (viewSelected) });
+			methodListView.SetObject (view.Content);
 			if (data != null) {
-				var found = data.Recursively (view);
+				var found = data.Search(view);
 				if (found != null) {
 					outlineView.FocusNode (found);
 				}
