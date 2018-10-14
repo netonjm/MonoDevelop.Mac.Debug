@@ -10,7 +10,6 @@ namespace MonoDevelop.Mac.Debug
 {
 	public class MacWindowWrapper : NSWindow, IWindowWrapper
 	{
-
 		public MacWindowWrapper()
 		{
 			Initialize();
@@ -54,6 +53,11 @@ namespace MonoDevelop.Mac.Debug
 			};
 		}
 
+		public NSWindow GetWindow()
+		{
+			return this;
+		}
+
 		IViewWrapper IWindowWrapper.ContentView
 		{
 			get
@@ -83,7 +87,7 @@ namespace MonoDevelop.Mac.Debug
 
 		}
 
-				public event EventHandler ResizeRequested;
+		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
 	}
 

@@ -20,7 +20,7 @@ namespace MonoDevelop.Mac.Debug
 		const int ToolbarWindowHeight = 30;
 		const int WindowMargin = 10;
 
-		NSWindow inspectedWindow => selectedWindow as NSWindow;
+		NSWindow inspectedWindow;
 		IViewWrapper view, nextKeyView, previousKeyView;
 		IWindowWrapper selectedWindow;
 
@@ -63,7 +63,17 @@ namespace MonoDevelop.Mac.Debug
 		}
 
 		NSMenu Submenu {
-			get => NSApplication.SharedApplication.Menu?.ItemAt (0)?.Submenu;
+			get {
+				var shared = NSApplication.SharedApplication;
+				if (shared.Menu == null)
+				{
+					shared.Menu = new NSMenu();
+					var mainMenuItem = new NSMenuItem("Inspector");
+					shared.Menu.AddItem(mainMenuItem);
+					mainMenuItem.Submenu = new NSMenu();
+				}
+				return shared.Menu.ItemAt(0)?.Submenu;
+			}
 		}
 
 		#endregion
@@ -127,8 +137,9 @@ namespace MonoDevelop.Mac.Debug
 			PopulateSubmenu();
 
 			this.selectedWindow = selectedWindow;
+			this.inspectedWindow = selectedWindow.GetWindow();
 			//this.window = window;
-			if (this.selectedWindow == null)
+			if (this.selectedWindow == null || this.inspectedWindow == null)
 			{
 				return;
 			}
