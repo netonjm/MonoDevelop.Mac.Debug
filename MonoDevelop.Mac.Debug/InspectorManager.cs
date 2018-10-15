@@ -24,9 +24,9 @@ namespace MonoDevelop.Mac.Debug
 		IViewWrapper view, nextKeyView, previousKeyView;
 		IWindowWrapper selectedWindow;
 
-		readonly BorderedWindow debugOverlayWindow;
-		readonly BorderedWindow debugNextOverlayWindow;
-		readonly BorderedWindow debugPreviousOverlayWindow;
+		readonly MacBorderedWindow debugOverlayWindow;
+		readonly MacBorderedWindow debugNextOverlayWindow;
+		readonly MacBorderedWindow debugPreviousOverlayWindow;
 		readonly InspectorWindow inspectorWindow;
 		readonly AccessibilityWindow accessibilityWindow;
 		readonly NSFirstResponderWatcher watcher;
@@ -38,7 +38,7 @@ namespace MonoDevelop.Mac.Debug
 		NSMenuItem inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
 
 		readonly AccessibilityService accessibilityService;
-		List<BorderedWindow> detectedErrors = new List<BorderedWindow> ();
+		List<MacBorderedWindow> detectedErrors = new List<MacBorderedWindow> ();
 
 		#region Properties
 
@@ -129,7 +129,7 @@ namespace MonoDevelop.Mac.Debug
 				this.inspectedWindow.RemoveChildWindow(accessibilityWindow);
 				this.inspectedWindow.RemoveChildWindow(toolbarWindow);
 
-				var childWindro = this.inspectedWindow.ChildWindows.OfType<BorderedWindow>();
+				var childWindro = this.inspectedWindow.ChildWindows.OfType<MacBorderedWindow>();
 				foreach (var item in childWindro)
 				{
 					inspectedWindow.RemoveChildWindow(item);
@@ -186,7 +186,7 @@ namespace MonoDevelop.Mac.Debug
 				detectedErrors.Clear();
 
 				foreach (var error in accessibilityService.DetectedErrors) {
-					var borderer = new BorderedWindow(error.View, NSColor.Red);
+					var borderer = new MacBorderedWindow(error.View, NSColor.Red);
 					detectedErrors.Add(borderer);
 					inspectedWindow.AddChildWindow (borderer, NSWindowOrderingMode.Above);
 				}
@@ -198,9 +198,9 @@ namespace MonoDevelop.Mac.Debug
 				inspectedWindow.RecalculateKeyViewLoop();
 			};
 
-			debugOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
-			debugNextOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
-			debugPreviousOverlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
+			debugOverlayWindow = new MacBorderedWindow (CGRect.Empty, NSColor.Green);
+			debugNextOverlayWindow = new MacBorderedWindow (CGRect.Empty, NSColor.Red);
+			debugPreviousOverlayWindow = new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
 
 			accessibilityWindow = new AccessibilityWindow(new CGRect(10, 10, 600, 700));
 			accessibilityWindow.Title = "Accessibility Panel";
@@ -226,6 +226,8 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			toolbarWindow = new ToolbarWindow (this);
+
+
 			toolbarWindow.SetContentSize(new CGSize(ToolbarWindowWidth, ToolbarWindowHeight));
 		
 			toolbarWindow.ThemeChanged += (sender, pressed) => {

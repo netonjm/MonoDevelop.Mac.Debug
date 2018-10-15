@@ -6,7 +6,7 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class BorderedWindow : NSWindow
+	public class MacBorderedWindow : NSWindow
 	{
 		readonly NSBox box;
 		IViewWrapper ObjContent { get; set; }
@@ -43,22 +43,22 @@ namespace MonoDevelop.Mac.Debug
 
 		public string ContentViewIdentifier => ObjContent?.Identifier ?? "";
 
-		public BorderedWindow (IntPtr handle) : base (handle)
+		public MacBorderedWindow (IntPtr handle) : base (handle)
 		{
 
 		}
 
-		public BorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 			ObjContent = content;
 		}
 
-		public BorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 
 		}
 
-		public BorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
+		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
 		{
 			IsOpaque = false;
 			ShowsToolbarButton = false;
