@@ -127,12 +127,12 @@ namespace MonoDevelop.Mac.Debug
 			//add property panel
 			stackView.AddArrangedSubview (propertyEditorPanel);
 
-			methodListView.SelectionChanged += (s, e) =>
-			{
-				if (methodListView.SelectedItem is MethodTableViewItem itm) {
-					invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
-				}
-			};
+			//methodListView.SelectionChanged += (s, e) =>
+			//{
+			//	//if (methodListView.SelectedItem is MethodTableViewItem itm) {
+			//	//	invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
+			//	//}
+			//};
 
 			DidResize += Handle_DidResize;
 		}
@@ -161,17 +161,22 @@ namespace MonoDevelop.Mac.Debug
 				var method = itm.MethodInfo;
 				var parameters = method.GetParameters();
 
-				if (parameters.Count() == 0)
+				List<object> arguments = null;
+				if (parameters.Count () > 0) {
+					arguments = new List<object> ();
+					foreach (var item in parameters) {
+						arguments.Add (null);
+					}
+				}
+			
+				try
 				{
-					try
-					{
-						var response = method.Invoke(viewSelected, null);
-						resultMessage.StringValue = response?.ToString() ?? "<null>";
-					}
-					catch (Exception ex)
-					{
-						Console.WriteLine(ex);
-					}
+					var response = method.Invoke(viewSelected.Content, parameters);
+					resultMessage.StringValue = response?.ToString() ?? "<null>";
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
 				}
 			};
 		}
@@ -180,7 +185,7 @@ namespace MonoDevelop.Mac.Debug
 
 		void Handle_DidResize(object sender, EventArgs e)
 		{
-			constraint.Constant = contentView.Frame.Height - margin * 2;
+			//constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
 		IViewWrapper viewSelected;
