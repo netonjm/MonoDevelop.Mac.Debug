@@ -19,6 +19,39 @@ namespace MonoDevelop.Mac.Debug
 			Init();
 		}
 
+		const int toolbarMargin = 20;
+
+		public void Reposition (int x, int y, int width, int height)
+		{
+			//int px, py;
+			//window.GetPosition (out px, out py);
+
+			Move (x, y);
+			WidthRequest = width;
+			HeightRequest = height;
+			//ShowAll ();
+			KeepAbove = true;
+		}
+
+		public void Reposition (Gtk.Window window, int width, int height)
+		{
+			int px, py;
+			window.GetPosition (out px, out py);
+			Reposition (px, py + toolbarMargin, width, height);
+		}
+
+		public void Reposition (Gtk.Widget widget)
+		{
+			var window = widget.ParentWindow;
+			int wx, wy;
+			window.GetPosition (out wx, out wy);
+
+			int ux, uy;
+			widget.TranslateCoordinates (widget.Toplevel, 0, 0, out ux, out uy);
+
+			Reposition (wx + ux,wy + uy, widget.Allocation.Width, widget.Allocation.Height);
+		}
+
 		protected GtkBordererWindow(GType gtype) : base(gtype)
 		{
 			Init();

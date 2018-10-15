@@ -10,28 +10,34 @@ public partial class MainWindow : Gtk.Window
 		Build ();
 	}
 
+	Widget focusedWidget;
+
 	protected override void OnShown()
 	{
 		base.OnShown();
 		win = new GtkBordererWindow("ewreew");
+		win.ParentWindow = this.GdkWindow; 
 		ShowAll();
 		win.Show();
 	}
 
-	int margin = 20;
+	protected override void OnSetFocus (Widget focus)
+	{
+		focusedWidget = focus;
+		Refresh ();
+		base.OnSetFocus (focus);
+	}
+
+	void Refresh ()
+	{
+		if (focusedWidget != null) {
+			win?.Reposition (focusedWidget);
+		}
+	}
+
 	protected override bool OnConfigureEvent(EventConfigure evnt)
 	{
-		if (win != null)
-		{
-			int x, y;
-			GetPosition(out x, out y);
-			win.Move(x, y + margin);
-
-			win.WidthRequest = evnt.Width;
-			win.HeightRequest = evnt.Height;
-			ShowAll();
-			win.KeepAbove = true;
-		}
+		Refresh ();
 		return base.OnConfigureEvent(evnt);
 	}
 
