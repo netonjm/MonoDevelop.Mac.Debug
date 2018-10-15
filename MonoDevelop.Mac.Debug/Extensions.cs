@@ -25,7 +25,7 @@ namespace AppKit
 
 		internal static NodeView Search (this NodeView nodeView, IViewWrapper view)
 		{
-			if (nodeView.View == view) {
+			if (nodeView.View.Content == view.Content) {
 				return nodeView;
 			}
 

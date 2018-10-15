@@ -253,13 +253,13 @@ namespace MonoDevelop.Mac.Debug
 
 			toolbarWindow.ItemImageChanged += async (sender, e) =>
 			{
-				if (view is NSImageView imageView)
+				if (view.Content is NSImageView imageView)
 				{
 					var image = await OpenDialogSelectImage();
 					if (image != null) {
 						imageView.Image = image;
 					}
-				} else if (view is NSButton btn) {
+				} else if (view.Content is NSButton btn) {
 					var image = await OpenDialogSelectImage();
 					if (image != null) {
 						btn.Image = image;

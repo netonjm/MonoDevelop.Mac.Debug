@@ -61,7 +61,7 @@ namespace MonoDevelop.Mac.Debug
 				BezelStyle = NSBezelStyle.Inline,
 				Bordered = false,
 				Font = font,
-				ImagePosition = NSCellImagePosition.ImageLeft
+				ImagePosition = NSCellImagePosition.ImageLeft, TranslatesAutoresizingMaskIntoConstraints = false
 			};
 			label.SetButtonType(NSButtonType.MomentaryPushIn);
 

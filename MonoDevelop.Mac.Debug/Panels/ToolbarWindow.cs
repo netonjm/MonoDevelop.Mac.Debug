@@ -133,7 +133,7 @@ namespace MonoDevelop.Mac.Debug
 					showFont = true;
 				}
 
-				if (view is NSImageView || view is NSButton)
+				if (view.Content is NSImageView || view.Content is NSButton)
 				{
 					showImage = true;
 				}
