@@ -42,19 +42,59 @@ namespace MonoDevelop.Mac.Debug
 
 		#region Properties
 
+		bool isNextResponderOverlayVisible;
 		bool IsNextResponderOverlayVisible {
-			get => debugNextOverlayWindow.Visible;
-			set => debugNextOverlayWindow.Visible = value;
+			get => isNextResponderOverlayVisible;
+			set {
+				isNextResponderOverlayVisible = value;
+
+				if (debugNextOverlayWindow != null) {
+					debugNextOverlayWindow.ParentWindow = inspectedWindow;
+					debugNextOverlayWindow.Visible = value;
+					debugNextOverlayWindow.OrderFront (null);
+
+					if (nextKeyView != null) {
+						debugNextOverlayWindow.AlignWith (nextKeyView);
+					}
+				}
+			}
 		}
 
+		bool isPreviousResponderOverlayVisible;
 		bool IsPreviousResponderOverlayVisible {
-			get => debugPreviousOverlayWindow.Visible;
-			set => debugPreviousOverlayWindow.Visible = value;
+			get => isPreviousResponderOverlayVisible;
+			set {
+				isPreviousResponderOverlayVisible = value;
+				if (debugPreviousOverlayWindow != null) {
+
+
+					debugPreviousOverlayWindow.ParentWindow = inspectedWindow;
+					debugPreviousOverlayWindow.Visible = value;
+					debugPreviousOverlayWindow.OrderFront (null);
+
+					if (previousKeyView != null) {
+						debugPreviousOverlayWindow.AlignWith (previousKeyView);
+					}
+				}
+			}
 		}
 
+		bool isFirstResponderOverlayVisible;
 		bool IsFirstResponderOverlayVisible {
-			get => debugOverlayWindow.Visible;
-			set => debugOverlayWindow.Visible = value;
+			get => isFirstResponderOverlayVisible;
+			set {
+				isFirstResponderOverlayVisible = value;
+
+				if (debugOverlayWindow != null) {
+					debugOverlayWindow.ParentWindow = inspectedWindow;
+					debugOverlayWindow.Visible = value;
+					debugOverlayWindow.OrderFront (null);
+
+					if (view != null) {
+						debugOverlayWindow.AlignWith (view);
+					}
+				}
+			}
 		}
 
 		bool IsStatusWindowVisible {
@@ -127,9 +167,9 @@ namespace MonoDevelop.Mac.Debug
 
 		public void SetWindow (IWindowWrapper selectedWindow)
 		{
-			if (this.inspectedWindow != null)
-			{
-				IsPreviousResponderOverlayVisible = IsNextResponderOverlayVisible = IsFirstResponderOverlayVisible = false;
+			var needsReattach = selectedWindow != this.selectedWindow;
+
+			if (this.selectedWindow != null) {
 				RemoveAllErrorWindows (this.inspectedWindow);
 			}
 
@@ -146,10 +186,19 @@ namespace MonoDevelop.Mac.Debug
 				return;
 			}
 
+			RefreshOverlaysVisibility ();
+
 			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow);
 
 			this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
+		}
+
+		void RefreshOverlaysVisibility ()
+		{
+			IsPreviousResponderOverlayVisible = IsPreviousResponderOverlayVisible;
+			IsNextResponderOverlayVisible = IsNextResponderOverlayVisible;
+			IsFirstResponderOverlayVisible = IsFirstResponderOverlayVisible;
 		}
 
 		internal IInspectDelegate Delegate;
@@ -273,10 +322,6 @@ namespace MonoDevelop.Mac.Debug
 				{
 					return;
 				}
-				if (inspectedWindow.ChildWindows.Contains (debugOverlayWindow))
-					debugOverlayWindow.Close ();
-				inspectedWindow.AddChildWindow(debugOverlayWindow, NSWindowOrderingMode.Above);
-
 				IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
@@ -316,6 +361,7 @@ namespace MonoDevelop.Mac.Debug
 			inspectorWindow.AlignRight (inspectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft(inspectedWindow, WindowMargin);
 			toolbarWindow.AlignTop (inspectedWindow, WindowMargin);
+			RefreshOverlaysVisibility ();
 		}
 
 		void ShowStatusWindow (bool value)
@@ -403,19 +449,10 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 			view = nextView;
-			if (view != null) {
-				debugOverlayWindow.AlignWith (view);
-			}
-
 			nextKeyView = view?.NextValidKeyView;
-			if (nextKeyView != null) {
-				debugNextOverlayWindow.AlignWith (nextKeyView);
-			}
-
 			previousKeyView = view?.PreviousValidKeyView;
-			if (previousKeyView != null) {
-				debugPreviousOverlayWindow.AlignWith (previousKeyView);
-			}
+
+			RefreshOverlaysVisibility ();
 
 			RefreshStatusWindow ();
 
