@@ -25,63 +25,64 @@ namespace MonoDevelop.Mac.Debug
 
 			contentView = NativeViewHelper.CreateVerticalStackView(margin);
 			ContentView = contentView;
-
-			var buttonContainer = NativeViewHelper.CreateHorizontalStackView();
-			buttonContainer.Distribution = NSStackViewDistribution.FillEqually;
-			contentView.AddArrangedSubview(buttonContainer);
-			buttonContainer.WidthAnchor.ConstraintEqualToConstant (370).Active = true;
-			buttonContainer.CenterXAnchor.ConstraintEqualToAnchor(contentView.CenterXAnchor, 0).Active = true;
-
-			var runAuditButton = NativeViewHelper.CreateButton("Run Audit");
-			buttonContainer.AddArrangedSubview(runAuditButton);
-			runAuditButton.Activated += (sender, e) => AuditRequested?.Invoke (this, EventArgs.Empty);
-
-			var showHideErrorsButton = NativeViewHelper.CreateButton("Show/Hide Errors");
-			buttonContainer.AddArrangedSubview(showHideErrorsButton);
-			contentView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
-			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke(this, EventArgs.Empty);
-
-			errorLabel = NativeViewHelper.CreateLabel("");
-			buttonContainer.AddArrangedSubview(errorLabel);
-
-			var accessibilityService = AccessibilityService.Current;
-			accessibilityService.ScanFinished += (s, e) =>
-			{
-				errorLabel.StringValue = string.Format("{0} errors found.", accessibilityService.IssuesFound);
-			};
-
-			buttonContainer.HeightAnchor.ConstraintEqualToConstant(25).Active = true;
-
+	
 			outlineAccessibilityView = new OutlineView();
 		
 			var outlineViewScrollView = new ScrollContainerView(outlineAccessibilityView);
 			contentView.AddArrangedSubview(outlineViewScrollView);
 
 			outlineAccessibilityView.SelectionNodeChanged += (s, e) => {
-				if (outlineAccessibilityView.SelectedNode is NodeIssue nodeView)
-				{
-					RaiseAccessibilityIssueSelected?.Invoke(this, nodeView.DetectedError?.View);
+				if (outlineAccessibilityView.SelectedNode is NodeIssue nodeView) {
+					RaiseAccessibilityIssueSelected?.Invoke (this, nodeView.DetectedError?.View);
 				}
 			};
 
 			outlineAccessibilityView.DoubleClick += (s,e) => {
-				outlineAccessibilityView.ExpandItem(outlineAccessibilityView.SelectedNode, true);
+				outlineAccessibilityView.ExpandItem (outlineAccessibilityView.SelectedNode, true);
 			};
 
 			outlineAccessibilityView.OutlineTableColumn.Title = "Issues";
 
 			var service = AccessibilityService.Current;
-			service.ScanFinished += (s, window) =>
-			{
+			service.ScanFinished += (s, window) => {
 				var nodeBase = new NodeIssue("Issues");
-				foreach (var error in service.DetectedErrors)
-				{
+				foreach (var error in service.DetectedErrors) {
 					nodeBase.AddChild(new NodeIssue(error));
 				}
 				outlineAccessibilityView.SetData(nodeBase);
 			};
-			outlineViewScrollView.SetContentCompressionResistancePriority(249, NSLayoutConstraintOrientation.Vertical);
-			outlineViewScrollView.SetContentHuggingPriorityForOrientation(249, NSLayoutConstraintOrientation.Vertical);
+
+			outlineViewScrollView.WidthAnchor.ConstraintEqualToAnchor (contentView.WidthAnchor).Active = true;
+			//outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
+
+			var buttonContainer = NativeViewHelper.CreateHorizontalStackView ();
+			buttonContainer.Alignment = NSLayoutAttribute.CenterY;
+			buttonContainer.Distribution = NSStackViewDistribution.Fill;
+			contentView.AddArrangedSubview (buttonContainer);
+		
+			var runAuditButton = NativeViewHelper.CreateButton ("Run Audit");
+			buttonContainer.AddArrangedSubview (runAuditButton);
+			runAuditButton.Activated += (sender, e) => AuditRequested?.Invoke (this, EventArgs.Empty);
+			runAuditButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+
+			var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
+			buttonContainer.AddArrangedSubview (showHideErrorsButton);
+
+			contentView.AddArrangedSubview (new NSView () { TranslatesAutoresizingMaskIntoConstraints = false });
+			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke (this, EventArgs.Empty);
+			showHideErrorsButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+
+			errorLabel = NativeViewHelper.CreateLabel ("");
+			buttonContainer.AddArrangedSubview (errorLabel);
+
+			var accessibilityService = AccessibilityService.Current;
+			accessibilityService.ScanFinished += (s, e) => {
+				errorLabel.StringValue = string.Format ("{0} errors found.", accessibilityService.IssuesFound);
+			};
+
+			buttonContainer.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 10).Active = true;
+			buttonContainer.RightAnchor.ConstraintEqualToAnchor (contentView.RightAnchor, 10).Active = true;
+			buttonContainer.HeightAnchor.ConstraintEqualToConstant (30).Active = true;
 		}
 
 		readonly OutlineView outlineAccessibilityView;
