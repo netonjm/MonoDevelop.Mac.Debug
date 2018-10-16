@@ -51,11 +51,11 @@ namespace MonoDevelop.Mac.Debug
 				if (debugNextOverlayWindow != null) {
 					debugNextOverlayWindow.ParentWindow = inspectedWindow;
 					debugNextOverlayWindow.Visible = value;
-					debugNextOverlayWindow.OrderFront (null);
 
 					if (nextKeyView != null) {
 						debugNextOverlayWindow.AlignWith (nextKeyView);
 					}
+					debugNextOverlayWindow.OrderFront (null);
 				}
 			}
 		}
@@ -66,15 +66,13 @@ namespace MonoDevelop.Mac.Debug
 			set {
 				isPreviousResponderOverlayVisible = value;
 				if (debugPreviousOverlayWindow != null) {
-
-
 					debugPreviousOverlayWindow.ParentWindow = inspectedWindow;
 					debugPreviousOverlayWindow.Visible = value;
-					debugPreviousOverlayWindow.OrderFront (null);
 
 					if (previousKeyView != null) {
 						debugPreviousOverlayWindow.AlignWith (previousKeyView);
 					}
+					debugNextOverlayWindow.OrderFront (null);
 				}
 			}
 		}
@@ -88,11 +86,10 @@ namespace MonoDevelop.Mac.Debug
 				if (debugOverlayWindow != null) {
 					debugOverlayWindow.ParentWindow = inspectedWindow;
 					debugOverlayWindow.Visible = value;
-					debugOverlayWindow.OrderFront (null);
-
 					if (view != null) {
 						debugOverlayWindow.AlignWith (view);
 					}
+					debugOverlayWindow.OrderFront (null);
 				}
 			}
 		}
@@ -192,6 +189,7 @@ namespace MonoDevelop.Mac.Debug
 
 			this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
+			this.selectedWindow.LostFocus += OnRespositionViews;
 		}
 
 		void RefreshOverlaysVisibility ()
@@ -452,11 +450,13 @@ namespace MonoDevelop.Mac.Debug
 			nextKeyView = view?.NextValidKeyView;
 			previousKeyView = view?.PreviousValidKeyView;
 
-			RefreshOverlaysVisibility ();
+		
 
 			RefreshStatusWindow ();
 
 			FocusedViewChanged?.Invoke(this, nextView);
+
+			RefreshOverlaysVisibility ();
 		}
 
 		internal void StartWatcher ()

@@ -10,6 +10,7 @@ namespace MonoDevelop.Mac.Debug
 		IViewWrapper ContentView { get; set; }
 		IViewWrapper FirstResponder { get; }
 
+		event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;
 

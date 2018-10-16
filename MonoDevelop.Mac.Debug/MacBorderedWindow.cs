@@ -65,11 +65,11 @@ namespace MonoDevelop.Mac.Debug
 			IgnoresMouseEvents = true;
 			box = new NSBox { BoxType = NSBoxType.NSBoxCustom };
 			ContentView = box;
-
 			FillColor = fillColor;
 			BorderWidth = borderWidth;
 			BorderColor = borderColor;
 			BorderType = borderType;
+			Level = NSWindowLevel.Floating;
 			Visible = false;
 		}
 

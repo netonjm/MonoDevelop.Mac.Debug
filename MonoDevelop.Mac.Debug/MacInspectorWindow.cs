@@ -47,9 +47,12 @@ namespace MonoDevelop.Mac.Debug
 				ResizeRequested?.Invoke(this, EventArgs.Empty);
 			};
 
-			DidMove += (s, e) =>
-			{
+			DidMove += (s, e) => {
 				MovedRequested?.Invoke(this, EventArgs.Empty);
+			};
+
+			base.DidResignKey += (s, e) => {
+				LostFocus?.Invoke (this, EventArgs.Empty);
 			};
 		}
 
@@ -89,6 +92,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
+		public event EventHandler LostFocus;
 	}
 
 	public class MacViewWrapper : IViewWrapper
