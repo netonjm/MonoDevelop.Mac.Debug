@@ -9,7 +9,7 @@ namespace DebugExampleDebugWindow
 	{
 		public IViewWrapper ContentView {
 			get {
-				var window = GetWindow();
+				var window = NativeObject as NSWindow;
 				if (window != null && window.ContentView != null) {
 					return new MacViewWrapper (window.ContentView);
 				}
@@ -22,7 +22,7 @@ namespace DebugExampleDebugWindow
 
 		public IViewWrapper FirstResponder {
 			get {
-				var host = base.BackendHost.Backend.Window as NSWindow;
+				var host = NativeObject as NSWindow;
 				if (host != null && host.FirstResponder != null) {
 					return new MacViewWrapper (host.FirstResponder as NSView);
 				}
@@ -38,10 +38,11 @@ namespace DebugExampleDebugWindow
 
 		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
+		public event EventHandler LostFocus;
 
 		protected override void OnShown ()
 		{
-			InspectorContext.Attach (this, false);
+			//InspectorContext.Attach (this);
 			base.OnShown ();
 		}
 
@@ -54,9 +55,48 @@ namespace DebugExampleDebugWindow
 			} 
 		}
 
-		public NSWindow GetWindow ()
+		public void AddChildWindow(IWindowWrapper borderer)
 		{
-			return BackendHost.Backend.Window as NSWindow;
+
 		}
+
+		public void RecalculateKeyViewLoop()
+		{
+
+		}
+
+		public bool ContainsChildWindow(IWindowWrapper debugOverlayWindow)
+		{
+			return false;
+		}
+
+		public void AlignLeft(IWindowWrapper toView, int pixels)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AlignTop(IWindowWrapper toView, int pixels)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AlignRight(IWindowWrapper toView, int pixels)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SetTitle(string v)
+		{
+			throw new NotImplementedException();
+		}
+
+		void IWindowWrapper.Close()
+		{
+			throw new NotImplementedException();
+		}
+
+		public object NativeObject => BackendHost.Backend.Window;
+
+		public bool HasParentWindow => throw new NotImplementedException();
 	}
 }

@@ -11,7 +11,7 @@ namespace ExampleDebugMac
 			NSApplication.Init();
 			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
 
-			var mainWindow = new MacInspectorWindow(new CGRect(0, 0, 300, 368), NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
+			var mainWindow = new MacAccInspectorWindow(new CGRect(0, 0, 300, 368), NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
 
 			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;

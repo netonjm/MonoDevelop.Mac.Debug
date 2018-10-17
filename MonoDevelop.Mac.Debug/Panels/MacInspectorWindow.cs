@@ -11,7 +11,8 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class InspectorWindow : NSWindow
+
+	class InspectorWindow : MacWindowWrapper, IInspectorWindow
 	{
 		const ushort DeleteKey = 51;
 
@@ -32,11 +33,6 @@ namespace MonoDevelop.Mac.Debug
 		MethodListView methodListView;
 
 		public OutlineView outlineView { get; private set; }
-
-		public InspectorWindow (IntPtr handle) : base(handle)
-		{
-
-		}
 
 		readonly IInspectDelegate inspectorDelegate;
 
@@ -139,7 +135,7 @@ namespace MonoDevelop.Mac.Debug
 
 		NodeView data;
 
-		internal void GenerateTree(IWindowWrapper window)
+		public void GenerateTree(IWindowWrapper window)
 		{
 			data = new NodeView(window.ContentView);
 			inspectorDelegate.ConvertToNodes(window.ContentView, data);
@@ -203,7 +199,7 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		internal void RemoveItem()
+		public void RemoveItem()
 		{
 			if (outlineView.SelectedNode is NodeView nodeView)
 			{

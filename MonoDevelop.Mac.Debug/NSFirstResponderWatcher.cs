@@ -11,11 +11,11 @@ namespace MonoDevelop.Mac.Debug
 	{
 		NSTimer timer;
 		NSResponder responder;
-		NSWindow window;
+		IWindowWrapper window;
 		public EventHandler<NSResponder> Changed;
 		public double Interval { get; set; } = 0.2;
 
-		public NSFirstResponderWatcher (NSWindow window)
+		public NSFirstResponderWatcher (IWindowWrapper window)
 		{
 			this.window = window;
 		}
@@ -23,7 +23,7 @@ namespace MonoDevelop.Mac.Debug
 		void TickHandleAction (NSTimer obj)
 		{
 			if (window.FirstResponder != responder) {
-				responder = window.FirstResponder;
+				responder = (AppKit.NSResponder)window.FirstResponder;
 				Changed?.Invoke (this, responder);
 			}
 		}

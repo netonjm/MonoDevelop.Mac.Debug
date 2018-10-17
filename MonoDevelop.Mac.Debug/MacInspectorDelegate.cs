@@ -1,8 +1,11 @@
 ﻿using AppKit;
+using CoreGraphics;
 using MonoDevelop.Mac.Debug.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Xwt.Drawing;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -31,6 +34,16 @@ namespace MonoDevelop.Mac.Debug
 				{
 					Console.WriteLine(ex);
 				}
+			}
+		}
+
+		public void RemoveAllErrorWindows(IWindowWrapper windowWrapper)
+		{
+			var window = windowWrapper as NSWindow;
+			var childWindro = window.ChildWindows.OfType<MacBorderedWindow>();
+			foreach (var item in childWindro)
+			{
+				item.Close();
 			}
 		}
 
@@ -178,5 +191,72 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
+		public void SetButton (NSButton button, Xwt.Drawing.Image image)
+		{
+			button.Image = ToNSImage(image.ToBitmap ());
+		}
+
+		public void SetButton(NSImageView imageview, Xwt.Drawing.Image image)
+		{
+			imageview.Image = ToNSImage(image.ToBitmap());
+		}
+
+		public NSImage ToNSImage(BitmapImage img)
+		{
+			System.IO.MemoryStream s = new System.IO.MemoryStream();
+			img.Save(s, ImageFileType.Png);
+			byte[] b = s.ToArray();
+			CGDataProvider dp = new CGDataProvider(b, 0, (int)s.Length);
+			s.Flush();
+			s.Close();
+			CGImage img2 = CGImage.FromPNG(dp, null, false, CGColorRenderingIntent.Default);
+			return new NSImage(img2, new CGSize (img2.Width, img2.Height));
+		}
+
+		public async Task<Xwt.Drawing.Image> OpenDialogSelectImage(IWindowWrapper selectedWindow)
+		{
+			var panel = new NSOpenPanel();
+			panel.AllowedFileTypes = new[] { "png" };
+			panel.Prompt = "Select a image";
+			Xwt.Drawing.Image rtrn = null;
+			processingCompletion = new TaskCompletionSource<object>();
+
+			panel.BeginSheet(selectedWindow as NSWindow, result => {
+				if (result == 1 && panel.Url != null)
+				{
+					rtrn = Xwt.Drawing.Image.FromFile(panel.Url.Path);
+				}
+				processingCompletion.TrySetResult(null);
+			});
+			await processingCompletion.Task;
+			return rtrn;
+		}
+
+		public async Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow)
+		{
+			if (view.Content is NSImageView imageView)
+			{
+				var image = await OpenDialogSelectImage(selectedWindow);
+				if (image != null)
+				{
+					SetButton(imageView, image);
+				}
+			}
+			else if (view.Content is NSButton btn)
+			{
+				var image = await OpenDialogSelectImage(selectedWindow);
+				if (image != null)
+				{
+					SetButton(btn, image);
+				}
+			}
+		}
+
+		public IBorderedWindow CreateErrorWindow(IViewWrapper view)
+		{
+			return new MacBorderedWindow(view, NSColor.Red);
+		}
+
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
 	}
 }

@@ -8,7 +8,20 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class ToolbarWindow : NSWindow
+	public interface IToolbarWindow : IWindowWrapper
+	{
+		event EventHandler<bool> KeyViewLoop;
+		event EventHandler<bool> NextKeyViewLoop;
+		event EventHandler<bool> PreviousKeyViewLoop;
+		event EventHandler<bool> ThemeChanged;
+		event EventHandler ItemDeleted;
+		event EventHandler ItemImageChanged;
+		event EventHandler<FontData> FontChanged;
+
+		bool ImageChangedEnabled { get; set; }
+	}
+
+	class MacToolbarWindow : MacWindowWrapper, IToolbarWindow
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
@@ -27,7 +40,7 @@ namespace MonoDevelop.Mac.Debug
 
 		readonly InspectorManager inspectorManager;
 
-		public ToolbarWindow (InspectorManager inspectorManager)
+		public MacToolbarWindow (InspectorManager inspectorManager)
 		{
 			this.inspectorManager = inspectorManager;
 
@@ -229,9 +242,5 @@ namespace MonoDevelop.Mac.Debug
 			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-		}
 	}
 }

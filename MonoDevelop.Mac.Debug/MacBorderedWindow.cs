@@ -6,7 +6,17 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class MacBorderedWindow : NSWindow
+	public interface IBorderedWindow : IWindowWrapper
+	{
+		float BorderWidth { get; set; }
+		bool Visible { get; set; }
+		void SetParentWindow(IWindowWrapper selectedWindow);
+		void AlignWith(IViewWrapper view);
+		void AlignWindowWithContentView();
+		void OrderFront ();
+	}
+
+	class MacBorderedWindow : MacWindowWrapper, IBorderedWindow
 	{
 		readonly NSBox box;
 		IViewWrapper ObjContent { get; set; }
@@ -73,10 +83,9 @@ namespace MonoDevelop.Mac.Debug
 			Visible = false;
 		}
 
-		public void AlignWith (NSView view)
+		public void SetParentWindow(IWindowWrapper selectedWindow)
 		{
-			var frame = view.AccessibilityFrame;
-			SetFrame (frame, true);
+			this.ParentWindow = selectedWindow as NSWindow;
 		}
 
 		public void AlignWith (IViewWrapper view)
@@ -90,6 +99,11 @@ namespace MonoDevelop.Mac.Debug
 			if (ObjContent != null) {
 				AlignWith(ObjContent);
 			}
+		}
+
+		public void OrderFront()
+		{
+			base.OrderFront(null);
 		}
 	}
 }

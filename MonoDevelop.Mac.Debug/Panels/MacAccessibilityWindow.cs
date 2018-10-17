@@ -9,7 +9,8 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class AccessibilityWindow : NSWindow
+
+	class MacAccessibilityWindow : MacWindowWrapper, IAccessibilityWindow
 	{
 		const int margin = 10;
 		readonly NSStackView contentView;
@@ -18,7 +19,7 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler AuditRequested;
 		public event EventHandler ShowErrorsRequested;
 
-		public AccessibilityWindow (CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+		public MacAccessibilityWindow (CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
