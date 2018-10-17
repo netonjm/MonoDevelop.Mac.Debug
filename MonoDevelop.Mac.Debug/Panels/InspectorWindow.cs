@@ -11,7 +11,7 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class InspectorWindow : NSWindow
+	class InspectorWindow : ContentWindow
 	{
 		const ushort DeleteKey = 51;
 
@@ -21,30 +21,37 @@ namespace MonoDevelop.Mac.Debug
 		public const int ButtonWidth = 30;
 		const int margin = 10;
 		const int ScrollViewSize = 150;
-		readonly MockEditorProvider editorProvider;
-		readonly MockResourceProvider resourceProvider;
-		readonly MockBindingProvider bindingProvider;
+		 MockEditorProvider editorProvider;
+		 MockResourceProvider resourceProvider;
+		 MockBindingProvider bindingProvider;
 
 		PropertyEditorPanel propertyEditorPanel;
 		NSLayoutConstraint constraint;
 
-		readonly NSView contentView;
+		NSView contentView;
 		MethodListView methodListView;
 
 		public OutlineView outlineView { get; private set; }
 
-		public InspectorWindow (IntPtr handle) : base(handle)
-		{
-
-		}
-
 		readonly IInspectDelegate inspectorDelegate;
 
-		public InspectorWindow (IInspectDelegate inspectorDelegate, CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+		public InspectorWindow (IInspectDelegate inspectorDelegate)
 		{
+			//new CGRect (10, 10, 600, 700))
+			X = 10;
+			Y = 10;
+			Width = 600; Height = 700;
 			this.inspectorDelegate = inspectorDelegate;
-			ShowsToolbarButton = false;
-			MovableByWindowBackground = false;
+			OnInitialized ();
+		}
+
+		protected override void OnInitialized ()
+		{
+			base.OnInitialized ();
+			currentWindow.ShowsToolbarButton = false;
+			currentWindow.MovableByWindowBackground = false;
+
+			currentWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable;
 
 			propertyEditorPanel = new PropertyEditorPanel();
 
@@ -61,7 +68,7 @@ namespace MonoDevelop.Mac.Debug
 			PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark :  PropertyEditorTheme.Light;
 
 			contentView = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
-			ContentView = contentView;
+			currentWindow.ContentView = contentView;
 
 			var stackView = NativeViewHelper.CreateVerticalStackView(margin);
 			contentView.AddSubview (stackView);
@@ -134,8 +141,9 @@ namespace MonoDevelop.Mac.Debug
 			//	//}
 			//};
 
-			DidResize += Handle_DidResize;
+			currentWindow.DidResize += Handle_DidResize;
 		}
+
 
 		NodeView data;
 
@@ -214,8 +222,8 @@ namespace MonoDevelop.Mac.Debug
 		protected override void Dispose(bool disposing)
 		{
 			methodListView.DoubleClick -= MethodListView_DoubleClick;
-		
-			DidResize -= Handle_DidResize;
+
+			currentWindow.DidResize -= Handle_DidResize;
 			base.Dispose(disposing);
 		}
 	}

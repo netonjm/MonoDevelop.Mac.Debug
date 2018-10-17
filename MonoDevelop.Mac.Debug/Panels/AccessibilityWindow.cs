@@ -6,25 +6,41 @@ using System.Text;
 using AppKit;
 using CoreGraphics;
 using MonoDevelop.Mac.Debug.Services;
+using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class AccessibilityWindow : NSWindow
+	class AccessibilityWindow : ContentWindow
 	{
 		const int margin = 10;
-		readonly NSStackView contentView;
-
+		NSStackView contentView;
+		OutlineView outlineAccessibilityView;
+		NSTextField errorLabel;
+		public string IssuesLabel
+		{
+			get => errorLabel.StringValue;
+			set => errorLabel.StringValue = value;
+		}
+	
 		public event EventHandler<IViewWrapper> RaiseAccessibilityIssueSelected;
 		public event EventHandler AuditRequested;
 		public event EventHandler ShowErrorsRequested;
 
-		public AccessibilityWindow (CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+
+		public AccessibilityWindow (CGRect frame) // : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
 		{
-			ShowsToolbarButton = false;
-			MovableByWindowBackground = false;
+			OnInitialized ();
+		}
+
+		protected override void OnInitialized ()
+		{
+			base.OnInitialized ();
+			currentWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable;
+			currentWindow.ShowsToolbarButton = false;
+			currentWindow.MovableByWindowBackground = false;
 
 			contentView = NativeViewHelper.CreateVerticalStackView(margin);
-			ContentView = contentView;
+			currentWindow.ContentView = contentView;
 	
 			outlineAccessibilityView = new OutlineView();
 		
@@ -85,15 +101,7 @@ namespace MonoDevelop.Mac.Debug
 			buttonContainer.HeightAnchor.ConstraintEqualToConstant (30).Active = true;
 		}
 
-		readonly OutlineView outlineAccessibilityView;
 
-		public string IssuesLabel
-		{
-			get => errorLabel.StringValue;
-			set => errorLabel.StringValue = value;
-		}
-
-		readonly NSTextField errorLabel;
 	}
 
 	class NodeIssue : Node

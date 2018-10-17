@@ -128,6 +128,10 @@
       <Project>{92494904-35FA-4DC9-BDE9-3A3E87AC49D3}</Project>
       <Name>Xwt</Name>
     </ProjectReference>
+    <ProjectReference Include="..\external\xwt\Xwt.XamMac\Xwt.XamMac.csproj">
+      <Project>{B7C1673E-5124-4BE5-8D21-EC8B12F85B6B}</Project>
+      <Name>Xwt.XamMac</Name>
+    </ProjectReference>
   </ItemGroup>
       <ItemGroup>
     <Reference Include="System" />

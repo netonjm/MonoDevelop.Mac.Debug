@@ -49,11 +49,35 @@ namespace AppKit
 			sender.SetFrame(frame, true);
 		}
 
+		public static void AlignRight (this Xwt.Window sender, IWindowWrapper toView, int pixels)
+		{
+			sender.Location = new Xwt.Point (toView.FrameWidth + toView.FrameX + pixels, toView.FrameHeight + toView.FrameY);
+
+			//frame.Location = new CGPoint (toView.Width + toView.Location.X + pixels, toView.Frame.Bottom - frame.Height);
+			//sender.SetFrame (frame, true);
+		}
+
 		public static void AlignLeft (this NSWindow sender, NSWindow toView, int pixels)
 		{
 			var frame = sender.Frame;
 			frame.Location = new CGPoint(toView.Frame.Left - sender.Frame.Width - pixels, toView.Frame.Bottom - frame.Height);
 			sender.SetFrame(frame, true);
+		}
+
+		public static void AlignLeft (this Xwt.Window sender, IWindowWrapper toView, int pixels)
+		{
+			sender.Location = new Xwt.Point (toView.FrameX - sender.Width - pixels, toView.FrameHeight + toView.FrameY);
+
+			//frame.Location = new CGPoint (toView.Width + toView.Location.X + pixels, toView.Frame.Bottom - frame.Height);
+			//sender.SetFrame (frame, true);
+		}
+
+		public static void AlignTop (this Xwt.Window sender, IWindowWrapper toView, int pixels)
+		{
+			sender.Location = new Xwt.Point (toView.FrameX, toView.FrameY - toView.FrameHeight + pixels);
+
+			//frame.Location = new CGPoint (toView.Width + toView.Location.X + pixels, toView.Frame.Bottom - frame.Height);
+			//sender.SetFrame (frame, true);
 		}
 
 		public static void AlignTop (this NSWindow from, NSWindow toView, int pixels)

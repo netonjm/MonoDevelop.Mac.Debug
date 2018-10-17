@@ -5,10 +5,11 @@ using AppKit;
 using System.Linq;
 using Foundation;
 using MonoDevelop.Mac.Debug.Services;
+using CoreGraphics;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class ToolbarWindow : NSWindow
+	class ToolbarWindow : ContentWindow
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
@@ -23,26 +24,31 @@ namespace MonoDevelop.Mac.Debug
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
-		readonly NSStackView stackView;
+		 NSStackView stackView;
 
 		readonly InspectorManager inspectorManager;
 
 		public ToolbarWindow (InspectorManager inspectorManager)
 		{
 			this.inspectorManager = inspectorManager;
+			OnInitialized ();
+		}
 
+		protected override void OnInitialized ()
+		{
+			base.OnInitialized ();
 			//BackgroundColor = NSColor.Clear;
-			IsOpaque = false;
-			StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
-			TitlebarAppearsTransparent = true;
-			TitleVisibility = NSWindowTitleVisibility.Hidden;
-			ShowsToolbarButton = false;
-			MovableByWindowBackground = false;
+			currentWindow.IsOpaque = false;
+			currentWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
+			currentWindow.TitlebarAppearsTransparent = true;
+			currentWindow.TitleVisibility = NSWindowTitleVisibility.Hidden;
+			currentWindow.ShowsToolbarButton = false;
+			currentWindow.MovableByWindowBackground = false;
 
 			stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
-			ContentView.AddSubview (stackView);
-			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
-			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;
+			currentWindow.ContentView.AddSubview (stackView);
+			stackView.CenterYAnchor.ConstraintEqualToAnchor (currentWindow.ContentView.CenterYAnchor, 0).Active = true;
+			stackView.LeftAnchor.ConstraintEqualToAnchor (currentWindow.ContentView.LeftAnchor, LeftPadding).Active = true;
 
 			//stackView.RightAnchor.ConstraintEqualToAnchor(ContentView.RightAnchor, -LeftPadding).Active = true;
 
@@ -232,6 +238,11 @@ namespace MonoDevelop.Mac.Debug
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
+		}
+
+		internal void SetContentSize (CGSize cGSize)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

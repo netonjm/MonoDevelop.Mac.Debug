@@ -10,10 +10,17 @@ namespace MonoDevelop.Mac.Debug
 		IViewWrapper ContentView { get; set; }
 		IViewWrapper FirstResponder { get; }
 
+		float FrameWidth { get; }
+		float FrameHeight { get; }
+		float FrameY { get; }
+		float FrameX { get; }
+
 		event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;
 
 		NSWindow GetWindow();
+		void AddChildWindow (ContentWindow borderer);
+		void RecalculateKeyViewLoop ();
 	}
 }

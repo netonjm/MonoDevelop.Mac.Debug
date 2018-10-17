@@ -61,6 +61,11 @@ namespace MonoDevelop.Mac.Debug
 			return this;
 		}
 
+		public void AddChildWindow (ContentWindow borderer)
+		{
+			base.AddChildWindow (borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
+		}
+
 		IViewWrapper IWindowWrapper.ContentView
 		{
 			get
@@ -89,6 +94,13 @@ namespace MonoDevelop.Mac.Debug
 			}
 
 		}
+
+		public float FrameWidth => (float) base.Frame.Width;
+
+		public float FrameHeight => (float)base.Frame.Height;
+
+		public float FrameY => (float)base.Frame.Y;
+		public float FrameX => (float)base.Frame.X;
 
 		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;

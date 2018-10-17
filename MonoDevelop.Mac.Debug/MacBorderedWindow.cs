@@ -3,24 +3,77 @@
 using System;
 using CoreGraphics;
 using AppKit;
+using Xwt.Mac;
+using Xwt;
+using System.Collections.Generic;
+using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class MacBorderedWindow : NSWindow
+	public class BorderedWindowWrapper:MacWindowWrapper
+	{
+
+	}
+
+	public class ContentWindow : Xwt.Window
+	{
+		public IWindowWrapper ParentWindow {
+			set {
+				currentWindow.ParentWindow = value.GetWindow ();
+			}
+		}
+
+		public bool HasParent => currentWindow.ParentWindow != null;
+
+		protected NSWindow currentWindow;
+		public ContentWindow ()
+		{
+
+		}
+
+		public object NativeObject => currentWindow;
+
+		public NSResponder FirstResponder => currentWindow.FirstResponder;
+
+		protected virtual void OnInitialized ()
+		{
+			currentWindow = base.BackendHost.Backend.Window as NSWindow;
+		}
+
+		public List<ContentWindow> ChildWindows = new List<ContentWindow> ();
+
+		internal void AddChildWindow (MacBorderedWindow borderer)
+		{
+			currentWindow.AddChildWindow (borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
+		}
+
+		public void RecalculateKeyViewLoop ()
+		{
+			currentWindow.RecalculateKeyViewLoop ();
+		}
+
+		public PropertyEditorTheme Appearance {
+			get => currentWindow.Appearance == NSAppearance.GetAppearance (NSAppearance.NameVibrantDark) ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+			set {
+				if (value == PropertyEditorTheme.Dark) {
+					currentWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
+				} else {
+					currentWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
+				}
+			}
+		}
+	}
+
+	public class MacBorderedWindow : ContentWindow
 	{
 		readonly NSBox box;
 		IViewWrapper ObjContent { get; set; }
 
-		public NSColor BorderColor {
-			get => box.BorderColor;
-			set => box.BorderColor = value;
-		}
-
-		public NSColor FillColor {
-			get => box.FillColor;
+		public Xwt.Drawing.Color FillColor {
+			get => box.FillColor.ToXwtColor ();
 			set {
 				BackgroundColor = value;
-				box.FillColor = value;
+				box.FillColor = value.ToNSColor ();
 			}
 		}
 
@@ -29,12 +82,7 @@ namespace MonoDevelop.Mac.Debug
 			set => box.BorderWidth = value;
 		}
 
-		public NSBorderType BorderType {
-			get => box.BorderType;
-			set => box.BorderType = value;
-		}
-
-		public bool Visible { 
+		public new bool Visible { 
 			get => !box.Transparent;
 			set {
 				box.Transparent = !value;
@@ -43,46 +91,47 @@ namespace MonoDevelop.Mac.Debug
 
 		public string ContentViewIdentifier => ObjContent?.Identifier ?? "";
 
-		public MacBorderedWindow (IntPtr handle) : base (handle)
-		{
-
-		}
-
-		public MacBorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow (IViewWrapper content, Xwt.Drawing.Color borderColor) : this (borderColor)
 		{
 			ObjContent = content;
-		}
-
-		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
-		{
 
 		}
 
-		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
+		public MacBorderedWindow (Xwt.Drawing.Color borderColor)
 		{
-			IsOpaque = false;
-			ShowsToolbarButton = false;
-			IgnoresMouseEvents = true;
+			OnInitialized ();
+
+			currentWindow = base.BackendHost.Backend.Window as NSWindow;
+			currentWindow.IsOpaque = false;
+			currentWindow.ShowsToolbarButton = false;
+			currentWindow.IgnoresMouseEvents = true;
 			box = new NSBox { BoxType = NSBoxType.NSBoxCustom };
-			ContentView = box;
-			FillColor = fillColor;
-			BorderWidth = borderWidth;
-			BorderColor = borderColor;
-			BorderType = borderType;
-			Level = NSWindowLevel.Floating;
+			currentWindow.ContentView = box;
+			box.FillColor = NSColor.Clear;
+			BorderWidth = 3;
+			box.BorderColor = borderColor.ToNSColor ();
+			box.BorderType = NSBorderType.LineBorder;
+			currentWindow.StyleMask = NSWindowStyle.Borderless;
+			currentWindow.Level = NSWindowLevel.Floating;
 			Visible = false;
 		}
 
 		public void AlignWith (NSView view)
 		{
 			var frame = view.AccessibilityFrame;
-			SetFrame (frame, true);
+
+			currentWindow.SetFrame (frame, true);
 		}
 
 		public void AlignWith (IViewWrapper view)
 		{
 			var frame = view.AccessibilityFrame;
-			SetFrame(frame, true);
+			currentWindow.SetFrame (frame, true);
+		}
+
+		internal void OrderFront ()
+		{
+			currentWindow.OrderFront (null);
 		}
 
 		public void AlignWindowWithContentView ()

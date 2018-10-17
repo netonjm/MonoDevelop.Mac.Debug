@@ -38,6 +38,7 @@ namespace DebugExampleDebugWindow
 
 		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
+		public event EventHandler LostFocus;
 
 		protected override void OnShown ()
 		{
@@ -58,5 +59,24 @@ namespace DebugExampleDebugWindow
 		{
 			return BackendHost.Backend.Window as NSWindow;
 		}
+
+		public void AddChildWindow (ContentWindow borderer)
+		{
+			var host = base.BackendHost.Backend.Window as NSWindow;
+			host.AddChildWindow (borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
+		}
+
+		public void RecalculateKeyViewLoop ()
+		{
+			var host = base.BackendHost.Backend.Window as NSWindow;
+			host.RecalculateKeyViewLoop ();
+		}
+
+		public float FrameWidth => (float) Width;
+
+		public float FrameHeight => (float)Height;
+
+		public float FrameY => (float)Y;
+		public float FrameX => (float)X;
 	}
 }

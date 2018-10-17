@@ -3,6 +3,7 @@ using MonoDevelop.Mac.Debug.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MonoDevelop.Mac.Debug
 {
@@ -10,6 +11,37 @@ namespace MonoDevelop.Mac.Debug
 	{
 		public MacInspectorDelegate()
 		{
+		}
+
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object> ();
+
+		public void RemoveAllErrorWindows (IWindowWrapper window)
+		{
+			var nativeWindow = window.GetWindow ();
+			var childWindro = nativeWindow.ChildWindows.OfType<MacBorderedWindow> ();
+			foreach (var item in childWindro) {
+				item.Close ();
+			}
+		}
+
+
+		async Task<NSImage> IInspectDelegate.OpenDialogSelectImage (IWindowWrapper inspectedWindow)
+		{
+			var panel = new NSOpenPanel ();
+			panel.AllowedFileTypes = new[] { "png" };
+			panel.Prompt = "Select a image";
+			NSImage rtrn = null;
+			processingCompletion = new TaskCompletionSource<object> ();
+
+			panel.BeginSheet (inspectedWindow as NSWindow, result => {
+				if (result == 1 && panel.Url != null) {
+					rtrn = new NSImage (panel.Url.Path);
+
+				}
+				processingCompletion.TrySetResult (null);
+			});
+			await processingCompletion.Task;
+			return rtrn;
 		}
 
 		public void ConvertToNodes(IViewWrapper customView, NodeView node)
@@ -176,6 +208,13 @@ namespace MonoDevelop.Mac.Debug
 			{
 				Recursively(item, detectedErrors);
 			}
+		}
+
+		public bool ContainsView (IWindowWrapper selectedWindow, MacBorderedWindow debugOverlayWindow)
+		{
+			var window = selectedWindow.GetWindow ();
+			var realob = (NSWindow)debugOverlayWindow.NativeObject;
+			return window.ChildWindows.Contains (realob);
 		}
 
 	}
