@@ -6,7 +6,11 @@ namespace DebugExampleDebugWindow
 	{
 		static void Main (string[] args)
 		{
+#if GTK
+			Application.Initialize(Xwt.ToolkitType.Gtk);
+#else
 			Application.Initialize(Xwt.ToolkitType.XamMac);
+#endif
 			var mainWindow = new XwtInspectWindow();
 			mainWindow.Width = 1024;
 			mainWindow.Height = 768;

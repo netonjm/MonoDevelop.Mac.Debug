@@ -6,7 +6,17 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class BorderedWindow : NSWindow
+	public interface IBorderedWindow : IWindowWrapper
+	{
+		float BorderWidth { get; set; }
+		bool Visible { get; set; }
+		void SetParentWindow(IWindowWrapper selectedWindow);
+		void AlignWith(IViewWrapper view);
+		void AlignWindowWithContentView();
+		void OrderFront ();
+	}
+
+	class MacBorderedWindow : MacWindowWrapper, IBorderedWindow
 	{
 		readonly NSBox box;
 		IViewWrapper ObjContent { get; set; }
@@ -43,40 +53,39 @@ namespace MonoDevelop.Mac.Debug
 
 		public string ContentViewIdentifier => ObjContent?.Identifier ?? "";
 
-		public BorderedWindow (IntPtr handle) : base (handle)
+		public MacBorderedWindow (IntPtr handle) : base (handle)
 		{
 
 		}
 
-		public BorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 			ObjContent = content;
 		}
 
-		public BorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this (frame, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 
 		}
 
-		public BorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
+		public MacBorderedWindow (CGRect frame, NSColor borderColor, NSColor fillColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : base (frame, NSWindowStyle.Borderless, NSBackingStore.Buffered, false)
 		{
 			IsOpaque = false;
 			ShowsToolbarButton = false;
 			IgnoresMouseEvents = true;
 			box = new NSBox { BoxType = NSBoxType.NSBoxCustom };
 			ContentView = box;
-
 			FillColor = fillColor;
 			BorderWidth = borderWidth;
 			BorderColor = borderColor;
 			BorderType = borderType;
+			Level = NSWindowLevel.Floating;
 			Visible = false;
 		}
 
-		public void AlignWith (NSView view)
+		public void SetParentWindow(IWindowWrapper selectedWindow)
 		{
-			var frame = view.AccessibilityFrame;
-			SetFrame (frame, true);
+			this.ParentWindow = selectedWindow as NSWindow;
 		}
 
 		public void AlignWith (IViewWrapper view)
@@ -90,6 +99,11 @@ namespace MonoDevelop.Mac.Debug
 			if (ObjContent != null) {
 				AlignWith(ObjContent);
 			}
+		}
+
+		public void OrderFront()
+		{
+			base.OrderFront(null);
 		}
 	}
 }

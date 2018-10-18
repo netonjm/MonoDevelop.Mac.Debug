@@ -9,10 +9,23 @@ namespace MonoDevelop.Mac.Debug
 	{
 		IViewWrapper ContentView { get; set; }
 		IViewWrapper FirstResponder { get; }
+		bool HasParentWindow { get; }
 
+		event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;
 
-		NSWindow GetWindow();
+		object NativeObject { get; }
+		void AddChildWindow (IWindowWrapper borderer);
+		void RecalculateKeyViewLoop ();
+		bool ContainsChildWindow(IWindowWrapper debugOverlayWindow);
+
+		void AlignLeft(IWindowWrapper toView, int pixels);
+		void AlignTop(IWindowWrapper toView, int pixels);
+		void AlignRight(IWindowWrapper toView, int pixels);
+
+		void SetTitle(string v);
+		void SetContentSize(int toolbarWindowWidth, int toolbarWindowHeight);
+		void Close();
 	}
 }

@@ -11,7 +11,8 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	class InspectorWindow : NSWindow
+
+	class InspectorWindow : MacWindowWrapper, IInspectorWindow
 	{
 		const ushort DeleteKey = 51;
 
@@ -32,11 +33,6 @@ namespace MonoDevelop.Mac.Debug
 		MethodListView methodListView;
 
 		public OutlineView outlineView { get; private set; }
-
-		public InspectorWindow (IntPtr handle) : base(handle)
-		{
-
-		}
 
 		readonly IInspectDelegate inspectorDelegate;
 
@@ -127,19 +123,19 @@ namespace MonoDevelop.Mac.Debug
 			//add property panel
 			stackView.AddArrangedSubview (propertyEditorPanel);
 
-			methodListView.SelectionChanged += (s, e) =>
-			{
-				if (methodListView.SelectedItem is MethodTableViewItem itm) {
-					invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
-				}
-			};
+			//methodListView.SelectionChanged += (s, e) =>
+			//{
+			//	//if (methodListView.SelectedItem is MethodTableViewItem itm) {
+			//	//	invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
+			//	//}
+			//};
 
 			DidResize += Handle_DidResize;
 		}
 
 		NodeView data;
 
-		internal void GenerateTree(IWindowWrapper window)
+		public void GenerateTree(IWindowWrapper window)
 		{
 			data = new NodeView(window.ContentView);
 			inspectorDelegate.ConvertToNodes(window.ContentView, data);
@@ -161,17 +157,22 @@ namespace MonoDevelop.Mac.Debug
 				var method = itm.MethodInfo;
 				var parameters = method.GetParameters();
 
-				if (parameters.Count() == 0)
+				List<object> arguments = null;
+				if (parameters.Count () > 0) {
+					arguments = new List<object> ();
+					foreach (var item in parameters) {
+						arguments.Add (null);
+					}
+				}
+			
+				try
 				{
-					try
-					{
-						var response = method.Invoke(viewSelected, null);
-						resultMessage.StringValue = response?.ToString() ?? "<null>";
-					}
-					catch (Exception ex)
-					{
-						Console.WriteLine(ex);
-					}
+					var response = method.Invoke(viewSelected.Content, parameters);
+					resultMessage.StringValue = response?.ToString() ?? "<null>";
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
 				}
 			};
 		}
@@ -180,7 +181,7 @@ namespace MonoDevelop.Mac.Debug
 
 		void Handle_DidResize(object sender, EventArgs e)
 		{
-			constraint.Constant = contentView.Frame.Height - margin * 2;
+			//constraint.Constant = contentView.Frame.Height - margin * 2;
 		}
 
 		IViewWrapper viewSelected;
@@ -198,7 +199,7 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		internal void RemoveItem()
+		public void RemoveItem()
 		{
 			if (outlineView.SelectedNode is NodeView nodeView)
 			{

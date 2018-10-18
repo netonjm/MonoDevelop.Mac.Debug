@@ -26,14 +26,6 @@ namespace MonoDevelop.Mac.Debug
 
 		public static void ChangeFocusedView(IViewWrapper nSView) => manager.ChangeFocusedView(nSView);
 
-		public static void Attach (IWindowWrapper window, bool needsWatcher)
-		{
-			Attach(window);
-			if (needsWatcher) {
-				manager.StartWatcher();
-			}
-		}
-
 		public static void Remove (IWindowWrapper window)
 		{
 			windows.Remove(window);

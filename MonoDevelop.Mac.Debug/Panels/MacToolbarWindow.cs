@@ -8,31 +8,20 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-
-	public class FontData
+	public interface IToolbarWindow : IWindowWrapper
 	{
-	 	readonly static public nfloat DefaultSize = NSFont.SystemFontSize;
-		readonly static public NSFont DefaultFont = NSFont.FromFontName(DefaultFontName, DefaultSize);
+		event EventHandler<bool> KeyViewLoop;
+		event EventHandler<bool> NextKeyViewLoop;
+		event EventHandler<bool> PreviousKeyViewLoop;
+		event EventHandler<bool> ThemeChanged;
+		event EventHandler ItemDeleted;
+		event EventHandler ItemImageChanged;
+		event EventHandler<FontData> FontChanged;
 
-		public const string DefaultFontName = ".AppleSystemUIFont";
-
-		public NSFont Font { get; private set; }
-		public nfloat Size { get; private set; }
-
-		public FontData (string font, nfloat size)
-		{
-			Size = size;
-			Font = NSFont.FromFontName(font, size);
-		}
-
-		public FontData (NSFont font, nfloat size)
-		{
-			this.Font = font;
-			Size = size;
-		}
+		bool ImageChangedEnabled { get; set; }
 	}
 
-	class ToolbarWindow : NSWindow
+	class MacToolbarWindow : MacWindowWrapper, IToolbarWindow
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
@@ -51,7 +40,7 @@ namespace MonoDevelop.Mac.Debug
 
 		readonly InspectorManager inspectorManager;
 
-		public ToolbarWindow (InspectorManager inspectorManager)
+		public MacToolbarWindow (InspectorManager inspectorManager)
 		{
 			this.inspectorManager = inspectorManager;
 
@@ -157,7 +146,7 @@ namespace MonoDevelop.Mac.Debug
 					showFont = true;
 				}
 
-				if (view is NSImageView || view is NSButton)
+				if (view.Content is NSImageView || view.Content is NSButton)
 				{
 					showImage = true;
 				}
@@ -253,9 +242,5 @@ namespace MonoDevelop.Mac.Debug
 			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-		}
 	}
 }
