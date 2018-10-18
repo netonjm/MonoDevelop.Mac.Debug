@@ -16,7 +16,7 @@ namespace MonoDevelop.Mac.Debug
 			manager = new InspectorManager (macDelegate);
 		}
 
-		internal static void Attach (IWindowWrapper window) 
+		public static void Attach (IWindowWrapper window) 
 		{
 			if (!windows.Contains (window)) {
 				windows.Add(window);

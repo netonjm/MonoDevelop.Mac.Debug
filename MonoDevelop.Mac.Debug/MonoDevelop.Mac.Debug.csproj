@@ -111,6 +111,9 @@
     <Compile Include="Panels\IAccessibilityWindow.cs" />
     <Compile Include="Panels\IInspectorWindow.cs" />
     <Compile Include="Panels\IToolbarWindow.cs" />
+    <Compile Include="MacXwtWindowWrapper.cs" />
+     <Compile Include="MacXwtAccInspectorWindow.cs" />
+    
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />

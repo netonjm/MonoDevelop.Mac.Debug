@@ -85,7 +85,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void SetParentWindow(IWindowWrapper selectedWindow)
 		{
-			this.ParentWindow = selectedWindow as NSWindow;
+			this.ParentWindow = selectedWindow.NativeObject as NSWindow;
 		}
 
 		public void AlignWith (IViewWrapper view)

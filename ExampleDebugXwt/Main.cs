@@ -1,4 +1,5 @@
-﻿using Xwt;
+﻿using MonoDevelop.Mac.Debug;
+using Xwt;
 
 namespace DebugExampleDebugWindow
 {
@@ -11,7 +12,7 @@ namespace DebugExampleDebugWindow
 #else
 			Application.Initialize(Xwt.ToolkitType.XamMac);
 #endif
-			var mainWindow = new XwtInspectWindow();
+			var mainWindow = new MacXwtAccInspectorWindow ();
 			mainWindow.Width = 1024;
 			mainWindow.Height = 768;
 			mainWindow.Title = "Example Debug Xwt.Mac";

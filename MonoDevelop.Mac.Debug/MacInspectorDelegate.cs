@@ -39,7 +39,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void RemoveAllErrorWindows(IWindowWrapper windowWrapper)
 		{
-			var window = windowWrapper as NSWindow;
+			var window = windowWrapper.NativeObject as NSWindow;
 			var childWindro = window.ChildWindows.OfType<MacBorderedWindow>();
 			foreach (var item in childWindro)
 			{

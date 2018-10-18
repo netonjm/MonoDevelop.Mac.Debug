@@ -57,8 +57,6 @@ namespace MonoDevelop.Mac.Debug
 			};
 		}
 
-
-
 		public object NativeObject => this;
 
 		public void AddChildWindow (IWindowWrapper borderer)
@@ -99,7 +97,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AlignRight(IWindowWrapper toView, int pixels)
 		{
-			var toViewWindow = toView as NSWindow;
+			var toViewWindow = toView.NativeObject as NSWindow;
 			var frame = Frame;
 			frame.Location = new CGPoint(toViewWindow.Frame.Right + pixels, toViewWindow.Frame.Bottom - frame.Height);
 			SetFrame(frame, true);
@@ -107,7 +105,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AlignLeft(IWindowWrapper toView, int pixels)
 		{
-			var toViewWindow = toView as NSWindow;
+			var toViewWindow = toView.NativeObject as NSWindow;
 			var frame = Frame;
 			frame.Location = new CGPoint(toViewWindow.Frame.Left - Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
 			SetFrame(frame, true);
@@ -115,7 +113,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AlignTop ( IWindowWrapper toView, int pixels)
 		{
-			var toViewWindow = toView as NSWindow;
+			var toViewWindow = toView.NativeObject as NSWindow;
 			var frame = Frame;
 			frame.Location = new CGPoint(toViewWindow.Frame.Left, toViewWindow.AccessibilityFrame.Y + toViewWindow.Frame.Height + pixels);
 			SetFrame(frame, true);
