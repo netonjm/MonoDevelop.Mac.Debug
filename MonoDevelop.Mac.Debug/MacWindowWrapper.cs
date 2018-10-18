@@ -61,12 +61,12 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AddChildWindow (IWindowWrapper borderer)
 		{
-			base.AddChildWindow(borderer as NSWindow, NSWindowOrderingMode.Above);
+			base.AddChildWindow(borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
 		}
 
 		public bool ContainsChildWindow (IWindowWrapper debugOverlayWindow)
 		{
-			return this.ChildWindows.Contains(debugOverlayWindow as NSWindow);
+			return this.ChildWindows.Contains(debugOverlayWindow.NativeObject as NSWindow);
 		}
 
 		IViewWrapper IWindowWrapper.ContentView {

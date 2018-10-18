@@ -74,7 +74,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AddChildWindow (IWindowWrapper borderer)
 		{
-			Window.AddChildWindow (borderer as NSWindow, NSWindowOrderingMode.Above);
+			Window.AddChildWindow (borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
 		}
 
 		public void RecalculateKeyViewLoop ()
@@ -84,7 +84,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public bool ContainsChildWindow (IWindowWrapper debugOverlayWindow)
 		{
-			return Window.ChildWindows.Contains (debugOverlayWindow as NSWindow);
+			return Window.ChildWindows.Contains (debugOverlayWindow.NativeObject as NSWindow);
 		}
 
 		public void AlignLeft (IWindowWrapper toView, int pixels)

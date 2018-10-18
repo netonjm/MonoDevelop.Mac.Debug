@@ -221,7 +221,8 @@ namespace MonoDevelop.Mac.Debug
 			Xwt.Drawing.Image rtrn = null;
 			processingCompletion = new TaskCompletionSource<object>();
 
-			panel.BeginSheet(selectedWindow as NSWindow, result => {
+
+			panel.BeginSheet(selectedWindow.NativeObject as NSWindow, result => {
 				if (result == 1 && panel.Url != null)
 				{
 					rtrn = Xwt.Drawing.Image.FromFile(panel.Url.Path);
