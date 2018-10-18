@@ -5,8 +5,10 @@ using Gtk;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class GtkBordererWindow : Gtk.Window
+	public class GtkBordererWindow : GtkWindowWrapper, IBorderedWindow
 	{
+		IViewWrapper NativeContent { get; set; }
+
 		public GtkBordererWindow(IntPtr raw) : base(raw)
 		{
 			Init();
@@ -14,42 +16,16 @@ namespace MonoDevelop.Mac.Debug
 
 		Xwt.Drawing.Color ForegroundColor = Xwt.Drawing.Colors.Red;
 
+		float IBorderedWindow.BorderWidth { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public GtkBordererWindow (IViewWrapper view, Xwt.Drawing.Color color) :this ("")
+		{
+			NativeContent = view;
+		}
+
 		public GtkBordererWindow(string title) : base(title)
 		{
 			Init();
-		}
-
-		const int toolbarMargin = 20;
-
-		public void Reposition (int x, int y, int width, int height)
-		{
-			//int px, py;
-			//window.GetPosition (out px, out py);
-
-			Move (x, y);
-			WidthRequest = width;
-			HeightRequest = height;
-			//ShowAll ();
-			KeepAbove = true;
-		}
-
-		public void Reposition (Gtk.Window window, int width, int height)
-		{
-			int px, py;
-			window.GetPosition (out px, out py);
-			Reposition (px, py + toolbarMargin, width, height);
-		}
-
-		public void Reposition (Gtk.Widget widget)
-		{
-			var window = widget.ParentWindow;
-			int wx, wy;
-			window.GetPosition (out wx, out wy);
-
-			int ux, uy;
-			widget.TranslateCoordinates (widget.Toplevel, 0, 0, out ux, out uy);
-
-			Reposition (wx + ux,wy + uy, widget.Allocation.Width, widget.Allocation.Height);
 		}
 
 		protected GtkBordererWindow(GType gtype) : base(gtype)
@@ -61,12 +37,6 @@ namespace MonoDevelop.Mac.Debug
 		{
 			QueueDraw();
 			base.OnSizeRequested(ref requisition);
-		}
-
-		protected override void OnScreenChanged(Screen previous_screen)
-		{
-
-			base.OnScreenChanged(previous_screen);
 		}
 
 		protected override bool OnExposeEvent(EventExpose evnt)
@@ -102,6 +72,24 @@ namespace MonoDevelop.Mac.Debug
 			this.CanFocus = false;
 			AppPaintable = true;
 			Colormap = Screen.RgbaColormap;
+		}
+
+		public void SetParentWindow(IWindowWrapper selectedWindow)
+		{
+			base.ParentWindow = selectedWindow.NativeObject as Gdk.Window;
+		}
+
+		public void AlignWindowWithContentView()
+		{
+			if (NativeContent != null)
+			{
+				AlignWith(NativeContent);
+			}
+		}
+
+		public void OrderFront()
+		{
+			KeepAbove = true;
 		}
 	}
 

@@ -9,7 +9,7 @@ using Xwt.Drawing;
 
 namespace MonoDevelop.Mac.Debug
 {
-	internal class MacInspectorDelegate : IInspectDelegate
+	class MacInspectorDelegate : IInspectDelegate
 	{
 		public MacInspectorDelegate()
 		{

@@ -114,6 +114,10 @@
     <Compile Include="MacXwtWindowWrapper.cs" />
      <Compile Include="MacXwtAccInspectorWindow.cs" />
      <Compile Include="MacXwtViewWrapper.cs" />
+     <Compile Include="Panels\XwtToolbarWindow.cs" />
+     <Compile Include="GtkWindowWrapper.cs" />
+     <Compile Include="GtkAccInspectorWindow.cs" />
+     <Compile Include="GtkInspectorDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
