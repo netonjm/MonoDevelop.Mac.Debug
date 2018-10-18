@@ -8,19 +8,6 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public interface IToolbarWindow : IWindowWrapper
-	{
-		event EventHandler<bool> KeyViewLoop;
-		event EventHandler<bool> NextKeyViewLoop;
-		event EventHandler<bool> PreviousKeyViewLoop;
-		event EventHandler<bool> ThemeChanged;
-		event EventHandler ItemDeleted;
-		event EventHandler ItemImageChanged;
-		event EventHandler<FontData> FontChanged;
-
-		bool ImageChangedEnabled { get; set; }
-	}
-
 	class MacToolbarWindow : MacWindowWrapper, IToolbarWindow
 	{
 		public event EventHandler<bool> KeyViewLoop;
