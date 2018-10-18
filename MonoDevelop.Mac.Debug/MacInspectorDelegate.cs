@@ -15,23 +15,18 @@ namespace MonoDevelop.Mac.Debug
 		{
 		}
 
-		public void ConvertToNodes(IViewWrapper customView, NodeView node)
+		public void ConvertToNodes(IViewWrapper customView, NodeView node, InspectorViewMode viewMode)
 		{
-			if (customView.Subviews == null)
-			{
+			if (customView.Subviews == null) {
 				return;
 			}
 
-			foreach (var item in customView.Subviews)
-			{
+			foreach (var item in customView.Subviews) {
 				var nodel = new NodeView(item);
 				node.AddChild(nodel);
-				try
-				{
-					ConvertToNodes(item, nodel);
-				}
-				catch (Exception ex)
-				{
+				try {
+					ConvertToNodes(item, nodel, viewMode);
+				} catch (Exception ex) {
 					Console.WriteLine(ex);
 				}
 			}
@@ -49,48 +44,50 @@ namespace MonoDevelop.Mac.Debug
 
 		public FontData GetFont(IViewWrapper view)
 		{
-			return NativeViewHelper.GetFont(view.Content as NSView);
+			return NativeViewHelper.GetFont(view.NativeView as NSView);
 		}
 
-		public ViewWrapper GetWrapper(IViewWrapper viewSelected)
+		object GetNativePropertyPanelWrapper (IViewWrapper viewSelected)
 		{
-			NSView view = viewSelected.Content as NSView;
-			if (view is NSComboBox comboBox)
-			{
-				return new ComboBoxWrapper(comboBox);
+			NSView view = viewSelected.NativeView as NSView;
+			if (view is NSComboBox comboBox) {
+				return new ComboBoxWrapper (comboBox);
 			}
 
-			if (view is NSTextField textfield)
-			{
-				return new TextFieldViewWrapper(textfield);
+			if (view is NSTextField textfield) {
+				return new TextFieldViewWrapper (textfield);
 			}
 
-			if (view is NSTextView text)
-			{
-				return new TextViewWrapper(text);
+			if (view is NSTextView text) {
+				return new TextViewWrapper (text);
 			}
 
-			if (view is NSButton btn)
-			{
-				return new ButtonViewWrapper(btn);
+			if (view is NSButton btn) {
+				return new ButtonViewWrapper (btn);
 			}
 
-			if (view is NSImageView img)
-			{
-				return new ImageViewWrapper(img);
+			if (view is NSImageView img) {
+				return new ImageViewWrapper (img);
 			}
 
-			if (view is NSBox box)
-			{
-				return new BoxViewWrapper(box);
+			if (view is NSBox box) {
+				return new BoxViewWrapper (box);
 			}
 
-			return new ViewWrapper(view);
+			return new ViewWrapper (view);
+		}
+
+		public object GetWrapper (IViewWrapper viewSelected, InspectorViewMode viewMode)
+		{
+			if (viewMode == InspectorViewMode.Xwt) {
+				return viewSelected.View;
+			}
+			return GetNativePropertyPanelWrapper (viewSelected);
 		}
 
 		public void SetFont(IViewWrapper view, NSFont font)
 		{
-			NativeViewHelper.SetFont(view.Content as NSView, font);
+			NativeViewHelper.SetFont(view.NativeView as NSView, font);
 		}
 
 
@@ -121,7 +118,7 @@ namespace MonoDevelop.Mac.Debug
 			return customView.CanBecomeKeyView && !customView.Hidden;
 		}
 
-		public void Recursively(IViewWrapper customView, List<DetectedError> detectedErrors)
+		public void Recursively(IViewWrapper customView, List<DetectedError> detectedErrors, InspectorViewMode viewMode)
 		{
 			if (detectedErrors.Count >= AccessibilityService.MaxIssues)
 			{
@@ -187,7 +184,7 @@ namespace MonoDevelop.Mac.Debug
 
 			foreach (var item in customView.Subviews)
 			{
-				Recursively(item, detectedErrors);
+				Recursively(item, detectedErrors, viewMode);
 			}
 		}
 
@@ -235,7 +232,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public async Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow)
 		{
-			if (view.Content is NSImageView imageView)
+			if (view.NativeView is NSImageView imageView)
 			{
 				var image = await OpenDialogSelectImage(selectedWindow);
 				if (image != null)
@@ -243,7 +240,7 @@ namespace MonoDevelop.Mac.Debug
 					SetButton(imageView, image);
 				}
 			}
-			else if (view.Content is NSButton btn)
+			else if (view.NativeView is NSButton btn)
 			{
 				var image = await OpenDialogSelectImage(selectedWindow);
 				if (image != null)

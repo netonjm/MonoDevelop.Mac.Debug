@@ -5,6 +5,11 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
+	public interface IMainWindowWrapper: IWindowWrapper
+	{
+		InspectorViewMode ViewMode { get; set; }
+	}
+
 	public interface IWindowWrapper
 	{
 		IViewWrapper ContentView { get; set; }

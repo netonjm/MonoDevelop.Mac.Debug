@@ -71,7 +71,9 @@ namespace MonoDevelop.Mac.Debug
 			get => widget.CanBecomeKeyView;
 		}
 
-		public object Content => widget;
+		public object NativeView => widget;
+		public object View => widget;
+		public string NodeName => widget.GetType ().Name;
 
 		public void RemoveFromSuperview ()
 		{

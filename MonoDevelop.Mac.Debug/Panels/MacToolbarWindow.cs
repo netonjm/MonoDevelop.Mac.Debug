@@ -14,6 +14,8 @@ namespace MonoDevelop.Mac.Debug
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
 
+		public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
+
 		public event EventHandler<bool> ThemeChanged;
 
 		public event EventHandler ItemDeleted;
@@ -26,6 +28,8 @@ namespace MonoDevelop.Mac.Debug
 		readonly NSStackView stackView;
 
 		readonly InspectorManager inspectorManager;
+
+		readonly ToggleButton toolkitButton;
 
 		public MacToolbarWindow (InspectorManager inspectorManager)
 		{
@@ -48,18 +52,21 @@ namespace MonoDevelop.Mac.Debug
 
 			//Visual issues view
 			var keyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-actual.png"));
+			keyViewLoopButton.ToolTip = "Shows current focused item";
 			AddButton (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
 			var prevKeyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-previous.png"));
+			prevKeyViewLoopButton.ToolTip = "Shows previous view item";
 			AddButton (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
 			var nextKeyViewLoopButton = new ToggleButton(ResourceService.GetNSImage("overlay-next.png"));
+			nextKeyViewLoopButton.ToolTip = "Shows next view item";
 			AddButton (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
@@ -67,23 +74,32 @@ namespace MonoDevelop.Mac.Debug
 
 			AddSeparator ();
 
-			var themeButton = new ToggleButton (ResourceService.GetNSImage("style-16.png"));
+			toolkitButton = new ToggleButton (null);
+			toolkitButton.ToolTip = "Change beetween Toolkits";
+			AddButton (toolkitButton);
+			toolkitButton.Activated += ToolkitButton_Activated;;
+
+			AddSeparator ();
+
+			var themeButton = new ToggleButton (ResourceService.GetNSImage ("style-16.png"));
+			themeButton.ToolTip = "Change Style Theme";
 			AddButton (themeButton);
 			themeButton.Activated += ThemeButton_Activated;
+
 
 			AddSeparator ();
 
 			deleteButton = new ImageButton(ResourceService.GetNSImage("delete-16.png"));
-
-			AddButton(deleteButton);
+			deleteButton.ToolTip = "Delete selected item";
+			AddButton (deleteButton);
 			deleteButton.Activated += (s,e) =>
 			{
 				ItemDeleted?.Invoke(this, EventArgs.Empty);
 			};
 
 			changeImage = new ImageButton(ResourceService.GetNSImage("image-16.png"));
-
-			AddButton(changeImage);
+			changeImage.ToolTip = "Change image from selected item";
+			AddButton (changeImage);
 
 			changeImage.Activated += (s, e) =>
 			{
@@ -91,6 +107,7 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fontsCombobox.ToolTip = "Change font from selected item";
 			fonts = NSFontManager.SharedFontManager.AvailableFonts
 				.Select (s => new NSString(s))
 				.ToArray ();
@@ -101,6 +118,7 @@ namespace MonoDevelop.Mac.Debug
 			fontsCombobox.WidthAnchor.ConstraintEqualToConstant(220).Active = true;
 		
 			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fontSizeTextView.ToolTip = "Change font size from selected item";
 			stackView.AddArrangedSubview(fontSizeTextView);
 			fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
 
@@ -133,7 +151,7 @@ namespace MonoDevelop.Mac.Debug
 					showFont = true;
 				}
 
-				if (view.Content is NSImageView || view.Content is NSButton)
+				if (view.NativeView is NSImageView || view.NativeView is NSButton)
 				{
 					showImage = true;
 				}
@@ -143,6 +161,11 @@ namespace MonoDevelop.Mac.Debug
 			};
 
 			stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+		}
+
+		void ToolkitButton_Activated (object sender, EventArgs e)
+		{
+			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
 		}
 
 		bool fontButtonsVisible

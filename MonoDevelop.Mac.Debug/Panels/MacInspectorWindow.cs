@@ -11,7 +11,6 @@ using MonoDevelop.Mac.Debug.Services;
 
 namespace MonoDevelop.Mac.Debug
 {
-
 	class InspectorWindow : MacWindowWrapper, IInspectorWindow
 	{
 		const ushort DeleteKey = 51;
@@ -135,10 +134,10 @@ namespace MonoDevelop.Mac.Debug
 
 		NodeView data;
 
-		public void GenerateTree(IWindowWrapper window)
+		public void GenerateTree(IWindowWrapper window, InspectorViewMode viewMode)
 		{
 			data = new NodeView(window.ContentView);
-			inspectorDelegate.ConvertToNodes(window.ContentView, data);
+			inspectorDelegate.ConvertToNodes(window.ContentView, data, viewMode);
 			outlineView.SetData(data);
 		}
 
@@ -167,7 +166,7 @@ namespace MonoDevelop.Mac.Debug
 			
 				try
 				{
-					var response = method.Invoke(viewSelected.Content, parameters);
+					var response = method.Invoke(viewSelected.NativeView, parameters);
 					resultMessage.StringValue = response?.ToString() ?? "<null>";
 				}
 				catch (Exception ex)
@@ -186,11 +185,11 @@ namespace MonoDevelop.Mac.Debug
 
 		IViewWrapper viewSelected;
 
-		public void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate)
+		public void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate, InspectorViewMode viewMode)
 		{
 			viewSelected = view;
-			propertyEditorPanel.Select(new ViewWrapper[] { inspectDelegate.GetWrapper (viewSelected) });
-			methodListView.SetObject (view.Content);
+			propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper (viewSelected, viewMode) });
+			methodListView.SetObject (view.NativeView);
 			if (data != null) {
 				var found = data.Search(view);
 				if (found != null) {

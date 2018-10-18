@@ -9,8 +9,10 @@ using Foundation;
 namespace MonoDevelop.Mac.Debug
 {
 	[Register ("DebugWindow")]
-	public class MacAccInspectorWindow : MacWindowWrapper
+	public class MacAccInspectorWindow : MacWindowWrapper, IMainWindowWrapper
 	{
+		public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
+
 		public MacAccInspectorWindow () : base ()
 		{
 

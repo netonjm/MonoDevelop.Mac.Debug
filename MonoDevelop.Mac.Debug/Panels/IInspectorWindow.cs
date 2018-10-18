@@ -6,8 +6,8 @@ namespace MonoDevelop.Mac.Debug
 	{
 		event EventHandler<IViewWrapper> RaiseFirstResponder;
 		event EventHandler<IViewWrapper> RaiseDeleteItem;
-		void GenerateTree (IWindowWrapper window);
-		void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate);
+		void GenerateTree (IWindowWrapper window, InspectorViewMode viewMode);
+		void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate, InspectorViewMode mode);
 		void RemoveItem ();
 	}
 }

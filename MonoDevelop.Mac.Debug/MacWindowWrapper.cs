@@ -77,7 +77,7 @@ namespace MonoDevelop.Mac.Debug
 				return null;
 			}
 			set {
-				ContentView = value.Content as NSView;
+				ContentView = value.NativeView as NSView;
 			}
 		}
 

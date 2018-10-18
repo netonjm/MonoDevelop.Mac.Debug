@@ -19,7 +19,10 @@ namespace MonoDevelop.Mac.Debug
 		string AccessibilityHelp { get; set; }
 		object AccessibilityParent { get; set; }
 		bool CanBecomeKeyView { get; }
-		object Content { get; }
+		object NativeView { get; }
+		object View { get; }
+		string NodeName { get; }
+
 		void RemoveFromSuperview ();
 	}
 }

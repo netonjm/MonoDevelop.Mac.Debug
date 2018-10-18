@@ -57,11 +57,11 @@ namespace MonoDevelop.Mac.Debug.Services
 			DetectedErrors.Clear();
 		}
 
-		public void ScanErrors (IInspectDelegate inspectDelegate, IWindowWrapper currentWindow)
+		public void ScanErrors (IInspectDelegate inspectDelegate, IWindowWrapper currentWindow, InspectorViewMode viewMode)
 		{
 			window = currentWindow;
 			DetectedErrors.Clear();
-			inspectDelegate.Recursively(window.ContentView, DetectedErrors);
+			inspectDelegate.Recursively(window.ContentView, DetectedErrors, viewMode);
 			ScanFinished?.Invoke (this, window);
 		}
 

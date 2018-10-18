@@ -3,7 +3,7 @@ using AppKit;
 
 namespace MonoDevelop.Mac.Debug
 {
-	public class MacXwtAccInspectorWindow : MacXwtWindowWrapper
+	public class MacXwtAccInspectorWindow : MacXwtWindowWrapper, IMainWindowWrapper
 	{
 		protected override void OnBecomeMainWindow (object sender, EventArgs args)
 		{

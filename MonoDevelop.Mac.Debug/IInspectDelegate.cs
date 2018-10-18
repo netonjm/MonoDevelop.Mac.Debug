@@ -11,9 +11,9 @@ namespace MonoDevelop.Mac.Debug
 	{
 		void SetFont(IViewWrapper view, NSFont font);
 		FontData GetFont(IViewWrapper view);
-		void ConvertToNodes(IViewWrapper view, NodeView nodeView);
-		ViewWrapper GetWrapper(IViewWrapper viewSelected);
-		void Recursively (IViewWrapper contentView, List<DetectedError> DetectedErrors);
+		void ConvertToNodes(IViewWrapper view, NodeView nodeView, InspectorViewMode viewMode);
+		object GetWrapper (IViewWrapper viewSelected, InspectorViewMode viewMode);
+		void Recursively (IViewWrapper contentView, List<DetectedError> DetectedErrors, InspectorViewMode viewMode);
 		void RemoveAllErrorWindows(IWindowWrapper windowWrapper);
 		Task<Xwt.Drawing.Image> OpenDialogSelectImage(IWindowWrapper selectedWindow);
 		void SetButton(NSButton button, Xwt.Drawing.Image image);

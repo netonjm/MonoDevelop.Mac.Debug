@@ -3,27 +3,38 @@ using AppKit;
 using Xwt;
 using System.Linq;
 using CoreGraphics;
+using System.Collections.Generic;
 
 namespace MonoDevelop.Mac.Debug
 {
 	public class MacXwtWindowWrapper : Xwt.Window, IWindowWrapper
 	{
+		public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
+
 		public IViewWrapper ContentView {
 			get {
-				if (NativeObject is NSWindow window && window.ContentView != null) {
-					return new MacViewWrapper (window.ContentView);
+				if (ViewMode == InspectorViewMode.Native) {
+					if (NativeObject is NSWindow window && window.ContentView != null) {
+						return new MacViewWrapper (window.ContentView);
+					}
+				} else {
+					return new MacXwtViewWrapper (Content);
 				}
 				return null;
 			}
 			set {
-				base.Content = value.Content as Widget;
+				base.Content = value.NativeView as Widget;
 			}
 		}
 
 		public IViewWrapper FirstResponder {
 			get {
-				if (NativeObject is NSWindow host && host.FirstResponder != null) {
-					return new MacViewWrapper (host.FirstResponder as NSView);
+				if (ViewMode == InspectorViewMode.Native) {
+					if (NativeObject is NSWindow host && host.FirstResponder != null) {
+						return new MacViewWrapper (host.FirstResponder as NSView);
+					}
+				} else {
+					//TODO: NEEDS COMPLETE
 				}
 				return null;
 			}
@@ -91,7 +102,7 @@ namespace MonoDevelop.Mac.Debug
 		{
 			var toViewWindow = toView.NativeObject as NSWindow;
 			var frame = Window.Frame;
-			frame.Location = new CGPoint (toViewWindow.Frame.Left -  Window.Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
+			frame.Location = new CGPoint (toViewWindow.Frame.Left - Window.Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
 			Window.SetFrame (frame, true);
 		}
 

@@ -13,6 +13,12 @@ using System.Diagnostics;
 
 namespace MonoDevelop.Mac.Debug
 {
+	public enum InspectorViewMode
+	{
+		Native,
+		Xwt
+	}
+
 	class InspectorManager : IDisposable
 	{
 		const string Name = "Accessibility .NET Inspector";
@@ -21,7 +27,11 @@ namespace MonoDevelop.Mac.Debug
 		const int WindowMargin = 10;
 
 		IViewWrapper view, nextKeyView, previousKeyView;
-		IWindowWrapper selectedWindow;
+		IMainWindowWrapper selectedWindow;
+		InspectorViewMode ViewMode {
+			get => selectedWindow.ViewMode;
+			set => selectedWindow.ViewMode = value;
+				}
 
 		readonly IBorderedWindow debugOverlayWindow;
 		readonly IBorderedWindow debugNextOverlayWindow;
@@ -152,7 +162,7 @@ namespace MonoDevelop.Mac.Debug
 
 		#endregion
 
-		public void SetWindow (IWindowWrapper selectedWindow)
+		public void SetWindow (IMainWindowWrapper selectedWindow)
 		{
 			var needsReattach = selectedWindow != this.selectedWindow;
 
@@ -175,7 +185,7 @@ namespace MonoDevelop.Mac.Debug
 
 			RefreshOverlaysVisibility ();
 
-			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow);
+			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow, ViewMode);
 
 			this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
@@ -209,7 +219,7 @@ namespace MonoDevelop.Mac.Debug
 				if (showDetectedErrors)
 					ShowErrors(true);
 
-				inspectorWindow.GenerateTree(selectedWindow);
+				inspectorWindow.GenerateTree(selectedWindow, ViewMode);
 				selectedWindow.RecalculateKeyViewLoop();
 			};
 
@@ -223,7 +233,7 @@ namespace MonoDevelop.Mac.Debug
 				ShowDetectedErrors = !ShowDetectedErrors;
 			};
 
-			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow);
+			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
 
 			inspectorWindow = new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
 			inspectorWindow.SetTitle ("Inspector Panel");
@@ -261,6 +271,11 @@ namespace MonoDevelop.Mac.Debug
 
 					//accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = selectedWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
 				}
+			};
+
+			toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
+				ViewMode = e;
+				AccessibilityService.Current.ScanErrors (Delegate, selectedWindow, e);
 			};
 
 			toolbarWindow.ItemDeleted += (sender, e) =>
@@ -347,7 +362,7 @@ namespace MonoDevelop.Mac.Debug
 			if (!anyFocusedView)
 				return;
 
-			inspectorWindow.GenerateStatusView (view, Delegate);
+			inspectorWindow.GenerateStatusView (view, Delegate, ViewMode);
 		}
 
 		void PopulateSubmenu ()
@@ -407,8 +422,6 @@ namespace MonoDevelop.Mac.Debug
 			view = nextView;
 			nextKeyView = view?.NextValidKeyView;
 			previousKeyView = view?.PreviousValidKeyView;
-
-		
 
 			RefreshStatusWindow ();
 

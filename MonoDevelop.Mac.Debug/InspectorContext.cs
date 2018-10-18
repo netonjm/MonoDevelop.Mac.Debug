@@ -7,7 +7,7 @@ namespace MonoDevelop.Mac.Debug
 {
 	public static class InspectorContext
 	{
-		readonly static List<IWindowWrapper> windows = new List<IWindowWrapper>();
+		readonly static List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
 		static InspectorManager manager { get; set; }
 
 		static InspectorContext ()
@@ -16,7 +16,7 @@ namespace MonoDevelop.Mac.Debug
 			manager = new InspectorManager (macDelegate);
 		}
 
-		public static void Attach (IWindowWrapper window) 
+		public static void Attach (IMainWindowWrapper window) 
 		{
 			if (!windows.Contains (window)) {
 				windows.Add(window);
@@ -26,7 +26,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public static void ChangeFocusedView(IViewWrapper nSView) => manager.ChangeFocusedView(nSView);
 
-		public static void Remove (IWindowWrapper window)
+		public static void Remove (IMainWindowWrapper window)
 		{
 			windows.Remove(window);
 			manager.SetWindow(null);

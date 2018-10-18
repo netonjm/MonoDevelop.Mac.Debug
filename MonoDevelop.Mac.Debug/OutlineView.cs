@@ -110,7 +110,7 @@ namespace MonoDevelop.Mac.Debug
 	{
 		static string GetName (IViewWrapper view)
 		{
-			var name = string.Format("{0} ({1})", view.Content.GetType (), view.Identifier ?? "N.I");
+			var name = string.Format("{0} ({1})", view.NodeName, view.Identifier ?? "N.I");
 			if (view.Hidden) {
 				name += " (hidden)";
 			}

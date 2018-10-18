@@ -13,7 +13,7 @@ namespace MonoDevelop.Mac.Debug
 		event EventHandler ItemDeleted;
 		event EventHandler ItemImageChanged;
 		event EventHandler<FontData> FontChanged;
-
+		event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 		bool ImageChangedEnabled { get; set; }
 	}
 }

@@ -104,7 +104,7 @@ namespace MonoDevelop.Mac.Debug
 		static string GetName(DetectedError error)
 		{
 			var title = error.GetTitleMessage();
-			var name = string.Format("{0} ({1}) : {2}", error.View.Content.GetType(), error.View.Identifier ?? "N.I", title);
+			var name = string.Format("{0} ({1}) : {2}", error.View.NativeView.GetType(), error.View.Identifier ?? "N.I", title);
 			return name;
 		}
 
@@ -113,7 +113,7 @@ namespace MonoDevelop.Mac.Debug
 			this.DetectedError = detectedError;
 
 			List<string> children = new List<string>();
-			var type = detectedError.View.Content.GetType().ToString();
+			var type = detectedError.View.NativeView.GetType().ToString();
 			if (detectedError.ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
 			{
 				children.Add($"This {type} needs set the AccessibilityHelp field");

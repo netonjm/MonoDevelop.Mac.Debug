@@ -113,7 +113,7 @@
     <Compile Include="Panels\IToolbarWindow.cs" />
     <Compile Include="MacXwtWindowWrapper.cs" />
      <Compile Include="MacXwtAccInspectorWindow.cs" />
-    
+     <Compile Include="MacXwtViewWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
