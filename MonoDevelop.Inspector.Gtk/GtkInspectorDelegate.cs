@@ -1,11 +1,11 @@
 ﻿using AppKit;
-using MonoDevelop.Mac.Debug.Services;
+using MonoDevelop.Inspector.Mac.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xwt.Drawing;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class GtkInspectorDelegate : IInspectDelegate
 	{

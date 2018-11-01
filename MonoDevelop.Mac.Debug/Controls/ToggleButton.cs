@@ -5,7 +5,7 @@ using System;
 using AppKit;
 using Foundation;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class ToggleButton : NSButton
 	{

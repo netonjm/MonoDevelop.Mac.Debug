@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using AppKit;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public static class InspectorContext
 	{

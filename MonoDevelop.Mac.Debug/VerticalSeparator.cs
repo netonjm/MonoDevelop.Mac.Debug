@@ -3,7 +3,7 @@
 using AppKit;
 using CoreGraphics;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class VerticalSeparator : NSView
 	{

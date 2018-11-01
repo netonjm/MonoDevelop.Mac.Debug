@@ -4,19 +4,9 @@ using System;
 using CoreGraphics;
 using AppKit;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
-	public interface IBorderedWindow : IWindowWrapper
-	{
-		float BorderWidth { get; set; }
-		bool Visible { get; set; }
-		void SetParentWindow(IWindowWrapper selectedWindow);
-		void AlignWith(IViewWrapper view);
-		void AlignWindowWithContentView();
-		void OrderFront ();
-	}
-
-	class MacBorderedWindow : MacWindowWrapper, IBorderedWindow
+    class MacBorderedWindow : MacWindowWrapper, IBorderedWindow
 	{
 		readonly NSBox box;
 		IViewWrapper ObjContent { get; set; }
@@ -58,7 +48,7 @@ namespace MonoDevelop.Mac.Debug
 
 		}
 
-		public MacBorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this(content.Frame, borderColor, NSColor.Clear, borderType, borderWidth)
+		public MacBorderedWindow(IViewWrapper content, NSColor borderColor, NSBorderType borderType = NSBorderType.LineBorder, float borderWidth = 3) : this((CGRect) content.Frame.NativeObject, borderColor, NSColor.Clear, borderType, borderWidth)
 		{
 			ObjContent = content;
 		}
@@ -90,7 +80,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public void AlignWith (IViewWrapper view)
 		{
-			var frame = view.AccessibilityFrame;
+			var frame = (CGRect) view.AccessibilityFrame.NativeObject;
 			SetFrame(frame, true);
 		}
 

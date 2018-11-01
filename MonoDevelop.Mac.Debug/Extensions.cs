@@ -3,7 +3,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using CoreGraphics;
-using MonoDevelop.Mac.Debug;
+using MonoDevelop.Inspector;
+using MonoDevelop.Inspector.Mac;
 
 namespace AppKit
 {

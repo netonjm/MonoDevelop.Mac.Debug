@@ -4,15 +4,37 @@ using System.Collections.Generic;
 using AppKit;
 using CoreGraphics;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
-	public class MacViewWrapper : IViewWrapper
+    public class MacRectangle : IRectangle
+    {
+        CGRect rect;
+        public MacRectangle(CGRect rect)
+        {
+            this.rect = rect;
+        }
+
+        public object NativeObject => rect;
+    }
+
+    public class MacFont : IFontWrapper
+    {
+        NSFont rect;
+        public MacFont(NSFont rect)
+        {
+            this.rect = rect;
+        }
+
+        public object NativeObject => rect;
+    }
+
+    public class MacViewWrapper : IViewWrapper
 	{
 		public bool Hidden => widget.Hidden;
 
 		public string Identifier => widget.Identifier;
 
-		public CGRect AccessibilityFrame => widget.AccessibilityFrame;
+		public IRectangle AccessibilityFrame => new MacRectangle (widget.AccessibilityFrame);
 
 		public List<IViewWrapper> Subviews {
 			get {
@@ -40,7 +62,7 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		public CGRect Frame => widget.Frame;
+		public IRectangle Frame =>new MacRectangle (widget.Frame);
 
 		public IViewWrapper Superview {
 			get {

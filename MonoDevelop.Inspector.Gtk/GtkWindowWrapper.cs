@@ -2,7 +2,7 @@
 using GLib;
 using Gtk;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class GtkWindowWrapper : Gtk.Window, IWindowWrapper
 	{
@@ -68,8 +68,8 @@ namespace MonoDevelop.Mac.Debug
 			var frame = GetFrame(this);
 			var toViewFrame = GetFrame(toView as Window);
 			//var frame = Frame;
-			frame.Location = new CGPoint(toViewWindow.Frame.Left - Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
-			SetFrame(frame, true);
+			//frame.Location = new CGPoint(toViewWindow.Frame.Left - Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
+			//SetFrame(frame, true);
 		}
 
 		public void AlignRight(IWindowWrapper toView, int pixels)
@@ -87,10 +87,10 @@ namespace MonoDevelop.Mac.Debug
 			base.Destroy();
 		}
 
-		public bool ContainsChildWindow(IWindowWrapper debugOverlayWindow)
-		{
+		//public bool ContainsChildWindow(IWindowWrapper debugOverlayWindow)
+		//{
 
-		}
+		//}
 
 		public void RecalculateKeyViewLoop()
 		{

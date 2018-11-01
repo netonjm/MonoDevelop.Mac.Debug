@@ -3,32 +3,37 @@ using AppKit;
 using CoreGraphics;
 using Foundation;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public static class NativeViewHelper
 	{
-		public static FontData GetFont (NSView view)
+        readonly static public float DefaultSize = (float) NSFont.SystemFontSize;
+        readonly static public NSFont DefaultFont = NSFont.FromFontName (DefaultFontName, DefaultSize);
+
+        public const string DefaultFontName = ".AppleSystemUIFont";
+
+        public static FontData GetFont (NSView view)
 		{
-			NSFont result = FontData.DefaultFont;
-			nfloat size = FontData.DefaultSize;
+			NSFont result = DefaultFont;
+			float size = DefaultSize;
 			if (view is NSTextField textField && textField.Font != null)
 			{
 				result = textField.Font;
-				size = textField.Font.PointSize;
+				size = (float) textField.Font.PointSize;
 			} else if (view is NSTextView textView && textView.Font != null)
 			{
 				result = textView.Font;
-				size = textView.Font.PointSize;
+				size = (float)textView.Font.PointSize;
 			} else if (view is NSButton btn && btn.Font != null)
 			{
 				result = btn.Font;
-				size = btn.Font.PointSize;
+				size = (float)btn.Font.PointSize;
 			} else if (view is NSSecureTextField secureTextField && secureTextField.Font != null)
 			{
 				result = secureTextField.Font;
-				size = secureTextField.Font.PointSize;
+				size = (float)secureTextField.Font.PointSize;
 			}
-			return new FontData(result, size);
+			return new FontData(new MacFont (result), size);
 		}
 
 		public static void SetFont (NSView view, NSFont font)

@@ -5,7 +5,7 @@ using System.Linq;
 using CoreGraphics;
 using System.Collections.Generic;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class MacXwtWindowWrapper : Xwt.Window, IWindowWrapper
 	{

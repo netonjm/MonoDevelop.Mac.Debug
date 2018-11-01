@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using AppKit;
 using CoreGraphics;
-using MonoDevelop.Mac.Debug.Services;
+using MonoDevelop.Inspector.Mac.Services;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 
 	class MacAccessibilityWindow : MacWindowWrapper, IAccessibilityWindow

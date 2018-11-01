@@ -2,7 +2,7 @@
 
 using System;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class XwtToolbarWindow : MacXwtWindowWrapper, IToolbarWindow
 	{

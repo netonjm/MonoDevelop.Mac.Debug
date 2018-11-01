@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class NSFirstResponderWatcher : IDisposable
 	{

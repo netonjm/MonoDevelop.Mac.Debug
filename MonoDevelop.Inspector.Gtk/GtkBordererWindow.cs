@@ -3,7 +3,7 @@ using Gdk;
 using GLib;
 using Gtk;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class GtkBordererWindow : GtkWindowWrapper, IBorderedWindow
 	{

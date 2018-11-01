@@ -6,17 +6,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace MonoDevelop.Mac.Debug.Services
+namespace MonoDevelop.Inspector.Mac.Services
 {
-	[Flags]
-	public enum DetectedErrorType
-	{
-		None = 0 << 0,
-		AccessibilityTitle = 1 << 0,
-		AccessibilityHelp = 1 << 1,
-		AccessibilityParent = 1 << 2,
-		Contrast = 1 << 3,
-	}
+	
 
 	public class AccessibilityService
 	{

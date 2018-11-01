@@ -3,15 +3,25 @@
 using System.Collections.Generic;
 using System;
 
-namespace MonoDevelop.Mac.Debug.Services
+namespace MonoDevelop.Inspector
 {
-	public class DetectedError
+    [Flags]
+    public enum DetectedErrorType
+    {
+        None = 0 << 0,
+        AccessibilityTitle = 1 << 0,
+        AccessibilityHelp = 1 << 1,
+        AccessibilityParent = 1 << 2,
+        Contrast = 1 << 3,
+    }
+
+    public class DetectedError
 	{
 		public IViewWrapper View { get; set; }
 
 		public IViewWrapper View2 { get; set; }
 
-		public nfloat ContrastRatio { get; set; }
+		public float ContrastRatio { get; set; }
 
 		public string Color1 { get; set; }
 

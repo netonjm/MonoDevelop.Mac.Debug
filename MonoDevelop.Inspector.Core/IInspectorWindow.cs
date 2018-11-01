@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector
 {
 	public interface IInspectorWindow : IWindowWrapper
 	{

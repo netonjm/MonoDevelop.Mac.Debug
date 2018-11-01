@@ -7,9 +7,9 @@ using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
 using Xamarin.PropertyEditing.Themes;
 using Foundation;
-using MonoDevelop.Mac.Debug.Services;
+using MonoDevelop.Inspector.Mac.Services;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class InspectorWindow : MacWindowWrapper, IInspectorWindow
 	{
@@ -137,7 +137,7 @@ namespace MonoDevelop.Mac.Debug
 		public void GenerateTree(IWindowWrapper window, InspectorViewMode viewMode)
 		{
 			data = new NodeView(window.ContentView);
-			inspectorDelegate.ConvertToNodes(window.ContentView, data, viewMode);
+			inspectorDelegate.ConvertToNodes(window.ContentView, new MacNodeWrapper (data), viewMode);
 			outlineView.SetData(data);
 		}
 

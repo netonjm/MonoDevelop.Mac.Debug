@@ -5,7 +5,7 @@
     <ProjectGuid>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</ProjectGuid>
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>MonoDevelop.Mac.Debug</RootNamespace>
+    <RootNamespace>MonoDevelop.Inspector.Mac</RootNamespace>
     <AssemblyName>MonoDevelop.Mac.Debug</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ProductVersion>8.0.30703</ProductVersion>
@@ -29,6 +29,7 @@
     <LinkMode></LinkMode>
     <XamMacArch></XamMacArch>
     <AOTMode>None</AOTMode>
+    <AssemblyName>MonoDevelop.Inspector.Mac</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -50,27 +51,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    
-    <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Mono.Posix" />
-    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,28 +76,12 @@
     <Compile Include="Helpers\NativeViewHelper.cs" />
     <Compile Include="Helpers\ContrastHelper.cs" />
     <Compile Include="Services\ResourceService.cs" />
-    <Compile Include="IInspectDelegate.cs" />
     <Compile Include="MacInspectorDelegate.cs" />
-    <Compile Include="IWindowWrapper.cs" />
-    <Compile Include="IViewWrapper.cs" />
-    <Compile Include="Services\DetectedError.cs" />
-    <Compile Include="Services\ITextBoxWrapper.cs" />
-    <Compile Include="Services\ColorResult.cs" />
-    <Compile Include="Panels\FontData.cs" />
-    <Compile Include="GtkBordererWindow.cs" />
     <Compile Include="MacWindowWrapper.cs" />
     <Compile Include="MacViewWrapper.cs" />
     <Compile Include="MacAccInspectorWindow.cs" />
-    <Compile Include="Panels\IAccessibilityWindow.cs" />
-    <Compile Include="Panels\IInspectorWindow.cs" />
-    <Compile Include="Panels\IToolbarWindow.cs" />
-    <Compile Include="MacXwtWindowWrapper.cs" />
-     <Compile Include="MacXwtAccInspectorWindow.cs" />
-     <Compile Include="MacXwtViewWrapper.cs" />
-     <Compile Include="Panels\XwtToolbarWindow.cs" />
-     <Compile Include="GtkWindowWrapper.cs" />
-     <Compile Include="GtkAccInspectorWindow.cs" />
-     <Compile Include="GtkInspectorDelegate.cs" />
+    <Compile Include="MacNodeWrapper.cs" />
+    <Compile Include="MacImageViewWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -128,6 +92,7 @@
     <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
+
     <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">
       <Project>{A0B6FE73-D046-4E1C-BA9D-F20683889C5A}</Project>
       <Name>Xamarin.PropertyEditing</Name>
@@ -136,13 +101,10 @@
       <Project>{E8F4F0EB-C2B1-4116-8459-E076E0E0E485}</Project>
       <Name>Xamarin.PropertyEditing.Mac</Name>
     </ProjectReference>
-    <ProjectReference Include="..\external\xwt\Xwt\Xwt.csproj">
-      <Project>{92494904-35FA-4DC9-BDE9-3A3E87AC49D3}</Project>
-      <Name>Xwt</Name>
+    <ProjectReference Include="..\MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj">
+      <Project>{565D8019-7355-4331-86D3-E72D8E17D7B5}</Project>
+      <Name>MonoDevelop.Inspector.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-      <ItemGroup>
-    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\error-16~dark~error.png">

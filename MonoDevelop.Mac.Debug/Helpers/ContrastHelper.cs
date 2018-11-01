@@ -1,7 +1,7 @@
 ﻿using System;
 using AppKit;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class ContrastAnalisys
 	{

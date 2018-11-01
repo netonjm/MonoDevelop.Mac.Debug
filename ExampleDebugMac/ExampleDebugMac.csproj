@@ -81,9 +81,9 @@
     <Compile Include="AppDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoDevelop.Mac.Debug\MonoDevelop.Mac.Debug.csproj">
+    <ProjectReference Include="..\MonoDevelop.Mac.Debug\MonoDevelop.Inspector.Mac.csproj">
       <Project>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</Project>
-      <Name>MonoDevelop.Mac.Debug</Name>
+      <Name>MonoDevelop.Inspector.Mac</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />

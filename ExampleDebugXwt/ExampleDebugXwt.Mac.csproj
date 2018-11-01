@@ -83,7 +83,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MonoDevelop.Mac.Debug\MonoDevelop.Mac.Debug.csproj">
       <Project>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</Project>
-      <Name>MonoDevelop.Mac.Debug</Name>
+      <Name>MonoDevelop.Inspector.Mac</Name>
     </ProjectReference>
     <ProjectReference Include="..\external\xwt\Xwt\Xwt.csproj">
       <Project>{92494904-35FA-4DC9-BDE9-3A3E87AC49D3}</Project>
@@ -92,6 +92,10 @@
     <ProjectReference Include="..\external\xwt\Xwt.XamMac\Xwt.XamMac.csproj">
       <Project>{B7C1673E-5124-4BE5-8D21-EC8B12F85B6B}</Project>
       <Name>Xwt.XamMac</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoDevelop.Inspector.Xwt\MonoDevelop.Inspector.XwtMac.csproj">
+      <Project>{59CBB16E-1EA8-4297-AD8D-6FA5BD56F0C5}</Project>
+      <Name>MonoDevelop.Inspector.XwtMac</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />

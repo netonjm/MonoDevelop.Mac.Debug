@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class MethodTableViewItem : TableViewItem
 	{

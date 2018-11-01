@@ -7,17 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
-using MonoDevelop.Mac.Debug.Services;
+using MonoDevelop.Inspector.Mac.Services;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
-	public enum InspectorViewMode
-	{
-		Native,
-		Xwt
-	}
+	
 
 	class InspectorManager : IDisposable
 	{

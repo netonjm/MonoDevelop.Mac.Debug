@@ -5,7 +5,7 @@ using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Common;
 using Xamarin.PropertyEditing.Reflection;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class MockEditorProvider
 		: IEditorProvider

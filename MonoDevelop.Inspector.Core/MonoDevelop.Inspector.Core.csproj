@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{565D8019-7355-4331-86D3-E72D8E17D7B5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MonoDevelop.Inspector.Core</RootNamespace>
+    <AssemblyName>MonoDevelop.Inspector.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IAccessibilityWindow.cs" />
+    <Compile Include="IToolbarWindow.cs" />
+    <Compile Include="IInspectorWindow.cs" />
+    <Compile Include="IInspectDelegate.cs" />
+    <Compile Include="IViewWrapper.cs" />
+    <Compile Include="IWindowWrapper.cs" />
+    <Compile Include="IImageWrapper.cs" />
+    <Compile Include="ITextBoxWrapper.cs" />
+    <Compile Include="DetectedError.cs" />
+    <Compile Include="IBorderedWindow.cs" />
+    <Compile Include="FontData.cs" />
+    <Compile Include="IImageViewWrapper.cs" />
+    <Compile Include="IButtonWrapper.cs" />
+    <Compile Include="INodeView.cs" />
+    <Compile Include="INativeObject.cs" />
+    <Compile Include="ColorResult.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

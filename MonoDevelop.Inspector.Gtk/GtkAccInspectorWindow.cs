@@ -2,7 +2,7 @@
 using GLib;
 using Gtk;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class GtkAccInspectorWindow : GtkWindowWrapper, IMainWindowWrapper
 	{

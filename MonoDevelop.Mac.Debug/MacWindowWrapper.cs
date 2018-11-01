@@ -6,7 +6,7 @@ using CoreGraphics;
 using Foundation;
 using System.Linq;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class MacWindowWrapper : NSWindow, IWindowWrapper
 	{

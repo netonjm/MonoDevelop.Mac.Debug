@@ -1,21 +1,46 @@
 ﻿using AppKit;
 using CoreGraphics;
-using MonoDevelop.Mac.Debug.Services;
+using Foundation;
+using MonoDevelop.Inspector.Mac.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xwt.Drawing;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
-	class MacInspectorDelegate : IInspectDelegate
+
+    public class MacColorWrapper : IColorWrapper
+    {
+        NSColor image;
+        public MacColorWrapper(NSColor image)
+        {
+            this.image = image;
+        }
+
+        public object NativeObject => image;
+    }
+
+    public class MacImageWrapper : IImageWrapper
+    {
+        NSImage image;
+        public MacImageWrapper(NSImage image)
+        {
+            this.image = image;
+        }
+
+        public object NativeObject => image;
+    }
+
+    class MacInspectorDelegate : IInspectDelegate
 	{
 		public MacInspectorDelegate()
 		{
 		}
 
-		public void ConvertToNodes(IViewWrapper customView, NodeView node, InspectorViewMode viewMode)
+
+
+		public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
 		{
 			if (customView.Subviews == null) {
 				return;
@@ -23,9 +48,9 @@ namespace MonoDevelop.Mac.Debug
 
 			foreach (var item in customView.Subviews) {
 				var nodel = new NodeView(item);
-				node.AddChild(nodel);
+				node.AddChild(new MacNodeWrapper (nodel));
 				try {
-					ConvertToNodes(item, nodel, viewMode);
+					ConvertToNodes(item, new MacNodeWrapper (nodel), viewMode);
 				} catch (Exception ex) {
 					Console.WriteLine(ex);
 				}
@@ -85,9 +110,9 @@ namespace MonoDevelop.Mac.Debug
 			return GetNativePropertyPanelWrapper (viewSelected);
 		}
 
-		public void SetFont(IViewWrapper view, NSFont font)
+		public void SetFont(IViewWrapper view, IFontWrapper font)
 		{
-			NativeViewHelper.SetFont(view.NativeView as NSView, font);
+			NativeViewHelper.SetFont(view.NativeView as NSView, font.NativeObject as NSFont);
 		}
 
 
@@ -99,7 +124,7 @@ namespace MonoDevelop.Mac.Debug
 			if (property != null)
 			{
 				var colorFound = property.GetValue(view.Superview) as NSColor;
-				return new ColorResult() { View = view, Color = colorFound };
+				return new ColorResult() { View = view, Color = new MacColorWrapper (colorFound) };
 			}
 
 			if (view.Superview is IViewWrapper superView && superView != null)
@@ -136,7 +161,7 @@ namespace MonoDevelop.Mac.Debug
 					var result = BackColorSearch(textField.Superview);
 					if (result != null)
 					{
-						contrastAnalisys = new ContrastAnalisys(textField.TextColor, result.Color, textField.Font);
+						contrastAnalisys = new ContrastAnalisys((NSColor) textField.TextColor.NativeObject,(NSColor) result.Color.NativeObject, (NSFont) textField.Font.NativeObject);
 						contrastAnalisys.View1 = customView;
 						contrastAnalisys.View2 = textField.Superview;
 						if (!contrastAnalisys.IsPassed)
@@ -170,7 +195,7 @@ namespace MonoDevelop.Mac.Debug
 				{
 					detectedError.Color1 = contrastAnalisys.Color1.ToHex();
 					detectedError.Color2 = contrastAnalisys.Color2.ToHex();
-					detectedError.ContrastRatio = contrastAnalisys.Contrast;
+					detectedError.ContrastRatio = (float) contrastAnalisys.Contrast;
 					detectedError.View2 = contrastAnalisys.View2;
 				}
 
@@ -188,42 +213,44 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		public void SetButton (NSButton button, Xwt.Drawing.Image image)
+		public void SetButton (IButtonWrapper button, IImageWrapper image)
 		{
-			button.Image = ToNSImage(image.ToBitmap ());
+            var btn = button.NativeObject as NSButton;
+            btn.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap ());
+        }
+
+		public void SetButton(IImageViewWrapper imageview, IImageWrapper image)
+		{
+            var imgView = imageview.NativeObject as NSImageView;
+            imgView.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap());
 		}
 
-		public void SetButton(NSImageView imageview, Xwt.Drawing.Image image)
-		{
-			imageview.Image = ToNSImage(image.ToBitmap());
-		}
+		//public NSImage ToNSImage(BitmapImage img)
+		//{
+		//	System.IO.MemoryStream s = new System.IO.MemoryStream();
+		//	img.Save(s, ImageFileType.Png);
+		//	byte[] b = s.ToArray();
+		//	CGDataProvider dp = new CGDataProvider(b, 0, (int)s.Length);
+		//	s.Flush();
+		//	s.Close();
+		//	CGImage img2 = CGImage.FromPNG(dp, null, false, CGColorRenderingIntent.Default);
+		//	return new NSImage(img2, new CGSize (img2.Width, img2.Height));
+		//}
 
-		public NSImage ToNSImage(BitmapImage img)
-		{
-			System.IO.MemoryStream s = new System.IO.MemoryStream();
-			img.Save(s, ImageFileType.Png);
-			byte[] b = s.ToArray();
-			CGDataProvider dp = new CGDataProvider(b, 0, (int)s.Length);
-			s.Flush();
-			s.Close();
-			CGImage img2 = CGImage.FromPNG(dp, null, false, CGColorRenderingIntent.Default);
-			return new NSImage(img2, new CGSize (img2.Width, img2.Height));
-		}
-
-		public async Task<Xwt.Drawing.Image> OpenDialogSelectImage(IWindowWrapper selectedWindow)
+		public async Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow)
 		{
 			var panel = new NSOpenPanel();
 			panel.AllowedFileTypes = new[] { "png" };
 			panel.Prompt = "Select a image";
-			Xwt.Drawing.Image rtrn = null;
+            IImageWrapper rtrn = null;
 			processingCompletion = new TaskCompletionSource<object>();
-
 
 			panel.BeginSheet(selectedWindow.NativeObject as NSWindow, result => {
 				if (result == 1 && panel.Url != null)
 				{
-					rtrn = Xwt.Drawing.Image.FromFile(panel.Url.Path);
-				}
+                    rtrn = new MacImageWrapper(NSImage.ImageNamed (panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
+
+                }
 				processingCompletion.TrySetResult(null);
 			});
 			await processingCompletion.Task;
@@ -237,7 +264,7 @@ namespace MonoDevelop.Mac.Debug
 				var image = await OpenDialogSelectImage(selectedWindow);
 				if (image != null)
 				{
-					SetButton(imageView, image);
+					SetButton(new MacImageViewWrapper (imageView), image);
 				}
 			}
 			else if (view.NativeView is NSButton btn)
@@ -245,7 +272,7 @@ namespace MonoDevelop.Mac.Debug
 				var image = await OpenDialogSelectImage(selectedWindow);
 				if (image != null)
 				{
-					SetButton(btn, image);
+					SetButton(new MacButtonWrapper (btn), image);
 				}
 			}
 		}
@@ -255,6 +282,11 @@ namespace MonoDevelop.Mac.Debug
 			return new MacBorderedWindow(view, NSColor.Red);
 		}
 
-		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
+        public IFontWrapper GetFromName(string selected, int fontSize)
+        {
+            return new MacFont (NSFont.FromFontName(selected, fontSize));
+        }
+
+        TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
 	}
 }

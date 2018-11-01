@@ -4,7 +4,7 @@ using System.Text;
 using AppKit;
 using Foundation;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class OutlineView : NSOutlineView
 	{

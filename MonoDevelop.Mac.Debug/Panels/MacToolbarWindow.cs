@@ -4,9 +4,9 @@ using System;
 using AppKit;
 using System.Linq;
 using Foundation;
-using MonoDevelop.Mac.Debug.Services;
+using MonoDevelop.Inspector.Mac.Services;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class MacToolbarWindow : MacWindowWrapper, IToolbarWindow
 	{
@@ -139,7 +139,7 @@ namespace MonoDevelop.Mac.Debug
 				var fontData = inspectorManager.Delegate.GetFont(view); 
 				if (fontData?.Font != null)
 				{
-					var currentFontName = fontData.Font.FontName;
+					var currentFontName = ((NSFont) fontData.Font.NativeObject).FontName;
 					if (currentFontName == ".AppleSystemUIFont")
 					{
 						currentFontName = "HelveticaNeue";
@@ -219,7 +219,16 @@ namespace MonoDevelop.Mac.Debug
 			{
 				var selected = fonts[currentIndex].ToString();
 				var fontSize = fontSizeTextView.IntValue;
-				FontChanged?.Invoke(this, new FontData (selected, fontSize));
+
+                //public FontData (string font, float size)
+                //{
+                //  Size = size;
+                //  Font = NSFont.FromFontName (font, size);
+                //}
+
+                IFontWrapper font = inspectorManager.Delegate.GetFromName(selected, fontSize);
+
+                FontChanged?.Invoke(this, new FontData (font, fontSize));
 			}
 		}
 

@@ -6,7 +6,7 @@ using ObjCRuntime;
 using System;
 using System.Collections.Generic;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class TableViewRowSelectionSource : NSTableViewSource
 	{

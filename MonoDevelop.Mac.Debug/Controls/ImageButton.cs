@@ -3,7 +3,7 @@
 
 using AppKit;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	class ImageButton : NSButton
 	{

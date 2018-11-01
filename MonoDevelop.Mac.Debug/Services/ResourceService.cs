@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using AppKit;
 
-namespace MonoDevelop.Mac.Debug.Services
+namespace MonoDevelop.Inspector.Mac.Services
 {
 	public static class ResourceService
 	{

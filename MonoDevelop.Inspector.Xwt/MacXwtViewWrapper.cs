@@ -3,9 +3,19 @@ using Xwt;
 using CoreGraphics;
 using System.Collections.Generic;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
-	public class MacXwtViewWrapper : IViewWrapper
+    //class XwtMacRectangle : IRectangle
+    //{
+    //    public object NativeObject => throw new System.NotImplementedException();
+    //    Xwt.Rectangle rectangle;
+    //    public XwtMacRectangle (Xwt.Rectangle rectangle)
+    //    {
+    //        this.rectangle = rectangle;
+    //    }
+    //}
+
+    public class MacXwtViewWrapper : IViewWrapper
 	{
 		readonly Xwt.Widget widget;
 		readonly NSView view;
@@ -20,7 +30,7 @@ namespace MonoDevelop.Mac.Debug
 
 		public string Identifier => widget.Name;
 
-		public CGRect AccessibilityFrame => view.AccessibilityFrame;
+		public IRectangle AccessibilityFrame => new Mac.MacRectangle ( view.AccessibilityFrame);
 
 		public List<IViewWrapper> Subviews {
 			get {
@@ -50,7 +60,7 @@ namespace MonoDevelop.Mac.Debug
 			}
 		}
 
-		public CGRect Frame => view.Frame;
+		public IRectangle Frame => new Mac.MacRectangle (view.Frame);
 
 		public IViewWrapper Superview => widget.Parent != null ? new MacXwtViewWrapper (widget.Parent) : null;
 

@@ -8,7 +8,7 @@ using Foundation;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	public class ComboBoxWrapper : TextFieldViewWrapper
 	{

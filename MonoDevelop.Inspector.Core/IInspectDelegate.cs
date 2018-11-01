@@ -2,23 +2,22 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AppKit;
-using MonoDevelop.Mac.Debug.Services;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector
 {
-	public interface IInspectDelegate
+    public interface IInspectDelegate
 	{
-		void SetFont(IViewWrapper view, NSFont font);
+		void SetFont(IViewWrapper view, IFontWrapper font);
 		FontData GetFont(IViewWrapper view);
-		void ConvertToNodes(IViewWrapper view, NodeView nodeView, InspectorViewMode viewMode);
+		void ConvertToNodes(IViewWrapper view, INodeView nodeView, InspectorViewMode viewMode);
 		object GetWrapper (IViewWrapper viewSelected, InspectorViewMode viewMode);
 		void Recursively (IViewWrapper contentView, List<DetectedError> DetectedErrors, InspectorViewMode viewMode);
 		void RemoveAllErrorWindows(IWindowWrapper windowWrapper);
-		Task<Xwt.Drawing.Image> OpenDialogSelectImage(IWindowWrapper selectedWindow);
-		void SetButton(NSButton button, Xwt.Drawing.Image image);
-		void SetButton(NSImageView imageview, Xwt.Drawing.Image image);
+		Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow);
+		void SetButton(IButtonWrapper button, IImageWrapper image);
+		void SetButton(IImageViewWrapper imageview, IImageWrapper image);
 		Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow);
 		IBorderedWindow CreateErrorWindow (IViewWrapper view);
-	}
+        IFontWrapper GetFromName(string selected, int fontSize);
+    }
 }

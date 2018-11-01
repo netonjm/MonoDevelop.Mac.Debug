@@ -6,7 +6,7 @@ using AppKit;
 using CoreGraphics;
 using Foundation;
 
-namespace MonoDevelop.Mac.Debug
+namespace MonoDevelop.Inspector.Mac
 {
 	[Register ("DebugWindow")]
 	public class MacAccInspectorWindow : MacWindowWrapper, IMainWindowWrapper
