@@ -15,7 +15,7 @@
     <tags>accessibility inspector xamarin mac</tags>
   </metadata>
   <files>
-    <file src="..\MonoDevelop.Mac.Debug\bin\Debug\*.dll" target="lib/net40" />
+    <file src="..\MonoDevelop.Inspector.Xwt.Mac\bin\Debug\*.dll" target="lib/net40" />
   </files>
 
 </package>
