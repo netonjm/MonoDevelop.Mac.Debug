@@ -60,7 +60,7 @@
       <Project>{92494904-35FA-4DC9-BDE9-3A3E87AC49D3}</Project>
       <Name>Xwt</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MonoDevelop.Mac.Debug\MonoDevelop.Inspector.Mac.csproj">
+    <ProjectReference Include="..\MonoDevelop.Inspector.Mac\MonoDevelop.Inspector.Mac.csproj">
       <Project>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</Project>
       <Name>MonoDevelop.Inspector.Mac</Name>
     </ProjectReference>

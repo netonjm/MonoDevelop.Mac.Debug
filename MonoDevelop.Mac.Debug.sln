@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Inspector.Mac", "MonoDevelop.Mac.Debug\MonoDevelop.Inspector.Mac.csproj", "{A232143E-EB29-45EF-97C8-E88E3F4CB327}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Inspector.Mac", "MonoDevelop.Inspector.Mac\MonoDevelop.Inspector.Mac.csproj", "{A232143E-EB29-45EF-97C8-E88E3F4CB327}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{844291DE-B524-4683-99B6-69C683439F79}"
 EndProject
@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleDebugMac", "ExampleD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Inspector.Core", "MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj", "{565D8019-7355-4331-86D3-E72D8E17D7B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Inspector.XwtMac", "MonoDevelop.Inspector.Xwt\MonoDevelop.Inspector.XwtMac.csproj", "{59CBB16E-1EA8-4297-AD8D-6FA5BD56F0C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.Inspector.XwtMac", "MonoDevelop.Inspector.Xwt.Mac\MonoDevelop.Inspector.XwtMac.csproj", "{59CBB16E-1EA8-4297-AD8D-6FA5BD56F0C5}"
 EndProject
 Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "ExampleDebugGtk", "ExampleDebugGtk\ExampleDebugGtk.csproj", "{7D87DEF1-D96F-4BCF-8886-5219922827CB}"
 EndProject
