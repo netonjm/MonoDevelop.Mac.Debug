@@ -10,12 +10,11 @@ using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Services;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using MonoDevelop.Inspector;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	
-
-	class InspectorManager : IDisposable
+    class InspectorManager : IDisposable
 	{
 		const string Name = "Accessibility .NET Inspector";
 		const int ToolbarWindowWidth = 500;
@@ -35,11 +34,11 @@ namespace MonoDevelop.Inspector.Mac
 		readonly IInspectorWindow inspectorWindow;
 		readonly IAccessibilityWindow accessibilityWindow;
 
-	 	readonly List<NSMenuItem> menuItems = new List<NSMenuItem>();
+	 	readonly List<IMenuItemWrapper> menuItems = new List<IMenuItemWrapper>();
 
 		IToolbarWindow toolbarWindow;
 
-		NSMenuItem inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
+		IMenuItemWrapper inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
 
 		readonly AccessibilityService accessibilityService;
 		List<IBorderedWindow> detectedErrors = new List<IBorderedWindow> ();
@@ -103,28 +102,9 @@ namespace MonoDevelop.Inspector.Mac
 			set => ShowStatusWindow (value);
 		}
 
-		NSMenu Submenu {
+        IMenuWrapper Submenu {
 			get {
-				var shared = NSApplication.SharedApplication;
-				if (shared.Menu == null) {
-					shared.Menu = new NSMenu();
-				}
-
-				NSMenuItem item;
-				if (shared.Menu.Count == 0)
-				{
-					item = new NSMenuItem("Inspector");
-					shared.Menu.AddItem(item);
-				}
-				else
-				{
-					item = shared.Menu.ItemAt(0);
-				}
-
-				if (item.Submenu == null) { 
-					item.Submenu = new NSMenu();
-				}
-				return item.Submenu;
+                return Delegate.GetSubMenu(); ;
 			}
 		}
 
@@ -373,35 +353,27 @@ namespace MonoDevelop.Inspector.Mac
 				return;
 			}
 
-			ClearSubmenuItems(submenu);
+			Delegate.ClearSubmenuItems(menuItems, submenu);
 			menuItems.Clear();
-			submenu.AutoEnablesItems = false;
 
-			int menuCount = 0;
-			menuItems.Add(new NSMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), ShowHideDetailDebuggerWindow) { Enabled = false });
-			inspectorMenuItem = new NSMenuItem ($"Show Window", ShowHideDetailDebuggerWindow);
-			inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
-			inspectorMenuItem.KeyEquivalent = "D";
-			menuItems.Add (inspectorMenuItem);
-			menuItems.Add(NSMenuItem.SeparatorItem);
+            int menuCount = 0;
+
+            var menuItem = Delegate.CreateMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), ShowHideDetailDebuggerWindow);
+            menuItems.Add(menuItem);
+            inspectorMenuItem = Delegate.GetShowWindowMenuItem (ShowHideDetailDebuggerWindow);
+            menuItems.Add (inspectorMenuItem);
+            menuItems.Add(Delegate.GetSeparatorMenuItem());
 
 			foreach (var item in menuItems) {
 				submenu.InsertItem (item, menuCount++);
 			}
 		}
 
-		void ClearSubmenuItems(NSMenu submenu)
-		{
-			foreach (var item in menuItems)
-			{
-				submenu.RemoveItem(item);
-			}
-		}
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{
 			IsStatusWindowVisible = !IsStatusWindowVisible;
-			inspectorMenuItem.Title = string.Format ("{0} Window", ToMenuAction (!IsStatusWindowVisible));
+			inspectorMenuItem.SetTitle (string.Format ("{0} Window", ToMenuAction (!IsStatusWindowVisible)));
 		}
 
 		string ToMenuAction (bool value) => value ? "Show" : "Hide";
@@ -435,7 +407,7 @@ namespace MonoDevelop.Inspector.Mac
 
 		public void Dispose ()
 		{
-			ClearSubmenuItems (Submenu);
+			Delegate.ClearSubmenuItems (menuItems, Submenu);
 			debugOverlayWindow?.Close ();
 			debugNextOverlayWindow?.Close ();
 			debugPreviousOverlayWindow?.Close ();

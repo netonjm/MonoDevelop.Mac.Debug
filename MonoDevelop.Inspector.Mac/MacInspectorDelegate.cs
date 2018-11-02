@@ -38,9 +38,37 @@ namespace MonoDevelop.Inspector.Mac
 		{
 		}
 
+        public IMenuWrapper GetSubMenu ()
+        {
+            var shared = NSApplication.SharedApplication;
+            if (shared.Menu == null)
+            {
+                shared.Menu = new NSMenu();
+            }
 
+            NSMenuItem item;
+            if (shared.Menu.Count == 0)
+            {
+                item = new NSMenuItem("Inspector");
+                shared.Menu.AddItem(item);
+            }
+            else
+            {
+                item = shared.Menu.ItemAt(0);
+            }
 
-		public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
+            if (item.Submenu == null)
+            {
+                item.Submenu = new NSMenu();
+            }
+
+            var submenu = item.Submenu;
+            submenu.AutoEnablesItems = false;
+
+            return new MacMenuWrapper (submenu);
+        }
+
+        public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
 		{
 			if (customView.Subviews == null) {
 				return;
@@ -285,6 +313,37 @@ namespace MonoDevelop.Inspector.Mac
         public IFontWrapper GetFromName(string selected, int fontSize)
         {
             return new MacFont (NSFont.FromFontName(selected, fontSize));
+        }
+
+        public void ClearSubmenuItems(List<IMenuItemWrapper> menuItems, IMenuWrapper submenu)
+        {
+            var menu = (NSMenu)submenu.NativeObject;
+            foreach (var item in menuItems)
+            {
+                menu.RemoveItem((NSMenuItem) item.NativeObject);
+            }
+        }
+
+
+
+
+        public IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler)
+        {
+            var menuItem = new NSMenuItem(title, menuItemOpenHandler) { Enabled = false };
+            return new MacMenuItemWrapper (menuItem);
+        }
+
+        public IMenuItemWrapper GetShowWindowMenuItem(EventHandler menuOpenHandler)
+        {
+            var inspectorMenuItem = new NSMenuItem($"Show Window", menuOpenHandler);
+            inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
+            inspectorMenuItem.KeyEquivalent = "D";
+            return new MacMenuItemWrapper (inspectorMenuItem);
+        }
+
+        public IMenuItemWrapper GetSeparatorMenuItem()
+        {
+            return new MacMenuItemWrapper ( NSMenuItem.SeparatorItem);
         }
 
         TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();

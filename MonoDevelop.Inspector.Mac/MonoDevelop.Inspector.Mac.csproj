@@ -82,6 +82,8 @@
     <Compile Include="MacAccInspectorWindow.cs" />
     <Compile Include="MacNodeWrapper.cs" />
     <Compile Include="MacImageViewWrapper.cs" />
+    <Compile Include="MacMenuWrapper.cs" />
+    <Compile Include="MacMenuItemWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
