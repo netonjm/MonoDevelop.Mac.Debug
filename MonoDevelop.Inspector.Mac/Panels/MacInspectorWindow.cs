@@ -7,7 +7,6 @@ using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
 using Xamarin.PropertyEditing.Themes;
 using Foundation;
-using MonoDevelop.Inspector.Mac.Services;
 
 namespace MonoDevelop.Inspector.Mac
 {

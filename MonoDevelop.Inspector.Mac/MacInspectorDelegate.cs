@@ -1,7 +1,6 @@
 ﻿using AppKit;
 using CoreGraphics;
 using Foundation;
-using MonoDevelop.Inspector.Mac.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

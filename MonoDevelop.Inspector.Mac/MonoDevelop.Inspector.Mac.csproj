@@ -73,7 +73,6 @@
     <Compile Include="Panels\MacAccessibilityWindow.cs" />
     <Compile Include="Helpers\NativeViewHelper.cs" />
     <Compile Include="Helpers\ContrastHelper.cs" />
-    <Compile Include="Services\ResourceService.cs" />
     <Compile Include="MacInspectorDelegate.cs" />
     <Compile Include="MacWindowWrapper.cs" />
     <Compile Include="MacViewWrapper.cs" />
