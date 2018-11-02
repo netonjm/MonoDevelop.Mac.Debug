@@ -27,14 +27,13 @@ namespace MonoDevelop.Inspector.Mac
 
 		readonly NSStackView stackView;
 
-		readonly InspectorManager inspectorManager;
+        readonly IInspectDelegate inspectDelegate;
 
-		readonly ToggleButton toolkitButton;
+        readonly ToggleButton toolkitButton;
 
-		public MacToolbarWindow (InspectorManager inspectorManager)
+		public MacToolbarWindow (IInspectDelegate inspectDelegate)
 		{
-			this.inspectorManager = inspectorManager;
-
+            this.inspectDelegate = inspectDelegate;
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
 			StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
@@ -130,40 +129,39 @@ namespace MonoDevelop.Inspector.Mac
 				OnFontChanged();
 			};
 			//AddSeparator();
-
-			inspectorManager.FocusedViewChanged += (sender, view) =>
-			{
-				bool showImage = false;
-				bool showFont = false;
-				//NSPopUpButton
-				var fontData = inspectorManager.Delegate.GetFont(view); 
-				if (fontData?.Font != null)
-				{
-					var currentFontName = ((NSFont) fontData.Font.NativeObject).FontName;
-					if (currentFontName == ".AppleSystemUIFont")
-					{
-						currentFontName = "HelveticaNeue";
-					}
-					var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
-					fontsCombobox.Select(name);
-
-					fontSizeTextView.IntValue = (int)fontData.Size;
-					showFont = true;
-				}
-
-				if (view.NativeView is NSImageView || view.NativeView is NSButton)
-				{
-					showImage = true;
-				}
-
-				imageButtonVisible = showImage;
-				fontButtonsVisible = showFont;
-			};
-
 			stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 		}
 
-		void ToolkitButton_Activated (object sender, EventArgs e)
+        public void ChangeView (InspectorManager manager, IViewWrapper viewWrapper)
+        {
+            bool showImage = false;
+            bool showFont = false;
+            //NSPopUpButton
+            var fontData = manager.Delegate.GetFont(viewWrapper);
+            if (fontData?.Font != null)
+            {
+                var currentFontName = ((NSFont)fontData.Font.NativeObject).FontName;
+                if (currentFontName == ".AppleSystemUIFont")
+                {
+                    currentFontName = "HelveticaNeue";
+                }
+                var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
+                fontsCombobox.Select(name);
+
+                fontSizeTextView.IntValue = (int)fontData.Size;
+                showFont = true;
+            }
+
+            if (viewWrapper.NativeView is NSImageView || viewWrapper.NativeView is NSButton)
+            {
+                showImage = true;
+            }
+
+            imageButtonVisible = showImage;
+            fontButtonsVisible = showFont;
+        }
+
+        void ToolkitButton_Activated (object sender, EventArgs e)
 		{
 			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
 		}
@@ -226,8 +224,7 @@ namespace MonoDevelop.Inspector.Mac
                 //  Font = NSFont.FromFontName (font, size);
                 //}
 
-                IFontWrapper font = inspectorManager.Delegate.GetFromName(selected, fontSize);
-
+                IFontWrapper font = inspectDelegate.GetFromName(selected, fontSize);
                 FontChanged?.Invoke(this, new FontData (font, fontSize));
 			}
 		}

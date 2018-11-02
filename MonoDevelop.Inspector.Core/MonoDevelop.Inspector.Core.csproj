@@ -48,6 +48,9 @@
     <Compile Include="INativeObject.cs" />
     <Compile Include="ColorResult.cs" />
     <Compile Include="IMenuWrapper.cs" />
+    <Compile Include="AccessibilityService.cs" />
+    <Compile Include="InspectorContext.cs" />
+    <Compile Include="InspectorManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

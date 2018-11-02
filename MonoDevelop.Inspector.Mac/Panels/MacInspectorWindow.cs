@@ -103,12 +103,14 @@ namespace MonoDevelop.Inspector.Mac
 			var titleContainter = NativeViewHelper.CreateHorizontalStackView();
 			stackView.AddArrangedSubview(titleContainter);
 
-			var invokeButton = new ImageButton(ResourceService.GetNSImage("execute-16.png"));
-			invokeButton.ToolTip = "Invoke Method!";
-			invokeButton.WidthAnchor.ConstraintEqualToConstant(ButtonWidth).Active = true;
 
-			titleContainter.AddArrangedSubview(invokeButton);
-			invokeButton.Activated += (s, e) => InvokeSelectedView();
+            IImageWrapper invokeImage = inspectorDelegate.GetImageResource("execute-16.png");
+            IButtonWrapper invokeButton = inspectorDelegate.GetImageButton(invokeImage);
+            invokeButton.SetTooltip("Invoke Method!");
+            invokeButton.SetWidth(ButtonWidth);
+
+			titleContainter.AddArrangedSubview((NSView) invokeButton.NativeObject);
+			invokeButton.Pressed += (s, e) => InvokeSelectedView();
 
 			titleContainter.AddArrangedSubview(NativeViewHelper.CreateLabel ("Result: "));
 
@@ -121,13 +123,6 @@ namespace MonoDevelop.Inspector.Mac
 
 			//add property panel
 			stackView.AddArrangedSubview (propertyEditorPanel);
-
-			//methodListView.SelectionChanged += (s, e) =>
-			//{
-			//	//if (methodListView.SelectedItem is MethodTableViewItem itm) {
-			//	//	invokeButton.Enabled = itm.MethodInfo.GetParameters().Count() == 0;
-			//	//}
-			//};
 
 			DidResize += Handle_DidResize;
 		}

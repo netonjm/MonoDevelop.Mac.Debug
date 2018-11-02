@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using AppKit;
 using CoreGraphics;
-using MonoDevelop.Inspector.Mac.Services;
+using MonoDevelop.Inspector.Services;
 
 namespace MonoDevelop.Inspector.Mac
 {

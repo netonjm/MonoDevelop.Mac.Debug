@@ -25,5 +25,7 @@ namespace MonoDevelop.Inspector
         IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler);
         IMenuItemWrapper GetSeparatorMenuItem();
         IMenuItemWrapper GetShowWindowMenuItem(EventHandler menuItemOpenHandler);
+        IImageWrapper GetImageResource(string v);
+        IButtonWrapper GetImageButton(IImageWrapper invokeImage);
     }
 }

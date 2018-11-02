@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MonoDevelop.Inspector.Services;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -38,6 +39,23 @@ namespace MonoDevelop.Inspector.Mac
 		{
 		}
 
+        public IImageWrapper GetImageResource(string resource)
+        {
+            try
+            {
+                var assembly = System.Reflection.Assembly.GetAssembly(typeof(MacInspectorDelegate));
+                var resources = assembly.GetManifestResourceNames();
+                using (var stream = assembly.GetManifestResourceStream(resource))
+                {
+                    return new MacImageWrapper (NSImage.FromStream(stream));
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return null;
+            }
+        }
+
         public IMenuWrapper GetSubMenu ()
         {
             var shared = NSApplication.SharedApplication;
@@ -66,6 +84,13 @@ namespace MonoDevelop.Inspector.Mac
             submenu.AutoEnablesItems = false;
 
             return new MacMenuWrapper (submenu);
+        }
+
+        public IButtonWrapper GetImageButton (IImageWrapper imageWrapper)
+        {
+            var invokeButton = new ImageButton((NSImage)imageWrapper.NativeObject);
+          
+            return new MacButtonWrapper(invokeButton);
         }
 
         public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)

@@ -8,19 +8,37 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	[Register ("DebugWindow")]
+    internal class MacInspectorContext : InspectorContext
+    {
+        protected override InspectorManager GetInitializationContext()
+        {
+            var macDelegate = new MacInspectorDelegate();
+
+            var over = new MacBorderedWindow (CGRect.Empty, NSColor.Green);
+            var next = new MacBorderedWindow (CGRect.Empty, NSColor.Red);
+            var previous = new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
+            var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+            var ins = new InspectorWindow(macDelegate, new CGRect(10, 10, 600, 700)); ;
+            var tool = new MacToolbarWindow (macDelegate);
+            return new InspectorManager(macDelegate, over, next, previous, acc,ins, tool);
+        }
+
+        public static MacInspectorContext Current { get; set; } = new MacInspectorContext();
+    }
+
+    [Register("DebugWindow")]
 	public class MacAccInspectorWindow : MacWindowWrapper, IMainWindowWrapper
 	{
 		public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
 
 		public MacAccInspectorWindow () : base ()
 		{
-
-		}
+            MacInspectorContext.Current.Initialize();
+        }
 
 		public override void BecomeMainWindow ()
 		{
-			InspectorContext.Attach (this);
+            MacInspectorContext.Current.Attach (this);
 			base.BecomeMainWindow ();
 		}
 
@@ -49,7 +67,7 @@ namespace MonoDevelop.Inspector.Mac
 		public override bool MakeFirstResponder (NSResponder aResponder)
 		{
 			if (aResponder is NSView view) {
-				InspectorContext.ChangeFocusedView (new MacViewWrapper (view));
+                MacInspectorContext.Current.ChangeFocusedView (new MacViewWrapper (view));
 			}
 			return base.MakeFirstResponder (aResponder);
 		}

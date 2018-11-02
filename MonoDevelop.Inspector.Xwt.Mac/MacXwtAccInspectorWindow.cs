@@ -4,17 +4,22 @@ using AppKit;
 namespace MonoDevelop.Inspector.Mac
 {
 	public class MacXwtAccInspectorWindow : MacXwtWindowWrapper, IMainWindowWrapper
-	{
-		protected override void OnBecomeMainWindow (object sender, EventArgs args)
+    {
+        public MacXwtAccInspectorWindow()
+        {
+            MacInspectorContext.Current.Initialize();
+        }
+
+        protected override void OnBecomeMainWindow (object sender, EventArgs args)
 		{
-			InspectorContext.Attach (this);
+            MacInspectorContext.Current.Attach (this);
 		}
 
 		public override void OnFocusChanged (object focused)
 		{
 			if (focused is NSView focusedView) {
 				var wrapperView = new MacViewWrapper (focusedView);
-				InspectorContext.ChangeFocusedView (wrapperView);
+                MacInspectorContext.Current.ChangeFocusedView (wrapperView);
 			}
 		}
 	}
