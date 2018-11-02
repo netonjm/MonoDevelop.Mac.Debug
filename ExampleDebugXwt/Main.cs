@@ -1,4 +1,4 @@
-﻿using MonoDevelop.Mac.Debug;
+﻿using MonoDevelop.Inspector.Mac;
 using Xwt;
 
 namespace DebugExampleDebugWindow

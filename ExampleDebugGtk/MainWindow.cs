@@ -1,6 +1,6 @@
 ﻿using Gdk;
 using Gtk;
-using MonoDevelop.Mac.Debug;
+using MonoDevelop.Inspector.Mac;
 
 public partial class MainWindow : Gtk.Window
 {

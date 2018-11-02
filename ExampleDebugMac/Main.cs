@@ -1,6 +1,6 @@
 ﻿using AppKit;
 using CoreGraphics;
-using MonoDevelop.Mac.Debug;
+using MonoDevelop.Inspector.Mac;
 
 namespace ExampleDebugMac
 {
