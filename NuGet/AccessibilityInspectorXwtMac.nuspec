@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Accessibility.Inspector.Xwt.Mac</id>
-    <version>0.1.0</version>
+    <version>0.1.2</version>
     <title>Accessibility Inspector for Xamarin.Xwt (Mac)</title>
     <authors>Jose Medrano</authors>
     <owners>Jose Medrano</owners>
@@ -15,7 +15,7 @@
     <tags>accessibility inspector xamarin mac</tags>
   </metadata>
   <files>
-    <file src="..\MonoDevelop.Inspector.Xwt.Mac\bin\Debug\*.dll" target="lib/net40" />
+    <file src="..\MonoDevelop.Inspector.Xwt.Mac\bin\Debug\*.dll" exclude="..\MonoDevelop.Inspector.Xwt.Mac\bin\Debug\Xwt.*" target="lib/net40" />
   </files>
 
 </package>
