@@ -81,6 +81,8 @@
     <Compile Include="MacImageViewWrapper.cs" />
     <Compile Include="MacMenuWrapper.cs" />
     <Compile Include="MacMenuItemWrapper.cs" />
+    <Compile Include="Panels\MacTabView.cs" />
+    <Compile Include="Panels\ITabView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />

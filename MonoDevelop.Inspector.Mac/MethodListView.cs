@@ -23,7 +23,7 @@ namespace MonoDevelop.Inspector.Mac
 		public void SetObject (object element)
 		{
 			List<MethodInfo> methodInfos;
-
+            TranslatesAutoresizingMaskIntoConstraints = false;
 			//if (ShowAllMethods)
 			//{
 			//	methodInfos = element.GetType()
