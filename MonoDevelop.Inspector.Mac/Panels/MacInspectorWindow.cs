@@ -19,7 +19,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public const int ButtonWidth = 30;
         const int margin = 10;
-        const int ScrollViewSize = 150;
+        const int ScrollViewSize = 240;
         readonly MockEditorProvider editorProvider;
         readonly MockResourceProvider resourceProvider;
         readonly MockBindingProvider bindingProvider;
@@ -67,12 +67,9 @@ namespace MonoDevelop.Inspector.Mac
 
             constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height-margin * 2);
             constraint.Active = true;
-           
             outlineView = new OutlineView ();
             var outlineViewScrollView = new ScrollContainerView (outlineView);
-            outlineViewScrollView.HeightAnchor.ConstraintEqualToConstant (ScrollViewSize).Active = true;
-            stackView.AddArrangedSubview(outlineViewScrollView);
-
+           
             outlineView.SelectionNodeChanged += (s, e) => {
                 if (outlineView.SelectedNode is NodeView nodeView) {
                     RaiseFirstResponder?.Invoke (this, nodeView.View);
@@ -88,6 +85,27 @@ namespace MonoDevelop.Inspector.Mac
                     }
                 }
             };
+
+            var toolbarTab = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            toolbarTab.WantsLayer = true;
+            toolbarTab.Layer.BackgroundColor = NSColor.Red.CGColor;
+
+            stackView.AddArrangedSubview(toolbarTab);
+
+            toolbarTab.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
+            toolbarTab.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
+            toolbarTab.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
+            toolbarTab.HeightAnchor.ConstraintEqualToConstant(ScrollViewSize).Active = true;
+
+            var outlineTabItem = new NSTabViewItem();
+            outlineTabItem.Label = "View Hierarchy";
+            outlineTabItem.View.AddSubview(outlineViewScrollView);
+            outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor(outlineTabItem.View.LeftAnchor, 0).Active = true;
+            outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(outlineTabItem.View.RightAnchor, 0).Active = true;
+            outlineViewScrollView.TopAnchor.ConstraintEqualToAnchor(outlineTabItem.View.TopAnchor, 0).Active = true;
+            outlineViewScrollView.BottomAnchor.ConstraintEqualToAnchor(outlineTabItem.View.BottomAnchor, 0).Active = true;
+
+            toolbarTab.Add(outlineTabItem);
 
             //===================
 
