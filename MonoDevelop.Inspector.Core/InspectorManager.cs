@@ -17,10 +17,11 @@ namespace MonoDevelop.Inspector
 
 		IViewWrapper view, nextKeyView, previousKeyView;
 		IMainWindowWrapper selectedWindow;
-		InspectorViewMode ViewMode {
+		InspectorViewMode ViewMode
+        {
 			get => selectedWindow.ViewMode;
 			set => selectedWindow.ViewMode = value;
-				}
+		}
 
 		readonly IBorderedWindow debugOverlayWindow;
 		readonly IBorderedWindow debugNextOverlayWindow;
@@ -160,9 +161,9 @@ namespace MonoDevelop.Inspector
 			this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
 			this.selectedWindow.LostFocus += OnRespositionViews;
-		}
+        }
 
-		void RefreshOverlaysVisibility ()
+        void RefreshOverlaysVisibility ()
 		{
 			IsPreviousResponderOverlayVisible = IsPreviousResponderOverlayVisible;
 			IsNextResponderOverlayVisible = IsNextResponderOverlayVisible;
@@ -381,9 +382,11 @@ namespace MonoDevelop.Inspector
 
 			RefreshStatusWindow ();
 
-			FocusedViewChanged?.Invoke(this, nextView);
+            RefreshOverlaysVisibility();
 
-			RefreshOverlaysVisibility ();
+            toolbarWindow.ChangeView(this, nextView);
+
+            FocusedViewChanged?.Invoke(this, nextView);
 		}
 
 		string GetAssemblyVersion ()

@@ -20,6 +20,9 @@ namespace MonoDevelop.Inspector.Mac
             var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorWindow(macDelegate, new CGRect(10, 10, 600, 700)); ;
             var tool = new MacToolbarWindow (macDelegate);
+
+            tool.ShowToolkit(hasToolkit);
+
             return new InspectorManager(macDelegate, over, next, previous, acc,ins, tool);
         }
 
@@ -31,37 +34,40 @@ namespace MonoDevelop.Inspector.Mac
 	{
 		public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
 
-		public MacAccInspectorWindow () : base ()
+        public MacAccInspectorWindow(NSCoder coder) : base(coder)
+        {
+            Initialize();
+        }
+
+        public MacAccInspectorWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation) : base(contentRect, aStyle, bufferingType, deferCreation)
+        {
+            Initialize();
+        }
+
+        public MacAccInspectorWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation, NSScreen screen) : base(contentRect, aStyle, bufferingType, deferCreation, screen)
+        {
+            Initialize();
+        }
+
+        protected MacAccInspectorWindow(NSObjectFlag t) : base(t)
+        {
+            Initialize();
+        }
+
+        protected MacAccInspectorWindow(IntPtr handle) : base(handle)
+        {
+            Initialize();
+        }
+
+        void Initialize()
 		{
-            MacInspectorContext.Current.Initialize();
+            MacInspectorContext.Current.Initialize(false);
         }
 
 		public override void BecomeMainWindow ()
 		{
             MacInspectorContext.Current.Attach (this);
 			base.BecomeMainWindow ();
-		}
-
-		// Called when created from unmanaged code
-		public MacAccInspectorWindow (IntPtr handle) : base (handle)
-		{
-
-		}
-
-		public MacAccInspectorWindow (NSCoder coder) : base (coder)
-		{
-		}
-
-		public MacAccInspectorWindow (CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation) : base (contentRect, aStyle, bufferingType, deferCreation)
-		{
-		}
-
-		public MacAccInspectorWindow (CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation, NSScreen screen) : base (contentRect, aStyle, bufferingType, deferCreation, screen)
-		{
-		}
-
-		protected MacAccInspectorWindow (NSObjectFlag t) : base (t)
-		{
 		}
 
 		public override bool MakeFirstResponder (NSResponder aResponder)

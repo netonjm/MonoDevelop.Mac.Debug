@@ -11,12 +11,13 @@ namespace MonoDevelop.Inspector
 
         public InspectorContext ()
 		{
-            manager = GetInitializationContext();
-		}
 
-        public void Initialize ()
+		}
+        protected bool hasToolkit;
+        public void Initialize (bool hasToolkit)
         {
-            //
+            this.hasToolkit = hasToolkit;
+            manager = GetInitializationContext();
         }
 
         protected abstract InspectorManager GetInitializationContext();

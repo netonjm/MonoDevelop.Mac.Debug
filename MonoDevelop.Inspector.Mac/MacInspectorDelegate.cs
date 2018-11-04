@@ -349,9 +349,6 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-
-
-
         public IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler)
         {
             var menuItem = new NSMenuItem(title, menuItemOpenHandler) { Enabled = false };

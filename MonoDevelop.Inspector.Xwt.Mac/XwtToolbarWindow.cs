@@ -4,7 +4,7 @@ using System;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public class XwtToolbarWindow : MacXwtWindowWrapper, IToolbarWindow
+	class XwtToolbarWindow : MacXwtWindowWrapper, IToolbarWindow
 	{
 		public bool ImageChangedEnabled { get => throw new NotImplementedException (); set => throw new NotImplementedException (); }
 
@@ -22,5 +22,14 @@ namespace MonoDevelop.Inspector.Mac
 
 		}
 
-	}
+        public void ShowToolkit(bool value)
+        {
+
+        }
+
+        public void ChangeView(InspectorManager manager, IViewWrapper viewWrapper)
+        {
+
+        }
+    }
 }

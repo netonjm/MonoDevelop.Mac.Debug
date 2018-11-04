@@ -30,6 +30,21 @@ namespace MonoDevelop.Inspector.Mac
 
         readonly ToggleButton toolkitButton;
 
+        NSView rescanSeparator;
+      
+        public void ShowToolkit (bool value)
+        {
+            if (!value) {
+                toolkitButton.RemoveFromSuperview();
+                rescanSeparator.RemoveFromSuperview();
+            } else {
+                if (!stackView.Subviews.Contains (toolkitButton)){
+                    stackView.AddArrangedSubview(toolkitButton);
+                    stackView.AddArrangedSubview(rescanSeparator);
+                } 
+            } 
+        }
+
 		public MacToolbarWindow (IInspectDelegate inspectDelegate)
 		{
             this.inspectDelegate = inspectDelegate;
@@ -81,7 +96,7 @@ namespace MonoDevelop.Inspector.Mac
 			AddButton (toolkitButton);
 			toolkitButton.Activated += ToolkitButton_Activated;;
 
-			AddSeparator ();
+            rescanSeparator = AddSeparator ();
 
             var themeImage = (NSImage)inspectDelegate.GetImageResource("style-16.png").NativeObject;
             var themeButton = new ToggleButton (themeImage);
@@ -256,13 +271,17 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
-		void AddSeparator () => stackView.AddArrangedSubview (new VerticalSeparator ());
+        NSView AddSeparator ()
+        {
+            var separator = new VerticalSeparator();
+            stackView.AddArrangedSubview(separator);
+            return separator;
+        }  
 
 		void AddButton (NSButton view)
 		{
 			stackView.AddArrangedSubview (view);
 			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
 		}
-
 	}
 }

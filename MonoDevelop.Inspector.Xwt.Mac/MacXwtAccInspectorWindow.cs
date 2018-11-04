@@ -7,7 +7,7 @@ namespace MonoDevelop.Inspector.Mac
     {
         public MacXwtAccInspectorWindow()
         {
-            MacInspectorContext.Current.Initialize();
+            MacInspectorContext.Current.Initialize(true);
         }
 
         protected override void OnBecomeMainWindow (object sender, EventArgs args)

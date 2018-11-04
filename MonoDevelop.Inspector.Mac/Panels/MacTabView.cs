@@ -9,7 +9,7 @@ namespace MonoDevelop.Inspector.Mac
         public List<IViewWrapper> Pages { get; } = new List<IViewWrapper>();
         public MacTabView()
         {
-            tabView = new NSTabView(); //;{ TranslatesAutoresizingMaskIntoConstraints = false };
+            tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
         }
 
         public object NativeObject => tabView;

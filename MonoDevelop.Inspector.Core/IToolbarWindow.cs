@@ -4,9 +4,10 @@ using System;
 
 namespace MonoDevelop.Inspector
 {
-	public interface IToolbarWindow : IWindowWrapper
+	interface IToolbarWindow : IWindowWrapper
 	{
-		event EventHandler<bool> KeyViewLoop;
+        void ShowToolkit(bool value);
+        event EventHandler<bool> KeyViewLoop;
 		event EventHandler<bool> NextKeyViewLoop;
 		event EventHandler<bool> PreviousKeyViewLoop;
 		event EventHandler<bool> ThemeChanged;
@@ -15,5 +16,6 @@ namespace MonoDevelop.Inspector
 		event EventHandler<FontData> FontChanged;
 		event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 		bool ImageChangedEnabled { get; set; }
-	}
+        void ChangeView(InspectorManager manager, IViewWrapper viewWrapper);
+    }
 }
