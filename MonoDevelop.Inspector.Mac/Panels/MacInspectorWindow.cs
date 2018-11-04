@@ -117,8 +117,14 @@ namespace MonoDevelop.Inspector.Mac
             scrollView = new ScrollContainerView (methodListView);
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
-            titleContainter.WantsLayer = true;
-            titleContainter.Layer.BackgroundColor = NSColor.Gray.CGColor;
+            //titleContainter.WantsLayer = true;
+            //titleContainter.Layer.BackgroundColor = NSColor.Gray.CGColor;
+
+            methodSearchView = new NSSearchField() { TranslatesAutoresizingMaskIntoConstraints = false };
+            titleContainter.AddArrangedSubview(methodSearchView);
+            methodSearchView.WidthAnchor.ConstraintEqualToConstant(180).Active =true;
+
+
             IImageWrapper invokeImage = inspectorDelegate.GetImageResource("execute-16.png");
             IButtonWrapper invokeButton = inspectorDelegate.GetImageButton(invokeImage);
             invokeButton.SetTooltip("Invoke Method!");
@@ -136,6 +142,9 @@ namespace MonoDevelop.Inspector.Mac
 
             var methodStackPanel = NativeViewHelper.CreateVerticalStackView();
             methodStackPanel.AddArrangedSubview(titleContainter);
+            titleContainter.LeftAnchor.ConstraintEqualToAnchor(methodStackPanel.LeftAnchor, 0).Active = true;
+            titleContainter.RightAnchor.ConstraintEqualToAnchor(methodStackPanel.RightAnchor, 0).Active = true;
+
             methodStackPanel.AddArrangedSubview(scrollView);
             /////
 
@@ -160,8 +169,15 @@ namespace MonoDevelop.Inspector.Mac
 
             tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
             tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;
-        }
 
+            methodSearchView.Activated += (sender, e) =>
+            {
+                if (viewSelected != null) {
+                    methodListView.SetObject(viewSelected.NativeView, methodSearchView.StringValue);
+                }
+            };
+        }
+        NSSearchField methodSearchView;
         ScrollContainerView scrollView;
         NodeView data;
 
@@ -215,7 +231,7 @@ namespace MonoDevelop.Inspector.Mac
         {
             viewSelected = view;
             propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper (viewSelected, viewMode) });
-            methodListView.SetObject (view.NativeView);
+            methodListView.SetObject (view.NativeView, methodSearchView.StringValue);
             if (data != null) {
                 var found = data.Search(view);
                 if (found != null) {

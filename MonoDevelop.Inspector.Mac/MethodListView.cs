@@ -11,7 +11,7 @@ namespace MonoDevelop.Inspector.Mac
 	{
 		public MethodInfo MethodInfo;
 
-		public MethodTableViewItem(MethodInfo method) : base(method.ToString())
+		public MethodTableViewItem(MethodInfo method, string name) : base(name)
 		{
 			MethodInfo = method;
 		}
@@ -20,24 +20,27 @@ namespace MonoDevelop.Inspector.Mac
 	class MethodListView : TableView
 	{
 		public bool ShowAllMethods { get; set; }
-		public void SetObject (object element)
+		public void SetObject (object element, string filter)
 		{
 			List<MethodInfo> methodInfos;
             TranslatesAutoresizingMaskIntoConstraints = false;
 			//if (ShowAllMethods)
 			//{
-			//	methodInfos = element.GetType()
-			//			   .GetMethods(BindingFlags.Public | BindingFlags.Instance);
+				methodInfos = element.GetType()
+						   .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+
 			//}
 			//else
 			//{
-			methodInfos = element.GetType()
-			.GetRuntimeMethods()
+			//methodInfos = element.GetType()
+			//.GetRuntimeMethods()
 			.ToList();
 
 			var tableItems = new List<TableViewItem>();
 			foreach (var method in methodInfos) {
-				tableItems.Add (new MethodTableViewItem(method));
+                var name = method.ToString();
+                if (string.IsNullOrEmpty (filter) || name.IndexOf (filter, StringComparison.OrdinalIgnoreCase) > -1)
+				tableItems.Add (new MethodTableViewItem(method, name));
 			}
 			SetData (tableItems);
 		}
