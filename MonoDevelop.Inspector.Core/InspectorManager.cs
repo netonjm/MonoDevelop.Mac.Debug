@@ -135,6 +135,10 @@ namespace MonoDevelop.Inspector
 
 		public void SetWindow (IMainWindowWrapper selectedWindow)
 		{
+            if (this.selectedWindow?.NativeObject == selectedWindow?.NativeObject) {
+                return;
+            }
+
 			var needsReattach = selectedWindow != this.selectedWindow;
 
 			if (this.selectedWindow != null) {
@@ -156,9 +160,9 @@ namespace MonoDevelop.Inspector
 
 			RefreshOverlaysVisibility ();
 
-			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow, ViewMode);
+            RefreshNeeded();
 
-			this.selectedWindow.ResizeRequested += OnRespositionViews;
+            this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
 			this.selectedWindow.LostFocus += OnRespositionViews;
         }
@@ -224,6 +228,8 @@ namespace MonoDevelop.Inspector
 				  RemoveView(e);
 			};
 
+            inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
+
             toolbarWindow = toolWindow; //new MacToolbarWindow (this);
 
 			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
@@ -238,10 +244,12 @@ namespace MonoDevelop.Inspector
                 );
             };
 
-			toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
+            inspectorWindow.Initialize();
+
+            toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
 				ViewMode = e;
-				AccessibilityService.Current.ScanErrors (Delegate, selectedWindow, e);
-			};
+                RefreshNeeded();
+            };
 
 			toolbarWindow.ItemDeleted += (sender, e) =>
 			{
@@ -285,12 +293,28 @@ namespace MonoDevelop.Inspector
 			};
 		}
 
+        void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
+        {
+            if (view == null) {
+                return;
+            }
+            Delegate.CreateItem(view, e);
+            RefreshNeeded();
+        }
+
 		void RemoveView (IViewWrapper toRemove)
 		{
 			var parent = toRemove?.PreviousValidKeyView;
 			toRemove.RemoveFromSuperview();
 			ChangeFocusedView(parent);
-		}
+            RefreshNeeded();
+        }
+
+        void RefreshNeeded ()
+        {
+            AccessibilityService.Current.ScanErrors(Delegate, selectedWindow, ViewMode);
+            selectedWindow.RefreshKeyLoop();
+        }
 
 		void OnRespositionViews (object sender, EventArgs e)
 		{
@@ -357,7 +381,6 @@ namespace MonoDevelop.Inspector
 				submenu.InsertItem (item, menuCount++);
 			}
 		}
-
 
 		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
 		{

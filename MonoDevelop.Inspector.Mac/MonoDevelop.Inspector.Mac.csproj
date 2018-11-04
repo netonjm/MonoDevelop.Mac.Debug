@@ -64,7 +64,6 @@
     <Compile Include="MethodListView.cs" />
     <Compile Include="PropertyPanel\MockBindingProvider.cs" />
     <Compile Include="PropertyPanel\MockResourceProvider.cs" />
-    <Compile Include="Controls\ToggleButton.cs" />
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="VerticalSeparator.cs" />
     <Compile Include="OutlineView.cs" />
@@ -83,6 +82,11 @@
     <Compile Include="MacMenuItemWrapper.cs" />
     <Compile Include="Panels\MacTabView.cs" />
     <Compile Include="Panels\ITabView.cs" />
+    <Compile Include="MacToolbarWrapper.cs" />
+    <Compile Include="MacToolbarDataSource.cs" />
+    <Compile Include="MacToolbarViewItem.cs" />
+    <Compile Include="MacToolbarFlowLayout.cs" />
+    <Compile Include="Controls\ToggleButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -91,6 +95,7 @@
     <Folder Include="Panels\" />
     <Folder Include="Services\" />
     <Folder Include="Helpers\" />
+    <Folder Include="Resources\toolbar\" />
   </ItemGroup>
   <ItemGroup>
 
@@ -168,6 +173,48 @@
           <EmbeddedResource Include="Resources\rescan-16.png">
       <LogicalName>rescan-16.png</LogicalName>
     </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_dateView.png">
+            <LogicalName>view_dateView.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_multiline.png">
+            <LogicalName>view_multiline.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_scrollable.png">
+            <LogicalName>view_scrollable.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_textView.png">
+            <LogicalName>view_textView.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_label.png">
+            <LogicalName>view_label.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_search.png">
+            <LogicalName>view_search.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_textField.png">
+            <LogicalName>view_textField.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_button.png">
+            <LogicalName>view_button.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_combo.png">
+            <LogicalName>view_combo.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\toolbar\view_image.png">
+            <LogicalName>view_image.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\compact-display-16.png">
+            <LogicalName>compact-display-16.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\compact-display-16%402x.png">
+            <LogicalName>compact-display-16@2x.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\compact-display-16~dark.png">
+            <LogicalName>compact-display-16~dark.png</LogicalName>
+          </EmbeddedResource>
+          <EmbeddedResource Include="Resources\compact-display-16~dark%402x.png">
+            <LogicalName>compact-display-16~dark@2x.png</LogicalName>
+          </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

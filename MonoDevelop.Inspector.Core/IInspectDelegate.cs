@@ -28,5 +28,6 @@ namespace MonoDevelop.Inspector
         IImageWrapper GetImageResource(string v);
         IButtonWrapper GetImageButton(IImageWrapper invokeImage);
         void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);
+        void CreateItem(IViewWrapper view, ToolbarView e);
     }
 }

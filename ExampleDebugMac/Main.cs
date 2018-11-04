@@ -23,7 +23,12 @@ namespace ExampleDebugMac
 			var button = new NSButton { Title = "Testing" };
 			stackView.AddArrangedSubview(button);
 
-			button.Activated += (sender, e) => {
+            var hotizontalView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Horizontal };
+            hotizontalView.AddArrangedSubview (new NSTextField() { StringValue = "test" });
+
+            stackView.AddArrangedSubview(hotizontalView);
+
+            button.Activated += (sender, e) => {
 				var alert = new NSAlert ();
 				alert.MessageText = "You clicked the button!!!";
 				alert.InformativeText = "Are you sure!?";

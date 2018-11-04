@@ -134,7 +134,12 @@ namespace MonoDevelop.Inspector.Mac
             base.Appearance = NSAppearance.GetAppearance(isDark ? NSAppearance.NameVibrantDark : NSAppearance.NameVibrantLight);
         }
 
-		public event EventHandler ResizeRequested;
+        public void RefreshKeyLoop()
+        {
+            base.RecalculateKeyViewLoop();
+        }
+
+        public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
 		public event EventHandler LostFocus;
 	}

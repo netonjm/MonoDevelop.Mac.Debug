@@ -65,7 +65,7 @@ namespace MonoDevelop.Inspector.Mac
 
             //Visual issues view
             var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
-            var keyViewLoopButton = new ToggleButton(actualImage);
+            var keyViewLoopButton = new ToggleButton() { Image = actualImage };
 			keyViewLoopButton.ToolTip = "Shows current focused item";
 			AddButton (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
@@ -73,7 +73,7 @@ namespace MonoDevelop.Inspector.Mac
 			};
 
             var previousImage = (NSImage)inspectDelegate.GetImageResource("overlay-previous.png").NativeObject;
-            var prevKeyViewLoopButton = new ToggleButton(previousImage);
+            var prevKeyViewLoopButton = new ToggleButton() { Image = previousImage }; 
 			prevKeyViewLoopButton.ToolTip = "Shows previous view item";
 			AddButton (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
@@ -81,7 +81,7 @@ namespace MonoDevelop.Inspector.Mac
 			};
 
             var nextImage = (NSImage)inspectDelegate.GetImageResource("overlay-next.png").NativeObject;
-            var nextKeyViewLoopButton = new ToggleButton(nextImage);
+            var nextKeyViewLoopButton = new ToggleButton() { Image = nextImage };
 			nextKeyViewLoopButton.ToolTip = "Shows next view item";
 			AddButton (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
@@ -91,7 +91,7 @@ namespace MonoDevelop.Inspector.Mac
 			AddSeparator ();
 
             var rescanImage = (NSImage)inspectDelegate.GetImageResource("rescan-16.png").NativeObject;
-            toolkitButton = new ToggleButton (rescanImage);
+            toolkitButton = new ToggleButton { Image = rescanImage };
 			toolkitButton.ToolTip = "Change beetween Toolkits";
 			AddButton (toolkitButton);
 			toolkitButton.Activated += ToolkitButton_Activated;;
@@ -99,11 +99,10 @@ namespace MonoDevelop.Inspector.Mac
             rescanSeparator = AddSeparator ();
 
             var themeImage = (NSImage)inspectDelegate.GetImageResource("style-16.png").NativeObject;
-            var themeButton = new ToggleButton (themeImage);
+            var themeButton = new ToggleButton { Image = themeImage }; 
 			themeButton.ToolTip = "Change Style Theme";
 			AddButton (themeButton);
 			themeButton.Activated += ThemeButton_Activated;
-
 
 			AddSeparator ();
 

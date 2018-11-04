@@ -7,15 +7,15 @@ namespace MonoDevelop.Inspector
 	public interface IMainWindowWrapper: IWindowWrapper
 	{
 		InspectorViewMode ViewMode { get; set; }
-	}
+    }
 
 	public interface IWindowWrapper : INativeObject
     {
 		IViewWrapper ContentView { get; set; }
 		IViewWrapper FirstResponder { get; }
 		bool HasParentWindow { get; }
-
-		event EventHandler LostFocus;
+      
+        event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;
 
@@ -30,7 +30,7 @@ namespace MonoDevelop.Inspector
 		void SetTitle(string v);
 		void SetContentSize(int toolbarWindowWidth, int toolbarWindowHeight);
 		void Close();
-
+        void RefreshKeyLoop();
         void SetAppareance(bool isDark);
     }
 }
