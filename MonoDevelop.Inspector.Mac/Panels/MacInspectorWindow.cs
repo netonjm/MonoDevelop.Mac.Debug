@@ -69,10 +69,8 @@ namespace MonoDevelop.Inspector.Mac
             constraint.Active = true;
            
             outlineView = new OutlineView ();
-
             var outlineViewScrollView = new ScrollContainerView (outlineView);
             outlineViewScrollView.HeightAnchor.ConstraintEqualToConstant (ScrollViewSize).Active = true;
-
             stackView.AddArrangedSubview(outlineViewScrollView);
 
             outlineView.SelectionNodeChanged += (s, e) => {
@@ -97,13 +95,12 @@ namespace MonoDevelop.Inspector.Mac
             methodListView = new MethodListView();
             methodListView.AddColumn(new NSTableColumn("col") { Title = "Methods" });
             methodListView.DoubleClick += MethodListView_DoubleClick;
-           
+
             scrollView = new ScrollContainerView (methodListView);
-            stackView.AddArrangedSubview(scrollView);
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
-            stackView.AddArrangedSubview(titleContainter);
-
+            titleContainter.WantsLayer = true;
+            titleContainter.Layer.BackgroundColor = NSColor.Gray.CGColor;
             IImageWrapper invokeImage = inspectorDelegate.GetImageResource("execute-16.png");
             IButtonWrapper invokeButton = inspectorDelegate.GetImageButton(invokeImage);
             invokeButton.SetTooltip("Invoke Method!");
@@ -119,18 +116,32 @@ namespace MonoDevelop.Inspector.Mac
 
             titleContainter.AddArrangedSubview(resultMessage);
 
+            var methodStackPanel = NativeViewHelper.CreateVerticalStackView();
+            methodStackPanel.AddArrangedSubview(titleContainter);
+            methodStackPanel.AddArrangedSubview(scrollView);
+            /////
+
             var tabPropertyPanel = new NSTabViewItem();
             tabPropertyPanel.View = propertyEditorPanel;
             tabPropertyPanel.Label = "Properties";
 
             var tabMethod = new NSTabViewItem();
-            tabMethod.View = scrollView;
+
+            tabMethod.View.AddSubview(methodStackPanel);
+            methodStackPanel.LeftAnchor.ConstraintEqualToAnchor(tabMethod.View.LeftAnchor, 0).Active = true;
+            methodStackPanel.RightAnchor.ConstraintEqualToAnchor(tabMethod.View.RightAnchor, 0).Active = true;
+            methodStackPanel.TopAnchor.ConstraintEqualToAnchor(tabMethod.View.TopAnchor, 0).Active = true;
+            methodStackPanel.BottomAnchor.ConstraintEqualToAnchor(tabMethod.View.BottomAnchor, 0).Active = true;
+
             tabMethod.Label = "Methods";
 
-            tabView = new NSTabView();
+            tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false } ;
             tabView.Add(tabPropertyPanel);
             tabView.Add(tabMethod);
             stackView.AddArrangedSubview(tabView as NSView);
+
+            tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
+            tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;
         }
 
         ScrollContainerView scrollView;
