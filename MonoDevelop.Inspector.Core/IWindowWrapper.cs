@@ -30,5 +30,7 @@ namespace MonoDevelop.Inspector
 		void SetTitle(string v);
 		void SetContentSize(int toolbarWindowWidth, int toolbarWindowHeight);
 		void Close();
-	}
+
+        void SetAppareance(bool isDark);
+    }
 }

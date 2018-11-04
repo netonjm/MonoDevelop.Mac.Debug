@@ -129,6 +129,11 @@ namespace MonoDevelop.Inspector.Mac
 			base.SetContentSize(new CGSize(toolbarWindowWidth, toolbarWindowHeight));
 		}
 
+        public void SetAppareance(bool isDark)
+        {
+            base.Appearance = NSAppearance.GetAppearance(isDark ? NSAppearance.NameVibrantDark : NSAppearance.NameVibrantLight);
+        }
+
 		public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
 		public event EventHandler LostFocus;

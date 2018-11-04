@@ -227,24 +227,15 @@ namespace MonoDevelop.Inspector
 
 			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
 		
-			toolbarWindow.ThemeChanged += (sender, pressed) => {
-				if (pressed) {
-					//PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Dark;
-
-					//accessibilityWindow.Appearance 
-					//= inspectorWindow.Appearance 
-					//	= toolbarWindow.Appearance = 
-					//		selectedWindow.Appearance 
-					//= NSAppearance.GetAppearance (NSAppearance.NameVibrantDark);
-				}
-				else {
-					//PropertyEditorPanel.ThemeManager.Theme = PropertyEditorTheme.Light;
-
-					//accessibilityWindow.Appearance = PropertyEditorTheme.Dark;
-
-					//accessibilityWindow.Appearance = inspectorWindow.Appearance = toolbarWindow.Appearance = selectedWindow.Appearance = NSAppearance.GetAppearance (NSAppearance.NameVibrantLight);
-				}
-			};
+			toolbarWindow.ThemeChanged += (sender, isDark) => {
+                inspectorWindow.SetAppareance(isDark);
+                Delegate.SetAppearance(isDark, 
+                inspectorWindow, 
+                accessibilityWindow,
+                toolbarWindow, 
+                selectedWindow
+                );
+            };
 
 			toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
 				ViewMode = e;

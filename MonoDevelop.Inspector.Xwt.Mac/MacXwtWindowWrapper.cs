@@ -137,7 +137,12 @@ namespace MonoDevelop.Inspector.Mac
 			Window.SetContentSize (new CGSize (toolbarWindowWidth, toolbarWindowHeight));
 		}
 
-		protected NSWindow Window => NativeObject as NSWindow;
+        public void SetAppareance(bool isDark)
+        {
+            Window.Appearance = NSAppearance.GetAppearance(isDark ? NSAppearance.NameVibrantDark : NSAppearance.NameVibrantLight);
+        }
+
+        protected NSWindow Window => NativeObject as NSWindow;
 
 		public object NativeObject => BackendHost.Backend.Window;
 

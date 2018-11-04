@@ -27,5 +27,6 @@ namespace MonoDevelop.Inspector
         IMenuItemWrapper GetShowWindowMenuItem(EventHandler menuItemOpenHandler);
         IImageWrapper GetImageResource(string v);
         IButtonWrapper GetImageButton(IImageWrapper invokeImage);
+        void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);
     }
 }

@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MonoDevelop.Inspector.Services;
+using Xamarin.PropertyEditing.Mac;
+using Xamarin.PropertyEditing.Themes;
 
 namespace MonoDevelop.Inspector.Mac
 {
-
     public class MacColorWrapper : IColorWrapper
     {
         NSColor image;
@@ -368,6 +369,15 @@ namespace MonoDevelop.Inspector.Mac
         public IMenuItemWrapper GetSeparatorMenuItem()
         {
             return new MacMenuItemWrapper ( NSMenuItem.SeparatorItem);
+        }
+
+        public void SetAppearance(bool isDark, params IWindowWrapper[] inspectorWindow)
+        {
+            PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+            foreach (var item in inspectorWindow)
+            {
+                item.SetAppareance(isDark);
+            }
         }
 
         TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
