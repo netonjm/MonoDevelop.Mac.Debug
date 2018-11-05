@@ -33,9 +33,8 @@ namespace MonoDevelop.Inspector
 
 		IToolbarWindow toolbarWindow;
 
-		IMenuItemWrapper inspectorMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
-
-		readonly AccessibilityService accessibilityService;
+		IMenuItemWrapper inspectorMenuItem, accessibilityMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
+        readonly AccessibilityService accessibilityService;
 		List<IBorderedWindow> detectedErrors = new List<IBorderedWindow> ();
 
 		#region Properties
@@ -90,11 +89,6 @@ namespace MonoDevelop.Inspector
 					debugOverlayWindow.OrderFront ();
 				}
 			}
-		}
-
-		bool IsStatusWindowVisible {
-			get => inspectorWindow.HasParentWindow;
-			set => ShowStatusWindow (value);
 		}
 
         IMenuWrapper Submenu {
@@ -284,8 +278,7 @@ namespace MonoDevelop.Inspector
 
 			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
 			{
-				if (e == null)
-				{
+				if (e == null) {
 					return;
 				}
 				IsFirstResponderOverlayVisible = true;
@@ -324,25 +317,38 @@ namespace MonoDevelop.Inspector
 			RefreshOverlaysVisibility ();
 		}
 
-		void ShowStatusWindow (bool value)
+        void ShowHideInspectorWindow (bool value)
 		{
 			if (value) {
-				if (!IsStatusWindowVisible) {
-					selectedWindow.AddChildWindow(accessibilityWindow);
+				if (!inspectorWindow.HasParentWindow) {
 					selectedWindow.AddChildWindow (inspectorWindow);
 					selectedWindow.AddChildWindow(toolbarWindow);
 					RefreshStatusWindow ();
 				}
 			}
 			else {
-
-				accessibilityWindow?.Close();
 				toolbarWindow?.Close();
 				inspectorWindow?.Close ();
 			}
 		}
 
-		void RefreshStatusWindow ()
+        void ShowHideAccessibilityWindow(bool value)
+        {
+            if (value)
+            {
+                if (!accessibilityWindow.HasParentWindow)
+                {
+                    selectedWindow.AddChildWindow(accessibilityWindow);
+                    RefreshStatusWindow();
+                }
+            }
+            else
+            {
+                accessibilityWindow?.Close();
+            }
+        }
+
+        void RefreshStatusWindow ()
 		{
 			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
 			inspectorWindow.AlignRight(selectedWindow, WindowMargin);
@@ -371,10 +377,12 @@ namespace MonoDevelop.Inspector
 
             int menuCount = 0;
 
-            var menuItem = Delegate.CreateMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), ShowHideDetailDebuggerWindow);
+            var menuItem = Delegate.CreateMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), null);
             menuItems.Add(menuItem);
-            inspectorMenuItem = Delegate.GetShowWindowMenuItem (ShowHideDetailDebuggerWindow);
-            menuItems.Add (inspectorMenuItem);
+            inspectorMenuItem = Delegate.GetShowInspectorWindowMenuItem (ShowHideInspectorWindow);
+            menuItems.Add(inspectorMenuItem);
+            accessibilityMenuItem = Delegate.GetShowAccessibilityWindowMenuItem(ShowHideAccessibilityWindow);
+            menuItems.Add(accessibilityMenuItem);
             menuItems.Add(Delegate.GetSeparatorMenuItem());
 
 			foreach (var item in menuItems) {
@@ -382,13 +390,20 @@ namespace MonoDevelop.Inspector
 			}
 		}
 
-		void ShowHideDetailDebuggerWindow (object sender, EventArgs e)
+		void ShowHideInspectorWindow (object sender, EventArgs e)
 		{
-			IsStatusWindowVisible = !IsStatusWindowVisible;
-			inspectorMenuItem.SetTitle (string.Format ("{0} Window", ToMenuAction (!IsStatusWindowVisible)));
+            inspectorMenuItem.SetTitle(string.Format("{0} Inspector Window", ToMenuAction(inspectorWindow.HasParentWindow)));
+            ShowHideInspectorWindow(!inspectorWindow.HasParentWindow);
+			
 		}
 
-		string ToMenuAction (bool value) => value ? "Show" : "Hide";
+        void ShowHideAccessibilityWindow(object sender, EventArgs e)
+        {
+            accessibilityMenuItem.SetTitle(string.Format("{0} Accessibility Window", ToMenuAction(accessibilityWindow.HasParentWindow)));
+            ShowHideAccessibilityWindow(!accessibilityWindow.HasParentWindow);
+        }
+
+        string ToMenuAction (bool value) => value ? "Show" : "Hide";
 
 		public event EventHandler<IViewWrapper> FocusedViewChanged;
 

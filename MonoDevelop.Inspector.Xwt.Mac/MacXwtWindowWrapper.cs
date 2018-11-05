@@ -142,6 +142,11 @@ namespace MonoDevelop.Inspector.Mac
             Window.Appearance = NSAppearance.GetAppearance(isDark ? NSAppearance.NameVibrantDark : NSAppearance.NameVibrantLight);
         }
 
+        public void RefreshKeyLoop()
+        {
+            Window.RecalculateKeyViewLoop();
+        }
+
         protected NSWindow Window => NativeObject as NSWindow;
 
 		public object NativeObject => BackendHost.Backend.Window;

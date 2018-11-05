@@ -17,8 +17,8 @@ namespace MonoDevelop.Inspector.Mac
 
         public override NSCollectionViewItem GetItem(NSCollectionView collectionView, NSIndexPath indexPath)
         {
-            var item = collectionView.MakeItem(IsOnlyImage ? ImageCollectionViewItem.Name : MacToolbarCollectionViewItem.Name, indexPath);
-            if (item is MacToolbarCollectionViewItem itmView)
+            var item = collectionView.MakeItem(IsOnlyImage ? MacInspectorToolbarImageCollectionViewItem.Name : MacInspectorToolbarCollectionViewItem.Name, indexPath);
+            if (item is MacInspectorToolbarCollectionViewItem itmView)
             {
                 var selectedItem = items[(int)indexPath.Section].Items[(int)indexPath.Item];
 
@@ -32,7 +32,7 @@ namespace MonoDevelop.Inspector.Mac
                 //ImageView needs modify the AccessibilityElement from it's cell, doesn't work from main view
                 itmView.ImageView.Cell.AccessibilityElement = false;
             }
-            else if (item is ImageCollectionViewItem imgView)
+            else if (item is MacInspectorToolbarImageCollectionViewItem imgView)
             {
                 var selectedItem = items[(int)indexPath.Section].Items[(int)indexPath.Item];
                 imgView.View.ToolTip = selectedItem.Label ?? "";
@@ -45,7 +45,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public override NSView GetView(NSCollectionView collectionView, NSString kind, NSIndexPath indexPath)
         {
-            return collectionView.MakeSupplementaryView(kind, HeaderCollectionViewItem.Name, indexPath);
+            return collectionView.MakeSupplementaryView(kind, MacInspectorToolbarHeaderCollectionViewItem.Name, indexPath);
         }
 
         public override nint GetNumberofItems(NSCollectionView collectionView, nint section)

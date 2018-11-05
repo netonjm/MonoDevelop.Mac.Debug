@@ -34,7 +34,7 @@ namespace MonoDevelop.Inspector.Mac
         NSTabView tabView;
 
         readonly IInspectDelegate inspectorDelegate;
-        MacToolbarView toolbarView;
+        MacInspectorToolbarView toolbarView;
 
         public event EventHandler<ToolbarView> RaiseInsertItem;
 
@@ -127,7 +127,7 @@ namespace MonoDevelop.Inspector.Mac
 
             toolbarStackView.AddArrangedSubview(toolbarHorizontalStackView);
 
-            toolbarView = new MacToolbarView();
+            toolbarView = new MacInspectorToolbarView();
             var toolbarViewScrollView = new ScrollContainerView(toolbarView);
             toolbarStackView.AddArrangedSubview(toolbarViewScrollView);
 
@@ -233,9 +233,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public void Initialize() 
         {
-            toolbarView.RegisterClassForItem(typeof(HeaderCollectionViewItem), HeaderCollectionViewItem.Name);
-            toolbarView.RegisterClassForItem(typeof(MacToolbarCollectionViewItem), MacToolbarCollectionViewItem.Name);
-            toolbarView.RegisterClassForItem(typeof(ImageCollectionViewItem), ImageCollectionViewItem.Name);
+            toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarHeaderCollectionViewItem), MacInspectorToolbarHeaderCollectionViewItem.Name);
+            toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarCollectionViewItem), MacInspectorToolbarCollectionViewItem.Name);
+            toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarImageCollectionViewItem), MacInspectorToolbarImageCollectionViewItem.Name);
 
             var toolbarItem = new CollectionHeaderItem() { Label = "Main" };
             toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.DatePicker, Image = inspectorDelegate.GetImageResource ("view_dateView.png"), Label = "Date Picker", Description ="Provides for visually display and editing an NSDate instance." });

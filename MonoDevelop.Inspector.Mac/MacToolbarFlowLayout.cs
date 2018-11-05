@@ -5,7 +5,7 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    public class MacToolbarFlowLayout : NSCollectionViewFlowLayout
+    class MacToolbarFlowLayout : NSCollectionViewFlowLayout
     {
         public MacToolbarFlowLayout()
         {
@@ -13,7 +13,7 @@ namespace MonoDevelop.Inspector.Mac
         }
     }
 
-    internal class MacToolbarFlowLayoutDelegate : NSCollectionViewDelegateFlowLayout
+    class MacToolbarFlowLayoutDelegate : NSCollectionViewDelegateFlowLayout
     {
         public bool IsOnlyImage { get; set; }
         public bool IsShowCategories { get; set; }
@@ -34,10 +34,10 @@ namespace MonoDevelop.Inspector.Mac
             }
             if (IsOnlyImage)
             {
-                return ImageCollectionViewItem.Size;
+                return MacInspectorToolbarImageCollectionViewItem.Size;
             }
             var sectionInset = delegateFlowLayout.SectionInset;
-            return new CGSize(collectionView.Frame.Width - sectionInset.Left - sectionInset.Right, MacToolbarCollectionViewItem.ItemHeight);
+            return new CGSize(collectionView.Frame.Width - sectionInset.Left - sectionInset.Right, MacInspectorToolbarCollectionViewItem.ItemHeight);
         }
 
         public override NSEdgeInsets InsetForSection(NSCollectionView collectionView, NSCollectionViewLayout collectionViewLayout, nint section)
@@ -53,7 +53,7 @@ namespace MonoDevelop.Inspector.Mac
             }
             var delegateFlowLayout = ((MacToolbarFlowLayout)collectionViewLayout);
             var sectionInset = delegateFlowLayout.SectionInset;
-            return new CGSize(collectionView.Frame.Width, HeaderCollectionViewItem.SectionHeight);
+            return new CGSize(collectionView.Frame.Width, MacInspectorToolbarHeaderCollectionViewItem.SectionHeight);
         }
 
         public override CGSize ReferenceSizeForFooter(NSCollectionView collectionView, NSCollectionViewLayout collectionViewLayout, nint section)

@@ -24,7 +24,8 @@ namespace MonoDevelop.Inspector
         void ClearSubmenuItems(List<IMenuItemWrapper> menuItems, IMenuWrapper submenu);
         IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler);
         IMenuItemWrapper GetSeparatorMenuItem();
-        IMenuItemWrapper GetShowWindowMenuItem(EventHandler menuItemOpenHandler);
+        IMenuItemWrapper GetShowInspectorWindowMenuItem(EventHandler menuItemOpenHandler);
+        IMenuItemWrapper GetShowAccessibilityWindowMenuItem(EventHandler menuItemOpenHandler);
         IImageWrapper GetImageResource(string v);
         IButtonWrapper GetImageButton(IImageWrapper invokeImage);
         void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);

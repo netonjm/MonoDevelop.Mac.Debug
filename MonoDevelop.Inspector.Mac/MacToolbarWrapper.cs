@@ -6,8 +6,8 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    [Register("CollectionView")]
-    public class MacToolbarView : NSCollectionView
+    [Register("MacInspectorToolbarView")]
+    class MacInspectorToolbarView : NSCollectionView
     {
         MacToolbarDataSource dataSource;
         MacToolbarFlowLayoutDelegate collectionViewDelegate;
@@ -32,7 +32,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public override NSView MakeSupplementaryView(NSString elementKind, string identifier, NSIndexPath indexPath)
         {
-            var item = MakeItem(identifier, indexPath) as HeaderCollectionViewItem;
+            var item = MakeItem(identifier, indexPath) as MacInspectorToolbarHeaderCollectionViewItem;
             var selectedItem = items[(int)indexPath.Section];
             item.TextField.StringValue = selectedItem.Label ?? "";
             item.TextField.AccessibilityTitle = selectedItem.AccessibilityTitle ?? "";
@@ -49,20 +49,20 @@ namespace MonoDevelop.Inspector.Mac
         }
 
         // Called when created from unmanaged code
-        public MacToolbarView() : base()
+        public MacInspectorToolbarView() : base()
         {
             Initialize();
         }
 
         // Called when created from unmanaged code
-        public MacToolbarView(IntPtr handle) : base(handle)
+        public MacInspectorToolbarView(IntPtr handle) : base(handle)
         {
             Initialize();
         }
 
         // Called when created directly from a XIB file
         [Export("initWithCoder:")]
-        public MacToolbarView(NSCoder coder) : base(coder)
+        public MacInspectorToolbarView(NSCoder coder) : base(coder)
         {
             Initialize();
         }
@@ -103,7 +103,14 @@ namespace MonoDevelop.Inspector.Mac
             Delegate = collectionViewDelegate = new MacToolbarFlowLayoutDelegate();
 
             collectionViewDelegate.SelectionChanged += (sender, e) => {
-
+                if (e.Count == 0)
+                {
+                    return;
+                }
+                if (e.AnyObject is NSIndexPath indexPath)
+                {
+                    SelectedItem = items[(int)indexPath.Section].Items[(int)indexPath.Item];
+                }
             };
 
             Selectable = true;
@@ -155,8 +162,7 @@ namespace MonoDevelop.Inspector.Mac
         internal bool isShowCategories, isImageMode;
     }
 
-
-    public class CollectionHeaderItem
+    class CollectionHeaderItem
     {
         public string Label { get; set; }
         public string AccessibilityTitle { get; internal set; }
@@ -165,7 +171,7 @@ namespace MonoDevelop.Inspector.Mac
         public List<CollectionItem> Items = new List<CollectionItem>();
     }
 
-    public class CollectionItem
+    class CollectionItem
     {
         public ToolbarView TypeOfView { get; set; }
         public string Label { get; set; }
@@ -175,5 +181,4 @@ namespace MonoDevelop.Inspector.Mac
         public string AccessibilityHelp { get; set; }
         public string Description { get; internal set; }
     }
-
 }

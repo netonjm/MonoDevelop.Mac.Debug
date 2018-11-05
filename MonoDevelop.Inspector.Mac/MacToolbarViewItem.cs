@@ -6,7 +6,7 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    public class MacToolbarCollectionViewItem : NSCollectionViewItem
+    class MacInspectorToolbarCollectionViewItem : NSCollectionViewItem
     {
         public const int ItemHeight = 60;
         internal const string Name = "LabelViewItem";
@@ -57,12 +57,12 @@ namespace MonoDevelop.Inspector.Mac
 
             ImageView.CenterXAnchor.ConstraintEqualToAnchor(container.CenterXAnchor, 0).Active = true;
             ImageView.CenterYAnchor.ConstraintEqualToAnchor(container.CenterYAnchor, 0).Active = true;
+            container.WidthAnchor.ConstraintEqualToConstant (ItemHeight).Active = true;
+            container.HeightAnchor.ConstraintEqualToConstant(ItemHeight).Active = true;
 
-            container.WidthAnchor.ConstraintEqualToConstant (60).Active = true;
-            container.HeightAnchor.ConstraintEqualToConstant(60).Active = true;
-
-            ImageView.WidthAnchor.ConstraintEqualToConstant(50).Active = true;
-            ImageView.HeightAnchor.ConstraintEqualToConstant(50).Active = true;
+           
+            ImageView.HeightAnchor.ConstraintEqualToConstant(ItemHeight - 10).Active = true;
+            ImageView.WidthAnchor.ConstraintEqualToConstant(ItemHeight - 10).Active = true;
 
             TextField = NativeViewHelper.CreateLabel("", NativeViewHelper.GetSystemFont(false, (int)NSFont.SmallSystemFontSize));
             stackView.AddArrangedSubview(TextField);
@@ -82,14 +82,14 @@ namespace MonoDevelop.Inspector.Mac
             set;
         }
 
-        public MacToolbarCollectionViewItem(IntPtr handle) : base(handle)
+        public MacInspectorToolbarCollectionViewItem(IntPtr handle) : base(handle)
         {
 
         }
     }
 
-    [Register("HeaderCollectionViewItem")]
-    public class HeaderCollectionViewItem : NSCollectionViewItem
+    [Register("MacInspectorToolbarHeaderCollectionViewItem")]
+    class MacInspectorToolbarHeaderCollectionViewItem : NSCollectionViewItem
     {
         public static NSColor HeaderCellBackgroundSelectedColor = NSColor.FromRgb(0.29f, green: 0.29f, blue: 0.29f);// NSColor.ControlBackground;
         public static NSColor HeaderCellBackgroundColor = HeaderCellBackgroundSelectedColor;
@@ -151,13 +151,13 @@ namespace MonoDevelop.Inspector.Mac
             View.WantsLayer = true;
         }
 
-        public HeaderCollectionViewItem(IntPtr handle) : base(handle)
+        public MacInspectorToolbarHeaderCollectionViewItem(IntPtr handle) : base(handle)
         {
 
         }
     }
 
-    public class ImageCollectionViewItem : NSCollectionViewItem
+    class MacInspectorToolbarImageCollectionViewItem : NSCollectionViewItem
     {
         public static NSColor ImageCellBackgroundSelectedColor = NSColor.FromRgba(red: 0.33f, green: 0.55f, blue: 0.92f, alpha: 1.0f);
         public static NSColor ImageCellBorderSelectedColor = NSColor.Black;
@@ -216,7 +216,7 @@ namespace MonoDevelop.Inspector.Mac
             ImageView.BottomAnchor.ConstraintEqualToAnchor(View.BottomAnchor, -margin).Active = true;
         }
 
-        public ImageCollectionViewItem(IntPtr handle) : base(handle)
+        public MacInspectorToolbarImageCollectionViewItem(IntPtr handle) : base(handle)
         {
 
         }

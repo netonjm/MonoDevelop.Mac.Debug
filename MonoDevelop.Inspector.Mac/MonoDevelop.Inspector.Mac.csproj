@@ -93,7 +93,6 @@
     <Folder Include="Controls\" />
     <Folder Include="Resources\" />
     <Folder Include="Panels\" />
-    <Folder Include="Services\" />
     <Folder Include="Helpers\" />
     <Folder Include="Resources\toolbar\" />
   </ItemGroup>

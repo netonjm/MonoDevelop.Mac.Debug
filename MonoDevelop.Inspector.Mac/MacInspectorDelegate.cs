@@ -356,8 +356,7 @@ namespace MonoDevelop.Inspector.Mac
         public void ClearSubmenuItems(List<IMenuItemWrapper> menuItems, IMenuWrapper submenu)
         {
             var menu = (NSMenu)submenu.NativeObject;
-            foreach (var item in menuItems)
-            {
+            foreach (var item in menuItems) {
                 menu.RemoveItem((NSMenuItem)item.NativeObject);
             }
         }
@@ -368,11 +367,19 @@ namespace MonoDevelop.Inspector.Mac
             return new MacMenuItemWrapper(menuItem);
         }
 
-        public IMenuItemWrapper GetShowWindowMenuItem(EventHandler menuOpenHandler)
+        public IMenuItemWrapper GetShowInspectorWindowMenuItem(EventHandler menuOpenHandler)
         {
-            var inspectorMenuItem = new NSMenuItem($"Show Window", menuOpenHandler);
+            var inspectorMenuItem = new NSMenuItem($"Show Inspector Window", menuOpenHandler);
             inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
-            inspectorMenuItem.KeyEquivalent = "D";
+            inspectorMenuItem.KeyEquivalent = "1";
+            return new MacMenuItemWrapper(inspectorMenuItem);
+        }
+
+        public IMenuItemWrapper GetShowAccessibilityWindowMenuItem(EventHandler menuOpenHandler)
+        {
+            var inspectorMenuItem = new NSMenuItem($"Show Accessibility Window", menuOpenHandler);
+            inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
+            inspectorMenuItem.KeyEquivalent = "2";
             return new MacMenuItemWrapper(inspectorMenuItem);
         }
 
@@ -384,8 +391,7 @@ namespace MonoDevelop.Inspector.Mac
         public void SetAppearance(bool isDark, params IWindowWrapper[] inspectorWindow)
         {
             PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
-            foreach (var item in inspectorWindow)
-            {
+            foreach (var item in inspectorWindow) {
                 item.SetAppareance(isDark);
             }
         }
@@ -412,6 +418,12 @@ namespace MonoDevelop.Inspector.Mac
                     return new NSImageView();
                 case ToolbarView.Label:
                     return NativeViewHelper.CreateLabel("Label");
+                case ToolbarView.WrappingLabel:
+                    var label = NativeViewHelper.CreateLabel("Label");
+                    label.SetContentCompressionResistancePriority(250, NSLayoutConstraintOrientation.Horizontal);
+                    label.UsesSingleLineMode = false;
+                    label.LineBreakMode = NSLineBreakMode.ByWordWrapping;
+                    return label;
                 case ToolbarView.PushButton:
                     return new NSButton() { Title = "Button" };
                 case ToolbarView.Search:
