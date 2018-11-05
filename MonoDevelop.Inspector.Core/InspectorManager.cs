@@ -306,7 +306,6 @@ namespace MonoDevelop.Inspector
         void RefreshNeeded ()
         {
             AccessibilityService.Current.ScanErrors(Delegate, selectedWindow, ViewMode);
-            selectedWindow.RefreshKeyLoop();
         }
 
 		void OnRespositionViews (object sender, EventArgs e)
