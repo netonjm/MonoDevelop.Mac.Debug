@@ -67,9 +67,9 @@
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="VerticalSeparator.cs" />
     <Compile Include="OutlineView.cs" />
-    <Compile Include="Panels\MacInspectorWindow.cs" />
-    <Compile Include="Panels\MacToolbarWindow.cs" />
-    <Compile Include="Panels\MacAccessibilityWindow.cs" />
+    <Compile Include="Windows\MacInspectorWindow.cs" />
+    <Compile Include="Windows\MacToolbarWindow.cs" />
+    <Compile Include="Windows\MacAccessibilityWindow.cs" />
     <Compile Include="Helpers\NativeViewHelper.cs" />
     <Compile Include="Helpers\ContrastHelper.cs" />
     <Compile Include="MacInspectorDelegate.cs" />
@@ -80,8 +80,8 @@
     <Compile Include="MacImageViewWrapper.cs" />
     <Compile Include="MacMenuWrapper.cs" />
     <Compile Include="MacMenuItemWrapper.cs" />
-    <Compile Include="Panels\MacTabView.cs" />
-    <Compile Include="Panels\ITabView.cs" />
+    <Compile Include="Windows\MacTabView.cs" />
+    <Compile Include="Windows\ITabView.cs" />
     <Compile Include="MacToolbarWrapper.cs" />
     <Compile Include="MacToolbarDataSource.cs" />
     <Compile Include="MacToolbarViewItem.cs" />
@@ -92,7 +92,7 @@
     <Folder Include="PropertyPanel\" />
     <Folder Include="Controls\" />
     <Folder Include="Resources\" />
-    <Folder Include="Panels\" />
+    <Folder Include="Windows\" />
     <Folder Include="Helpers\" />
     <Folder Include="Resources\toolbar\" />
   </ItemGroup>

@@ -53,10 +53,12 @@ namespace MonoDevelop.Inspector.Mac
 				outlineAccessibilityView.SetData(nodeBase);
 			};
 
-			outlineViewScrollView.WidthAnchor.ConstraintEqualToAnchor (contentView.WidthAnchor).Active = true;
-			//outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
 
-			var buttonContainer = NativeViewHelper.CreateHorizontalStackView ();
+			outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 0).Active = true;
+            outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, 0).Active = true;
+            //outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
+
+            var buttonContainer = NativeViewHelper.CreateHorizontalStackView ();
 			buttonContainer.Alignment = NSLayoutAttribute.CenterY;
 			buttonContainer.Distribution = NSStackViewDistribution.Fill;
 			contentView.AddArrangedSubview (buttonContainer);
