@@ -95,6 +95,10 @@ namespace MonoDevelop.Inspector.Mac
 
         public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
         {
+            var current = new NodeView(customView);
+            var nodeWrapper = new MacNodeWrapper(current);
+            node.AddChild(nodeWrapper);
+
             if (customView.Subviews == null)
             {
                 return;
@@ -102,11 +106,9 @@ namespace MonoDevelop.Inspector.Mac
 
             foreach (var item in customView.Subviews)
             {
-                var nodel = new NodeView(item);
-                node.AddChild(new MacNodeWrapper(nodel));
                 try
                 {
-                    ConvertToNodes(item, new MacNodeWrapper(nodel), viewMode);
+                    ConvertToNodes(item, nodeWrapper, viewMode);
                 }
                 catch (Exception ex)
                 {
