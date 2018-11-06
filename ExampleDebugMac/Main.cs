@@ -18,10 +18,13 @@ namespace ExampleDebugMac
 			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
-			stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
+          
+            stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "345" });
 			var button = new NSButton { Title = "Testing" };
-			stackView.AddArrangedSubview(button);
+            button.WidthAnchor.ConstraintEqualToConstant(100).Active = true;;
+
+            stackView.AddArrangedSubview(button);
 
             var hotizontalView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Horizontal };
             hotizontalView.AddArrangedSubview (new NSTextField() { StringValue = "test" });
@@ -36,8 +39,13 @@ namespace ExampleDebugMac
 				alert.RunModal ();
 			};
 
-			stackView.AddArrangedSubview(new NSButton { Title = "123" });
-			mainWindow.Title = "Example Debug Xamarin.Mac";
+            var button2 = new NSButton { Title = "123" };
+
+            stackView.AddArrangedSubview(button2);
+            button2.WidthAnchor.ConstraintEqualToConstant(100).Active = true; ;
+            button2.HeightAnchor.ConstraintEqualToConstant(100).Active = true; ;
+
+            mainWindow.Title = "Example Debug Xamarin.Mac";
 
 			//mainWindow.MakeKeyWindow();
 			mainWindow.MakeKeyAndOrderFront(null);

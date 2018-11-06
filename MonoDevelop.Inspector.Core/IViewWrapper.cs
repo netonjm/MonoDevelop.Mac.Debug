@@ -15,8 +15,23 @@ namespace MonoDevelop.Inspector
         Xwt
     }
 
-    public interface IViewWrapper
-	{
+    public interface IConstrainWrapper : INativeObject
+    {
+        string NodeName { get; }
+        string Identifier { get; }
+        IViewWrapper PreviousValidKeyView { get; }
+        void RemoveFromSuperview();
+    }
+
+    public interface IConstrainContainerWrapper : INativeObject
+    {
+        string NodeName { get; }
+        IViewWrapper PreviousValidKeyView { get; }
+        void RemoveFromSuperview();
+    }
+
+    public interface IViewWrapper : INativeObject
+    {
 		bool Hidden { get; }
 		string Identifier { get; }
         IRectangle AccessibilityFrame { get; }
@@ -29,10 +44,11 @@ namespace MonoDevelop.Inspector
 		string AccessibilityHelp { get; set; }
 		object AccessibilityParent { get; set; }
 		bool CanBecomeKeyView { get; }
-		object NativeView { get; }
 		object View { get; }
 		string NodeName { get; }
+        bool HasConstraints { get; }
+        List<IConstrainWrapper> Constraints { get; }
 
-		void RemoveFromSuperview ();
+        void RemoveFromSuperview ();
 	}
 }

@@ -22,7 +22,6 @@ namespace MonoDevelop.Inspector.Services
 			get => DetectedErrors.Count;
 		}
 
-
 		bool HasError (IViewWrapper customView)
 		{
 			if (!customView.CanBecomeKeyView || customView.Hidden) {

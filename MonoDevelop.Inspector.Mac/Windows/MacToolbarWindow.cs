@@ -172,7 +172,7 @@ namespace MonoDevelop.Inspector.Mac
                 showFont = true;
             }
 
-            if (viewWrapper.NativeView is NSImageView || viewWrapper.NativeView is NSButton)
+            if (viewWrapper.NativeObject is NSImageView || viewWrapper.NativeObject is NSButton)
             {
                 showImage = true;
             }

@@ -14,8 +14,9 @@ namespace MonoDevelop.Inspector
 		const int ToolbarWindowWidth = 500;
 		const int ToolbarWindowHeight = 30;
 		const int WindowMargin = 10;
-
-		IViewWrapper view, nextKeyView, previousKeyView;
+        IViewWrapper view => nativeObject as IViewWrapper;
+        INativeObject nativeObject;
+        IViewWrapper nextKeyView, previousKeyView;
 		IMainWindowWrapper selectedWindow;
 		InspectorViewMode ViewMode
         {
@@ -215,7 +216,7 @@ namespace MonoDevelop.Inspector
 				selectedWindow.AddChildWindow(debugOverlayWindow);
 
 				//IsFirstResponderOverlayVisible = true;
-				ChangeFocusedView(e);
+				ChangeFocusedView(e as INativeObject);
 			};
 			inspectorWindow.RaiseDeleteItem += (s, e) =>
 			{
@@ -295,11 +296,25 @@ namespace MonoDevelop.Inspector
             RefreshNeeded();
         }
 
-		void RemoveView (IViewWrapper toRemove)
+		void RemoveView (INativeObject toRemove)
 		{
-			var parent = toRemove?.PreviousValidKeyView;
-			toRemove.RemoveFromSuperview();
-			ChangeFocusedView(parent);
+            IViewWrapper parent = null;
+            if (toRemove is IViewWrapper viewWrapper) {
+                parent = viewWrapper?.PreviousValidKeyView;
+                viewWrapper.RemoveFromSuperview();
+            } else if (toRemove is IConstrainWrapper constrainWrapper)
+            {
+                parent = constrainWrapper?.PreviousValidKeyView;
+                constrainWrapper.RemoveFromSuperview();
+            }
+            else if (toRemove is IConstrainContainerWrapper constrainContainerWrapper)
+            {
+                parent = constrainContainerWrapper?.PreviousValidKeyView;
+                constrainContainerWrapper.RemoveFromSuperview();
+            }
+
+            if (parent != null)
+                ChangeFocusedView(parent);
             RefreshNeeded();
         }
 
@@ -356,6 +371,7 @@ namespace MonoDevelop.Inspector
 			if (!anyFocusedView)
 				return;
 
+            if (view != null)
 			inspectorWindow.GenerateStatusView (view, Delegate, ViewMode);
 		}
 
@@ -378,10 +394,12 @@ namespace MonoDevelop.Inspector
 
             var menuItem = Delegate.CreateMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), null);
             menuItems.Add(menuItem);
+
             inspectorMenuItem = Delegate.GetShowInspectorWindowMenuItem (ShowHideInspectorWindow);
-            menuItems.Add(inspectorMenuItem);
             accessibilityMenuItem = Delegate.GetShowAccessibilityWindowMenuItem(ShowHideAccessibilityWindow);
+
             menuItems.Add(accessibilityMenuItem);
+            menuItems.Add(inspectorMenuItem);
             menuItems.Add(Delegate.GetSeparatorMenuItem());
 
 			foreach (var item in menuItems) {
@@ -406,24 +424,27 @@ namespace MonoDevelop.Inspector
 
 		public event EventHandler<IViewWrapper> FocusedViewChanged;
 
-		internal void ChangeFocusedView (IViewWrapper nextView)
+		internal void ChangeFocusedView (INativeObject nextView)
 		{
 			if (selectedWindow == null || nextView == null || view == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
 
-			view = nextView;
-			nextKeyView = view?.NextValidKeyView;
-			previousKeyView = view?.PreviousValidKeyView;
+            nativeObject = nextView;
+
+            nextKeyView = view?.NextValidKeyView;
+            previousKeyView = view?.PreviousValidKeyView;
 
 			RefreshStatusWindow ();
 
             RefreshOverlaysVisibility();
 
-            toolbarWindow.ChangeView(this, nextView);
-
-            FocusedViewChanged?.Invoke(this, nextView);
+            if (view != null)
+            {
+                toolbarWindow.ChangeView(this, view);
+                FocusedViewChanged?.Invoke(this, view);
+            }
 		}
 
 		string GetAssemblyVersion ()

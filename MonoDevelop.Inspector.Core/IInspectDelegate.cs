@@ -11,7 +11,7 @@ namespace MonoDevelop.Inspector
 		void SetFont(IViewWrapper view, IFontWrapper font);
 		FontData GetFont(IViewWrapper view);
 		void ConvertToNodes(IViewWrapper view, INodeView nodeView, InspectorViewMode viewMode);
-		object GetWrapper (IViewWrapper viewSelected, InspectorViewMode viewMode);
+        object GetWrapper (INativeObject viewSelected, InspectorViewMode viewMode);
 		void Recursively (IViewWrapper contentView, List<DetectedError> DetectedErrors, InspectorViewMode viewMode);
 		void RemoveAllErrorWindows(IWindowWrapper windowWrapper);
 		Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow);

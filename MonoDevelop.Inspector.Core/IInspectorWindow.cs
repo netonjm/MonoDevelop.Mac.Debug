@@ -17,8 +17,8 @@ namespace MonoDevelop.Inspector
 
     public interface IInspectorWindow : IWindowWrapper
 	{
-		event EventHandler<IViewWrapper> RaiseFirstResponder;
-		event EventHandler<IViewWrapper> RaiseDeleteItem;
+		event EventHandler<INativeObject> RaiseFirstResponder;
+		event EventHandler<INativeObject> RaiseDeleteItem;
         event EventHandler<ToolbarView> RaiseInsertItem;
 
         void GenerateTree (IWindowWrapper window, InspectorViewMode viewMode);

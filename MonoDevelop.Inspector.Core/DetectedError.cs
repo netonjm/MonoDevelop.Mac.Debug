@@ -48,7 +48,7 @@ namespace MonoDevelop.Inspector
 		{
 			List<string> errors = new List<string> ();
 			List<string> additionalLines = new List<string> ();
-			var type = View.NativeView.GetType ().ToString ();
+			var type = View.NativeObject.GetType ().ToString ();
 			if (ErrorType.HasFlag (DetectedErrorType.AccessibilityHelp)) {
 				additionalLines.Add ($"This {type} needs set the AccessibilityHelp field");
 			}

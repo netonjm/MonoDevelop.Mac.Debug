@@ -19,7 +19,7 @@ namespace MonoDevelop.Inspector.Mac
         public void Add(IViewWrapper viewWrapper)
         {
             Pages.Add(viewWrapper);
-            var tabItem = new NSTabViewItem() { View = viewWrapper.NativeView as NSView };
+            var tabItem = new NSTabViewItem() { View = viewWrapper.NativeObject as NSView };
             pages.Add(tabItem);
             tabView.Add(tabItem);
         }
@@ -27,7 +27,7 @@ namespace MonoDevelop.Inspector.Mac
         public void Remove(IViewWrapper viewWrapper)
         {
             Pages.Remove(viewWrapper);
-            tabView.Remove(viewWrapper.NativeView as NSTabViewItem);
+            tabView.Remove(viewWrapper.NativeObject as NSTabViewItem);
         }
     }
 }

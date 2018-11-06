@@ -14,8 +14,8 @@ namespace MonoDevelop.Inspector.Mac
     {
         const ushort DeleteKey = 51;
 
-        public event EventHandler<IViewWrapper> RaiseFirstResponder;
-        public event EventHandler<IViewWrapper> RaiseDeleteItem;
+        public event EventHandler<INativeObject> RaiseFirstResponder;
+        public event EventHandler<INativeObject> RaiseDeleteItem;
 
         public const int ButtonWidth = 30;
         const int margin = 10;
@@ -75,7 +75,7 @@ namespace MonoDevelop.Inspector.Mac
            
             outlineView.SelectionNodeChanged += (s, e) => {
                 if (outlineView.SelectedNode is NodeView nodeView) {
-                    RaiseFirstResponder?.Invoke (this, nodeView.View);
+                    RaiseFirstResponder?.Invoke (this, nodeView.Wrapper);
                 }
             };
 
@@ -84,7 +84,7 @@ namespace MonoDevelop.Inspector.Mac
                 if (e == DeleteKey) {
                     if (outlineView.SelectedNode is NodeView nodeView)
                     {
-                        RaiseDeleteItem?.Invoke(this, nodeView.View);
+                        RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
                     }
                 }
             };
@@ -217,7 +217,7 @@ namespace MonoDevelop.Inspector.Mac
             methodSearchView.Activated += (sender, e) =>
             {
                 if (viewSelected != null) {
-                    methodListView.SetObject(viewSelected.NativeView, methodSearchView.StringValue);
+                    methodListView.SetObject(viewSelected.NativeObject, methodSearchView.StringValue);
                 }
             };
 
@@ -320,7 +320,7 @@ namespace MonoDevelop.Inspector.Mac
             
                 try
                 {
-                    var response = method.Invoke(viewSelected.NativeView, parameters);
+                    var response = method.Invoke(viewSelected.NativeObject, parameters);
                     resultMessage.StringValue = response?.ToString() ?? "<null>";
                 }
                 catch (Exception ex)
@@ -338,7 +338,7 @@ namespace MonoDevelop.Inspector.Mac
         {
             viewSelected = view;
             propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper (viewSelected, viewMode) });
-            methodListView.SetObject (view.NativeView, methodSearchView.StringValue);
+            methodListView.SetObject (view.NativeObject, methodSearchView.StringValue);
             if (data != null) {
                 var found = data.Search(view);
                 if (found != null) {
@@ -351,7 +351,7 @@ namespace MonoDevelop.Inspector.Mac
         {
             if (outlineView.SelectedNode is NodeView nodeView)
             {
-                RaiseDeleteItem?.Invoke(this, nodeView.View);
+                RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
             }
         }
 
