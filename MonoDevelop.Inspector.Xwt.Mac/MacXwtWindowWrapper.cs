@@ -23,7 +23,7 @@ namespace MonoDevelop.Inspector.Mac
 				return null;
 			}
 			set {
-				base.Content = value.NativeView as Widget;
+				base.Content = value.NativeObject as Widget;
 			}
 		}
 

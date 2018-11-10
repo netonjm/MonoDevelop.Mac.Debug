@@ -15,7 +15,8 @@ namespace MonoDevelop.Inspector
 		void Recursively (IViewWrapper contentView, List<DetectedError> DetectedErrors, InspectorViewMode viewMode);
 		void RemoveAllErrorWindows(IWindowWrapper windowWrapper);
 		Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow);
-		void SetButton(IButtonWrapper button, IImageWrapper image);
+        IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element);
+        void SetButton(IButtonWrapper button, IImageWrapper image);
 		void SetButton(IImageViewWrapper imageview, IImageWrapper image);
 		Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow);
 		IBorderedWindow CreateErrorWindow (IViewWrapper view);

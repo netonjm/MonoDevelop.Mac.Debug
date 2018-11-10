@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MonoDevelop.Inspector.Services;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
+using MonoDevelop.Inspector.Mac.Touchbar;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -476,6 +477,15 @@ namespace MonoDevelop.Inspector.Mac
                     return new NSSearchField();
             }
             return new NSView();
+        }
+
+        public virtual IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)
+        {
+            if (element is NSButton)
+            {
+                return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate());
+            }
+            return null;
         }
 
         TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
