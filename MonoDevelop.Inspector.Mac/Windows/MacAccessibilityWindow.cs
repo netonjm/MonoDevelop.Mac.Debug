@@ -65,16 +65,19 @@ namespace MonoDevelop.Inspector.Mac
 			var runAuditButton = NativeViewHelper.CreateButton ("Run Audit");
 			buttonContainer.AddArrangedSubview (runAuditButton);
 			runAuditButton.Activated += (sender, e) => AuditRequested?.Invoke (this, EventArgs.Empty);
-			runAuditButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
 
-			var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
+            runAuditButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+            runAuditButton.HeightAnchor.ConstraintEqualToConstant(40).Active = true;
+
+            var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
 			buttonContainer.AddArrangedSubview (showHideErrorsButton);
 
 			contentView.AddArrangedSubview (new NSView () { TranslatesAutoresizingMaskIntoConstraints = false });
 			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke (this, EventArgs.Empty);
 			showHideErrorsButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+            showHideErrorsButton.HeightAnchor.ConstraintEqualToConstant(40).Active = true;
 
-			errorLabel = NativeViewHelper.CreateLabel ("");
+            errorLabel = NativeViewHelper.CreateLabel ("");
 			buttonContainer.AddArrangedSubview (errorLabel);
 
 			var accessibilityService = AccessibilityService.Current;
@@ -84,7 +87,7 @@ namespace MonoDevelop.Inspector.Mac
 
 			buttonContainer.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 10).Active = true;
 			buttonContainer.RightAnchor.ConstraintEqualToAnchor (contentView.RightAnchor, 10).Active = true;
-			buttonContainer.HeightAnchor.ConstraintEqualToConstant (30).Active = true;
+			buttonContainer.HeightAnchor.ConstraintEqualToConstant (40).Active = true;
 		}
 
 		readonly OutlineView outlineAccessibilityView;
