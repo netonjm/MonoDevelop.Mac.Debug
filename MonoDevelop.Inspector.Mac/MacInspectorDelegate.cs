@@ -361,7 +361,7 @@ namespace MonoDevelop.Inspector.Mac
             {
                 if (result == 1 && panel.Url != null)
                 {
-                    rtrn = new MacImageWrapper(NSImage.ImageNamed(panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
+                    rtrn = new MacImageWrapper(new NSImage(panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
 
                 }
                 processingCompletion.TrySetResult(null);
