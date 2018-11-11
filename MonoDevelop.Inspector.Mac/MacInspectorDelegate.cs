@@ -481,7 +481,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public virtual IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)
         {
-            if (element is NSButton)
+            if (element is NSView)
             {
                 return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate());
             }

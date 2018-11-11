@@ -1,12 +1,23 @@
 ﻿using AppKit;
 using CoreGraphics;
+using Foundation;
 using MonoDevelop.Inspector.Mac;
+using ObjCRuntime;
 
 namespace ExampleDebugMac
 {
 	static class MainClass
 	{
-		static void Main (string[] args)
+
+        [Export("makeFirstResponder:")]
+        [BindingImpl(BindingImplOptions.GeneratedCode | BindingImplOptions.Optimizable)]
+        public static bool MakeFirstResponder(NSResponder aResponder)
+        {
+            return true;
+        }
+
+
+        static void Main (string[] args)
 		{
 			NSApplication.Init();
 			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
@@ -15,7 +26,7 @@ namespace ExampleDebugMac
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
             var mainWindow = new MacAccInspectorWindow(new CGRect(xPos, yPos, 300, 368), NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
 
-			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
+            var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
           

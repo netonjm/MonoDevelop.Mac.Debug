@@ -11,7 +11,7 @@ namespace MonoDevelop.Inspector.Mac
     {
         public MacInspectorContext()
         {
-            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+           
         }
 
         IInspectDelegate macDelegate;
@@ -77,12 +77,22 @@ namespace MonoDevelop.Inspector.Mac
 
         void Initialize()
 		{
+            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
             touchbar = new NSTouchBar();
             service = ToolbarService.Current;
             context = MacInspectorContext.Current;
             context.Initialize(false);
             service.SetDelegate(context.GetInspectorDelegate());
-            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+
+            context.FocusedViewChanged += Context_FocusedViewChanged;
+        }
+
+        void Context_FocusedViewChanged(object sender, IViewWrapper e)
+        {
+            if (e.NativeObject is NSView view)
+            {
+                RefreshBar(view);
+            }
         }
 
         public override void BecomeMainWindow ()
@@ -91,17 +101,35 @@ namespace MonoDevelop.Inspector.Mac
 			base.BecomeMainWindow ();
 		}
 
-		public override bool MakeFirstResponder (NSResponder aResponder)
+        protected override void Dispose(bool disposing)
+        {
+            context.FocusedViewChanged -= Context_FocusedViewChanged;
+            base.Dispose(disposing);
+        }
+
+
+        [Export ("makeTouchBar")]
+        public NSTouchBar MakeTouchBar ()
+        {
+            return touchbar;
+        }
+
+        void RefreshBar (NSView view)
+        {
+            if (service.GetTouchBarDelegate(view)?.NativeObject is TouchBarBaseDelegate touchBarDelegate)
+            {
+                touchBarDelegate.SetCurrentView(view);
+                touchbar.Delegate = touchBarDelegate;
+                touchbar.DefaultItemIdentifiers = touchBarDelegate.Identifiers;
+                view.SetTouchBar(touchbar);
+            }
+        }
+
+        public override bool MakeFirstResponder (NSResponder aResponder)
 		{
 			if (aResponder is NSView view) {
                 MacInspectorContext.Current.ChangeFocusedView (new MacViewWrapper (view));
-                if (service.GetTouchBarDelegate(view)?.NativeObject is TouchBarBaseDelegate currentDelegate)
-                {
-                    currentDelegate.SetCurrentView(view);
-                    touchbar.Delegate = currentDelegate;
-                    touchbar.DefaultItemIdentifiers = currentDelegate.Identifiers;
-                    view.SetTouchBar(touchbar);
-                }
+                RefreshBar(view);
             }
             return base.MakeFirstResponder (aResponder);
 		}

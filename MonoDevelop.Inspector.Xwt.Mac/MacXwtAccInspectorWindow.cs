@@ -29,16 +29,42 @@ namespace MonoDevelop.Inspector.Mac
     {
         NSTouchBar touchbar;
         MacInspectorContext context;
-        ToolbarService toolbarService;
+        ToolbarService service;
 
         public MacXwtAccInspectorWindow()
         {
             touchbar = new NSTouchBar();
-            toolbarService = ToolbarService.Current;
+            service = ToolbarService.Current;
             context = MacInspectorContext.Current;
             context.Initialize(true);
-            toolbarService.SetDelegate(context.GetInspectorDelegate());
+            service.SetDelegate(context.GetInspectorDelegate());
             NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+            context.FocusedViewChanged += Context_FocusedViewChanged;
+        }
+
+        private void Context_FocusedViewChanged(object s, IViewWrapper e)
+        {
+            if (e.NativeObject is NSView view)
+            {
+                RefreshBar(view);
+            }
+        }
+
+        void RefreshBar(NSView view)
+        {
+            if (service.GetTouchBarDelegate(view)?.NativeObject is TouchBarBaseDelegate currentDelegate)
+            {
+                currentDelegate.SetCurrentView(view);
+                touchbar.Delegate = currentDelegate;
+                touchbar.DefaultItemIdentifiers = currentDelegate.Identifiers;
+                view.SetTouchBar(touchbar);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            context.FocusedViewChanged -= Context_FocusedViewChanged;
+            base.Dispose(disposing);
         }
 
         protected override void OnBecomeMainWindow (object sender, EventArgs args)
@@ -52,7 +78,7 @@ namespace MonoDevelop.Inspector.Mac
                
                 var wrapperView = new MacViewWrapper (focusedView);
                 context.ChangeFocusedView (wrapperView);
-                if (toolbarService.GetTouchBarDelegate(focusedView)?.NativeObject is TouchBarBaseDelegate currentDelegate)
+                if (service.GetTouchBarDelegate(focusedView)?.NativeObject is TouchBarBaseDelegate currentDelegate)
                 {
                     currentDelegate.SetCurrentView(focusedView);
                     touchbar.Delegate = currentDelegate;

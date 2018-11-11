@@ -6,18 +6,22 @@ namespace MonoDevelop.Inspector
 {
 	abstract internal class InspectorContext
 	{
-		readonly List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
+        public event EventHandler<IViewWrapper> FocusedViewChanged;
+
+        readonly List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
         InspectorManager manager { get; set; }
 
         public InspectorContext ()
 		{
 
 		}
+
         protected bool hasToolkit;
         public void Initialize (bool hasToolkit)
         {
             this.hasToolkit = hasToolkit;
             manager = GetInitializationContext();
+            manager.FocusedViewChanged += (s,e) => FocusedViewChanged?.Invoke (s,e);
         }
 
         protected abstract InspectorManager GetInitializationContext();

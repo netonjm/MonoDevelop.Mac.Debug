@@ -26,17 +26,19 @@ namespace MonoDevelop.Inspector.Mac
         public void SetDelegate (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
+
+
         }
 
         public IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)
         {
-            return inspectorDelegate.GetTouchBarDelegate(element);
+            return new MacToolbarWrapperDelegateWrapper (dicctionary[typeof(NSView)]);
         }
 
         public ToolbarService()
         {
             var colorPickerDelegate = new ColorPickerDelegate();
-            dicctionary.Add(typeof(NSButton), colorPickerDelegate);
+            dicctionary.Add(typeof(NSView), colorPickerDelegate);
         }
 
         public static ToolbarService Current = new ToolbarService();
