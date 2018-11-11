@@ -71,7 +71,7 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class TextFieldViewWrapper : ViewWrapper
+    public class TextFieldViewWrapper : ViewWrapper
 	{
 		readonly NSTextField textView;
 

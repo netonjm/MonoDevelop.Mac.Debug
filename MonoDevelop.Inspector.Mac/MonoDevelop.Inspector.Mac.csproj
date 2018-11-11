@@ -87,6 +87,9 @@
     <Compile Include="MacToolbarViewItem.cs" />
     <Compile Include="MacToolbarFlowLayout.cs" />
     <Compile Include="Controls\ToggleButton.cs" />
+    <Compile Include="Touchbar\ColorPickerDelegate.cs" />
+    <Compile Include="ToolbarService.cs" />
+    <Compile Include="TouchBarBaseDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -95,6 +98,7 @@
     <Folder Include="Windows\" />
     <Folder Include="Helpers\" />
     <Folder Include="Resources\toolbar\" />
+    <Folder Include="Touchbar\" />
   </ItemGroup>
   <ItemGroup>
 

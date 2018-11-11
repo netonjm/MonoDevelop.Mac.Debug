@@ -1,12 +1,23 @@
 ﻿using AppKit;
 using CoreGraphics;
+using Foundation;
 using MonoDevelop.Inspector.Mac;
+using ObjCRuntime;
 
 namespace ExampleDebugMac
 {
 	static class MainClass
 	{
-		static void Main (string[] args)
+
+        [Export("makeFirstResponder:")]
+        [BindingImpl(BindingImplOptions.GeneratedCode | BindingImplOptions.Optimizable)]
+        public static bool MakeFirstResponder(NSResponder aResponder)
+        {
+            return true;
+        }
+
+
+        static void Main (string[] args)
 		{
 			NSApplication.Init();
 			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
@@ -15,13 +26,16 @@ namespace ExampleDebugMac
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
             var mainWindow = new MacAccInspectorWindow(new CGRect(xPos, yPos, 300, 368), NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
 
-			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
+            var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
-			stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
+          
+            stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "345" });
 			var button = new NSButton { Title = "Testing" };
-			stackView.AddArrangedSubview(button);
+            button.WidthAnchor.ConstraintEqualToConstant(100).Active = true;;
+
+            stackView.AddArrangedSubview(button);
 
             var hotizontalView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Horizontal };
             hotizontalView.AddArrangedSubview (new NSTextField() { StringValue = "test" });
@@ -36,8 +50,13 @@ namespace ExampleDebugMac
 				alert.RunModal ();
 			};
 
-			stackView.AddArrangedSubview(new NSButton { Title = "123" });
-			mainWindow.Title = "Example Debug Xamarin.Mac";
+            var button2 = new NSButton { Title = "123" };
+
+            stackView.AddArrangedSubview(button2);
+            button2.WidthAnchor.ConstraintEqualToConstant(100).Active = true; ;
+            button2.HeightAnchor.ConstraintEqualToConstant(100).Active = true; ;
+
+            mainWindow.Title = "Example Debug Xamarin.Mac";
 
 			//mainWindow.MakeKeyWindow();
 			mainWindow.MakeKeyAndOrderFront(null);

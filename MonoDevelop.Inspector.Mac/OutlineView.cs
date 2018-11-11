@@ -117,15 +117,31 @@ namespace MonoDevelop.Inspector.Mac
 			return name;
 		}
 
-		public readonly IViewWrapper View;
+        static string GetName(IConstrainWrapper view)
+        {
+            var name = string.Format("{0} ({1})", view.NodeName, view.Identifier ?? " (constraint)");
+            return name;
+        }
 
-		public NodeView (IViewWrapper view) : base (GetName (view))
+        public readonly INativeObject Wrapper;
+
+        public NodeView (IViewWrapper view) : base (GetName (view))
 		{
-			this.View = view;
+			this.Wrapper = view;
 		}
-	}
 
-	public class Node : NSObject
+        public NodeView(IConstrainContainerWrapper text) : base(text.NodeName)
+        {
+            this.Wrapper = text;
+        }
+
+        public NodeView(IConstrainWrapper constrain) : base(GetName(constrain))
+        {
+            this.Wrapper = constrain;
+        }
+    }
+
+    public class Node : NSObject
 	{
 		public string Name { get; private set; }
 		List<Node> Children;

@@ -81,13 +81,17 @@ namespace MonoDevelop.Inspector.Mac
 
 		public bool CanBecomeKeyView => view.CanBecomeKeyView;
 
-		public object NativeView => view;
-
 		public object View => widget;
 
 		public string NodeName => widget.GetType ().Name;
 
-		public void RemoveFromSuperview ()
+        public bool HasConstraints => false;
+
+        public List<IConstrainWrapper> Constraints => new List<IConstrainWrapper>();
+
+        public object NativeObject => widget;
+
+        public void RemoveFromSuperview ()
 		{
 			view.RemoveFromSuperview ();
 		}

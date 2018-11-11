@@ -9,7 +9,6 @@ using MonoDevelop.Inspector.Services;
 
 namespace MonoDevelop.Inspector.Mac
 {
-
 	class MacAccessibilityWindow : MacWindowWrapper, IAccessibilityWindow
 	{
 		const int margin = 10;
@@ -53,7 +52,6 @@ namespace MonoDevelop.Inspector.Mac
 				outlineAccessibilityView.SetData(nodeBase);
 			};
 
-
 			outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 0).Active = true;
             outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, 0).Active = true;
             //outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
@@ -66,16 +64,19 @@ namespace MonoDevelop.Inspector.Mac
 			var runAuditButton = NativeViewHelper.CreateButton ("Run Audit");
 			buttonContainer.AddArrangedSubview (runAuditButton);
 			runAuditButton.Activated += (sender, e) => AuditRequested?.Invoke (this, EventArgs.Empty);
-			runAuditButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
 
-			var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
+            runAuditButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+            runAuditButton.HeightAnchor.ConstraintEqualToConstant(40).Active = true;
+
+            var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
 			buttonContainer.AddArrangedSubview (showHideErrorsButton);
 
 			contentView.AddArrangedSubview (new NSView () { TranslatesAutoresizingMaskIntoConstraints = false });
 			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke (this, EventArgs.Empty);
 			showHideErrorsButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
+            showHideErrorsButton.HeightAnchor.ConstraintEqualToConstant(40).Active = true;
 
-			errorLabel = NativeViewHelper.CreateLabel ("");
+            errorLabel = NativeViewHelper.CreateLabel ("");
 			buttonContainer.AddArrangedSubview (errorLabel);
 
 			var accessibilityService = AccessibilityService.Current;
@@ -85,7 +86,7 @@ namespace MonoDevelop.Inspector.Mac
 
 			buttonContainer.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 10).Active = true;
 			buttonContainer.RightAnchor.ConstraintEqualToAnchor (contentView.RightAnchor, 10).Active = true;
-			buttonContainer.HeightAnchor.ConstraintEqualToConstant (30).Active = true;
+			buttonContainer.HeightAnchor.ConstraintEqualToConstant (40).Active = true;
 		}
 
 		readonly OutlineView outlineAccessibilityView;
@@ -106,7 +107,7 @@ namespace MonoDevelop.Inspector.Mac
 		static string GetName(DetectedError error)
 		{
 			var title = error.GetTitleMessage();
-			var name = string.Format("{0} ({1}) : {2}", error.View.NativeView.GetType(), error.View.Identifier ?? "N.I", title);
+			var name = string.Format("{0} ({1}) : {2}", error.View.NativeObject.GetType(), error.View.Identifier ?? "N.I", title);
 			return name;
 		}
 
@@ -115,7 +116,7 @@ namespace MonoDevelop.Inspector.Mac
 			this.DetectedError = detectedError;
 
 			List<string> children = new List<string>();
-			var type = detectedError.View.NativeView.GetType().ToString();
+			var type = detectedError.View.NativeObject.GetType().ToString();
 			if (detectedError.ErrorType.HasFlag(DetectedErrorType.AccessibilityHelp))
 			{
 				children.Add($"This {type} needs set the AccessibilityHelp field");

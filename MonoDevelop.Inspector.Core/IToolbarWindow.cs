@@ -4,7 +4,12 @@ using System;
 
 namespace MonoDevelop.Inspector
 {
-	interface IToolbarWindow : IWindowWrapper
+    public interface IToolbarWrapperDelegateWrapper : INativeObject
+    {
+
+    }
+
+    interface IToolbarWindow : IWindowWrapper
 	{
         void ShowToolkit(bool value);
         event EventHandler<bool> KeyViewLoop;
