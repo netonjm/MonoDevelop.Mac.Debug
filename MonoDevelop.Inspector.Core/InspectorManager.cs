@@ -337,7 +337,7 @@ namespace MonoDevelop.Inspector
 				if (!inspectorWindow.HasParentWindow) {
 					selectedWindow.AddChildWindow (inspectorWindow);
 					selectedWindow.AddChildWindow(toolbarWindow);
-					RefreshStatusWindow ();
+					RefreshWindows ();
 				}
 			}
 			else {
@@ -353,7 +353,7 @@ namespace MonoDevelop.Inspector
                 if (!accessibilityWindow.HasParentWindow)
                 {
                     selectedWindow.AddChildWindow(accessibilityWindow);
-                    RefreshStatusWindow();
+                    RefreshWindows();
                 }
             }
             else
@@ -362,16 +362,11 @@ namespace MonoDevelop.Inspector
             }
         }
 
-        void RefreshStatusWindow ()
+        void RefreshWindows ()
 		{
 			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
 			inspectorWindow.AlignRight(selectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft (selectedWindow, WindowMargin);
-			var anyFocusedView = view != null;
-			if (!anyFocusedView)
-				return;
-
-            if (view != null)
 			inspectorWindow.GenerateStatusView (view, Delegate, ViewMode);
 		}
 
@@ -432,12 +427,10 @@ namespace MonoDevelop.Inspector
 			}
 
             nativeObject = nextView;
-
             nextKeyView = view?.NextValidKeyView;
             previousKeyView = view?.PreviousValidKeyView;
 
-			RefreshStatusWindow ();
-
+			RefreshWindows ();
             RefreshOverlaysVisibility();
 
             if (view != null)

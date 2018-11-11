@@ -219,7 +219,7 @@ namespace MonoDevelop.Inspector.Mac
             }
             if (viewSelected is IConstrainWrapper constrain)
                 return constrain;
-            return viewSelected.NativeObject;
+            return viewSelected?.NativeObject;
         }
 
         public void SetFont(IViewWrapper view, IFontWrapper font)

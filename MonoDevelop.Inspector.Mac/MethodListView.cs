@@ -24,19 +24,24 @@ namespace MonoDevelop.Inspector.Mac
 		{
 			List<MethodInfo> methodInfos;
             TranslatesAutoresizingMaskIntoConstraints = false;
-			//if (ShowAllMethods)
-			//{
-				methodInfos = element.GetType()
-						   .GetMethods(BindingFlags.Public | BindingFlags.Instance)
 
-			//}
-			//else
-			//{
-			//methodInfos = element.GetType()
-			//.GetRuntimeMethods()
-			.ToList();
+            if (element != null) {
+                methodInfos = element.GetType()
+                       .GetMethods(BindingFlags.Public | BindingFlags.Instance)
 
-			var tableItems = new List<TableViewItem>();
+        //}
+        //else
+        //{
+        //methodInfos = element.GetType()
+        //.GetRuntimeMethods()
+        .ToList();
+            }
+            else
+            {
+                methodInfos = new List<MethodInfo>();
+            }
+
+            var tableItems = new List<TableViewItem>();
 			foreach (var method in methodInfos) {
                 var name = method.ToString();
                 if (string.IsNullOrEmpty (filter) || name.IndexOf (filter, StringComparison.OrdinalIgnoreCase) > -1)

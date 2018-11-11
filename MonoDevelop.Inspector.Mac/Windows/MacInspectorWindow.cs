@@ -337,9 +337,17 @@ namespace MonoDevelop.Inspector.Mac
         public void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate, InspectorViewMode viewMode)
         {
             viewSelected = view;
-            propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper (viewSelected, viewMode) });
-            methodListView.SetObject (view.NativeObject, methodSearchView.StringValue);
-            if (data != null) {
+            if (viewSelected != null)
+            {
+                propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper(viewSelected, viewMode) });
+            }
+            else
+            {
+                propertyEditorPanel.Select(new object[0]);
+            }
+
+            methodListView.SetObject (view?.NativeObject, methodSearchView.StringValue);
+            if (data != null && view != null) {
                 var found = data.Search(view);
                 if (found != null) {
                     outlineView.FocusNode (found);

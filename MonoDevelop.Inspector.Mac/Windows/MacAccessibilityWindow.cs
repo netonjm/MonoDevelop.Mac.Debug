@@ -52,7 +52,6 @@ namespace MonoDevelop.Inspector.Mac
 				outlineAccessibilityView.SetData(nodeBase);
 			};
 
-
 			outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 0).Active = true;
             outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, 0).Active = true;
             //outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
