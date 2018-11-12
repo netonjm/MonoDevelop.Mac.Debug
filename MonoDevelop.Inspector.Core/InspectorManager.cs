@@ -12,7 +12,7 @@ namespace MonoDevelop.Inspector
 	{
 		const string Name = "Accessibility .NET Inspector";
 		const int ToolbarWindowWidth = 500;
-		const int ToolbarWindowHeight = 30;
+		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
         IViewWrapper view => nativeObject as IViewWrapper;
         INativeObject nativeObject;
@@ -257,7 +257,12 @@ namespace MonoDevelop.Inspector
 				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
-			toolbarWindow.ItemImageChanged += async (sender, e) =>
+            toolbarWindow.CultureChanged += (sender, e) =>
+            {
+                Delegate.SetCultureInfo (e);
+            };
+
+            toolbarWindow.ItemImageChanged += async (sender, e) =>
 			{
 				await Delegate.InvokeImageChanged(view, selectedWindow);
 			};
@@ -325,7 +330,10 @@ namespace MonoDevelop.Inspector
 
 		void OnRespositionViews (object sender, EventArgs e)
 		{
-			inspectorWindow.AlignRight (selectedWindow, WindowMargin);
+            var currentWidth = selectedWindow.FrameWidth;
+            toolbarWindow.SetContentSize( ToolbarWindowWidth, ToolbarWindowHeight);
+
+            inspectorWindow.AlignRight (selectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft(selectedWindow, WindowMargin);
 			toolbarWindow.AlignTop (selectedWindow, WindowMargin);
 			RefreshOverlaysVisibility ();

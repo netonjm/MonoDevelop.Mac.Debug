@@ -147,5 +147,13 @@ namespace MonoDevelop.Inspector.Mac
 		public object NativeObject => BackendHost.Backend.Window;
 
 		public bool HasParentWindow => Window.ParentWindow != null;
-	}
+
+        float IWindowWrapper.FrameX => (float) base.X;
+
+        float IWindowWrapper.FrameY => (float)base.Y;
+
+        float IWindowWrapper.FrameWidth => (float)base.Width;
+
+        float IWindowWrapper.FrameHeight => (float)base.Height;
+    }
 }

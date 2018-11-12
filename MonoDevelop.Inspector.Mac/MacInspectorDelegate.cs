@@ -9,6 +9,8 @@ using MonoDevelop.Inspector.Services;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Touchbar;
+using System.Globalization;
+using System.Threading;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -85,6 +87,12 @@ namespace MonoDevelop.Inspector.Mac
             submenu.AutoEnablesItems = false;
 
             return new MacMenuWrapper(submenu);
+        }
+
+        public void SetCultureInfo(CultureInfo e)
+        {
+            Thread.CurrentThread.CurrentCulture = e;
+            Thread.CurrentThread.CurrentUICulture = e;
         }
 
         public IButtonWrapper GetImageButton(IImageWrapper imageWrapper)
@@ -486,6 +494,12 @@ namespace MonoDevelop.Inspector.Mac
                 return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate());
             }
             return null;
+        }
+
+        public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
+        {
+            
+
         }
 
         TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();

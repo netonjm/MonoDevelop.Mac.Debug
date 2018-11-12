@@ -30,8 +30,7 @@ namespace MonoDevelop.Inspector.Mac
             var previous = new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
             var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorWindow(inspectorDelegate, new CGRect(10, 10, 600, 700)); ;
-            var tool = new MacToolbarWindow (inspectorDelegate);
-
+            var tool = new MacToolbarWindow (inspectorDelegate, new CGRect(10, 10, 100, 700));
             tool.ShowToolkit(hasToolkit);
 
             return new InspectorManager(macDelegate, over, next, previous, acc,ins, tool);
@@ -44,9 +43,8 @@ namespace MonoDevelop.Inspector.Mac
 	public class MacAccInspectorWindow : MacWindowWrapper, IMainWindowWrapper, INSTouchBarDelegate
     {
         NSTouchBar touchbar;
-
-        MacInspectorContext context;
         ToolbarService service;
+        MacInspectorContext context;
 
         public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
 
@@ -106,7 +104,6 @@ namespace MonoDevelop.Inspector.Mac
             context.FocusedViewChanged -= Context_FocusedViewChanged;
             base.Dispose(disposing);
         }
-
 
         [Export ("makeTouchBar")]
         public NSTouchBar MakeTouchBar ()

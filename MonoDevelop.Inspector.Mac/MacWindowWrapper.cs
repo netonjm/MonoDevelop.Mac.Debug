@@ -5,6 +5,8 @@ using AppKit;
 using CoreGraphics;
 using Foundation;
 using System.Linq;
+using System.Globalization;
+using System.Threading;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -90,10 +92,10 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
-		public float X => (float) Frame.X;
-		public float Y => (float) Frame.Y;
-		public float Width => (float)Frame.Width;
-		public float Height => (float)Frame.Height;
+		public float FrameX => (float) Frame.X;
+		public float FrameY => (float) Frame.Y;
+		public float FrameWidth => (float)Frame.Width;
+		public float FrameHeight => (float)Frame.Height;
 
 		public void AlignRight(IWindowWrapper toView, int pixels)
 		{

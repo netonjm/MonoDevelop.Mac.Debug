@@ -4,6 +4,9 @@ using System;
 using AppKit;
 using System.Linq;
 using Foundation;
+using CoreGraphics;
+using System.Globalization;
+using System.Threading;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -12,20 +15,20 @@ namespace MonoDevelop.Inspector.Mac
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
-
-		public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
-
 		public event EventHandler<bool> ThemeChanged;
 
-		public event EventHandler ItemDeleted;
+        public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
 		public event EventHandler<FontData> FontChanged;
+        public event EventHandler<CultureInfo> CultureChanged;
 
-		const int MenuItemSeparation = 3;
+        public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
+
+        const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
 		readonly NSStackView stackView;
-
+        readonly NSStackView secondStackView;
         readonly IInspectDelegate inspectDelegate;
 
         readonly ToggleButton toolkitButton;
@@ -45,23 +48,30 @@ namespace MonoDevelop.Inspector.Mac
             } 
         }
 
-		public MacToolbarWindow (IInspectDelegate inspectDelegate)
-		{
+		public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
+        {
             this.inspectDelegate = inspectDelegate;
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
-			StyleMask = NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView;
 			TitlebarAppearsTransparent = true;
 			TitleVisibility = NSWindowTitleVisibility.Hidden;
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
-			ContentView.AddSubview (stackView);
-			stackView.CenterYAnchor.ConstraintEqualToAnchor (ContentView.CenterYAnchor, 0).Active = true;
-			stackView.LeftAnchor.ConstraintEqualToAnchor (ContentView.LeftAnchor, LeftPadding).Active = true;
+            NSStackView verticalStackView;
+            ContentView = verticalStackView = NativeViewHelper.CreateVerticalStackView (MenuItemSeparation);
 
-            //stackView.RightAnchor.ConstraintEqualToAnchor(ContentView.RightAnchor, -LeftPadding).Active = true;
+            stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
+            verticalStackView.AddArrangedSubview (stackView);
+
+            stackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
+            stackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
+
+            secondStackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
+            verticalStackView.AddArrangedSubview(secondStackView);
+
+            secondStackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
+            secondStackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
 
             //Visual issues view
             var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
@@ -125,21 +135,47 @@ namespace MonoDevelop.Inspector.Mac
 				ItemImageChanged?.Invoke(this, EventArgs.Empty);
 			};
 
-			fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+            AddSeparator();
+
+            languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+            languagesComboBox.ToolTip = "Change font from selected item";
+       
+            cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            var culturesStr = new NSString[cultureInfos.Length];
+
+            NSString selected = null;
+            for (int i = 0; i < cultureInfos.Length; i++)
+            {
+                culturesStr[i] = new NSString(cultureInfos[i].DisplayName);
+                if (i == 0 || cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
+                {
+                    selected = culturesStr[i];
+                }
+            }
+
+            languagesComboBox.Add(culturesStr);
+            stackView.AddArrangedSubview(languagesComboBox);
+
+            languagesComboBox.Select(selected);
+
+            languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
+            languagesComboBox.SelectionChanged  += LanguagesComboBox_SelectionChanged;
+            languagesComboBox.WidthAnchor.ConstraintLessThanOrEqualToConstant(220).Active = true;
+
+            //FONTS 
+
+            fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
 			fontsCombobox.ToolTip = "Change font from selected item";
 			fonts = NSFontManager.SharedFontManager.AvailableFonts
 				.Select (s => new NSString(s))
 				.ToArray ();
 
 			fontsCombobox.Add(fonts);
-
-			stackView.AddArrangedSubview(fontsCombobox);
-			fontsCombobox.WidthAnchor.ConstraintEqualToConstant(220).Active = true;
+            fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualToConstant(220).Active = true;
 		
 			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
 			fontSizeTextView.ToolTip = "Change font size from selected item";
-			stackView.AddArrangedSubview(fontSizeTextView);
-			fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
+            fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
 
 			fontsCombobox.SelectionChanged += (s, e) => {
 				OnFontChanged();
@@ -148,9 +184,37 @@ namespace MonoDevelop.Inspector.Mac
 			fontSizeTextView.Activated += (s, e) => {
 				OnFontChanged();
 			};
-			//AddSeparator();
-			stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
-		}
+
+            endSpace = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            //stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+        }
+
+        NSView endSpace;
+
+        int GetSelectedLanguage ()
+        {
+            for (int i = 0; i < cultureInfos.Length; i++)
+            {
+                if (cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        CultureInfo[] cultureInfos;
+        NSComboBox languagesComboBox;
+        void LanguagesComboBox_SelectionChanged(object sender, EventArgs e)
+        {
+            var currentIndex = (int)languagesComboBox.SelectedIndex;
+            if (currentIndex > -1)
+            {
+                var selected = cultureInfos[currentIndex];
+                CultureChanged?.Invoke(this, selected);
+            }
+        }
 
         public void ChangeView (InspectorManager manager, IViewWrapper viewWrapper)
         {
@@ -198,14 +262,16 @@ namespace MonoDevelop.Inspector.Mac
 
 				if (value)
 				{
-					stackView.AddArrangedSubview(fontsCombobox);
-					stackView.AddArrangedSubview(fontSizeTextView);
+					secondStackView.AddArrangedSubview(fontsCombobox);
+                    secondStackView.AddArrangedSubview(fontSizeTextView);
+                    secondStackView.AddArrangedSubview(endSpace);
 				}
 				else
 				{
 					fontSizeTextView.RemoveFromSuperview();
 					fontsCombobox.RemoveFromSuperview();
-				}
+                    endSpace.RemoveFromSuperview();
+                }
 			}
 		}
 
@@ -237,13 +303,6 @@ namespace MonoDevelop.Inspector.Mac
 			{
 				var selected = fonts[currentIndex].ToString();
 				var fontSize = fontSizeTextView.IntValue;
-
-                //public FontData (string font, float size)
-                //{
-                //  Size = size;
-                //  Font = NSFont.FromFontName (font, size);
-                //}
-
                 IFontWrapper font = inspectDelegate.GetFromName(selected, fontSize);
                 FontChanged?.Invoke(this, new FontData (font, fontSize));
 			}
