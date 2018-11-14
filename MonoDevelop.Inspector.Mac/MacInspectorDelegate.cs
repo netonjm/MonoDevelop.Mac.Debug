@@ -11,6 +11,7 @@ using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Touchbar;
 using System.Globalization;
 using System.Threading;
+using FigmaSharp;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -97,9 +98,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public IButtonWrapper GetImageButton(IImageWrapper imageWrapper)
         {
-            var invokeButton = new ImageButton((NSImage)imageWrapper.NativeObject);
-
-            return new MacButtonWrapper(invokeButton);
+            var invokeButton = new ImageButton();
+			invokeButton.Image = (NSImage)imageWrapper.NativeObject;
+			return new MacButtonWrapper(invokeButton);
         }
 
         class MacConstrainContainerWrapper : IConstrainContainerWrapper
@@ -498,10 +499,24 @@ namespace MonoDevelop.Inspector.Mac
 
         public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
         {
-            
 
-        }
 
-        TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
+		}
+
+		public void LoadFigma (IViewWrapper selectedView, string token, string file, string viewName, string nodeName = null)
+		{
+			FigmaEnvirontment.SetAccessToken (token);
+			if (selectedView.NativeObject is NSView currentView) {
+
+				var children = currentView.Subviews.ToList ();
+				foreach (var item in children) {
+					item.RemoveFromSuperview ();
+				}
+
+				currentView.LoadFigma (file, viewName, nodeName);
+			}
+		}
+
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
     }
 }

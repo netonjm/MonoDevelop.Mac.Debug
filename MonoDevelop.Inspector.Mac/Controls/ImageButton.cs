@@ -11,12 +11,11 @@ namespace MonoDevelop.Inspector.Mac
 
 		public override bool CanBecomeKeyView => BecomeKeyView;
 
-		public ImageButton(NSImage image)
+		public ImageButton()
 		{
 			Bordered = true;
 			BezelStyle = NSBezelStyle.Rounded;
 			Title = "";
-			Image = image;
 			BecomeKeyView = false;
 			ImageScaling = NSImageScale.AxesIndependently;
 			TranslatesAutoresizingMaskIntoConstraints = false;

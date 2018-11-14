@@ -20,8 +20,9 @@ namespace MonoDevelop.Inspector
 		event EventHandler<INativeObject> RaiseFirstResponder;
 		event EventHandler<INativeObject> RaiseDeleteItem;
         event EventHandler<ToolbarView> RaiseInsertItem;
+		event EventHandler<Tuple<string, string, string, string>> LoadFigma;
 
-        void GenerateTree (IWindowWrapper window, InspectorViewMode viewMode);
+		void GenerateTree (IWindowWrapper window, InspectorViewMode viewMode);
 		void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate, InspectorViewMode mode);
 		void RemoveItem ();
         void Initialize();

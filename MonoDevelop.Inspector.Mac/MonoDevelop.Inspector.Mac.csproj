@@ -114,6 +114,14 @@
       <Project>{565D8019-7355-4331-86D3-E72D8E17D7B5}</Project>
       <Name>MonoDevelop.Inspector.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp\FigmaSharp.csproj">
+      <Project>{AD306162-8DAD-4DBD-B264-BDA8765CC107}</Project>
+      <Name>FigmaSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Cocoa\FigmaSharp.Cocoa.csproj">
+      <Project>{C16867FC-93FC-4E4C-B4DF-6F40D9615E01}</Project>
+      <Name>FigmaSharp.Cocoa</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\error-16~dark~error.png">

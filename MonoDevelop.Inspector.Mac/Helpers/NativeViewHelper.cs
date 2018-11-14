@@ -118,32 +118,31 @@ namespace MonoDevelop.Inspector.Mac
 			return button;
 		}
 
-		public static NSTextField CreateTextEntry(NSFont font, string text, NSTextAlignment alignment = NSTextAlignment.Left)
+		public static NSTextField CreateTextEntry(string text, NSFont font = null, NSTextAlignment alignment = NSTextAlignment.Left, bool translatesAutoresizingMaskIntoConstraints = false)
 		{
-			return new NSTextField
-			{
+			return new NSTextField {
 				StringValue = text ?? "",
-				Font = font ?? GetSystemFont(false),
-				Alignment = alignment
+				Font = font ?? GetSystemFont (false),
+				Alignment = alignment, TranslatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
 			};
 		}
 
-		public static NSStackView CreateVerticalStackView(int spacing = 10) => new NSStackView()
+		public static NSStackView CreateVerticalStackView(int spacing = 10, bool translatesAutoresizingMaskIntoConstraints = false) => new NSStackView()
 		{
 			Orientation = NSUserInterfaceLayoutOrientation.Vertical,
 			Alignment = NSLayoutAttribute.Leading,
 			Spacing = spacing,
 			Distribution = NSStackViewDistribution.Fill,
-			TranslatesAutoresizingMaskIntoConstraints = false
+			TranslatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
 		};
 
-		public static NSStackView CreateHorizontalStackView(int spacing = 10) => new NSStackView()
+		public static NSStackView CreateHorizontalStackView(int spacing = 10, bool translatesAutoresizingMaskIntoConstraints = false) => new NSStackView()
 		{
 			Orientation = NSUserInterfaceLayoutOrientation.Horizontal,
 			Alignment = NSLayoutAttribute.CenterY,
 			Spacing = spacing,
 			Distribution = NSStackViewDistribution.Fill,
-			TranslatesAutoresizingMaskIntoConstraints = false
+			TranslatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
 		};
 
 		public static NSFont GetSystemFont(bool bold, float size = 0.0f)
@@ -157,7 +156,7 @@ namespace MonoDevelop.Inspector.Mac
 			return NSFont.SystemFontOfSize(size);
 		}
 
-		public static NSTextField CreateLabel (string text, NSFont font = null, NSTextAlignment alignment = NSTextAlignment.Left)
+		public static NSTextField CreateLabel (string text, NSFont font = null, NSTextAlignment alignment = NSTextAlignment.Left, bool translatesAutoresizingMaskIntoConstraints = false)
 		{
 			var label = new NSTextField ()
 			{
@@ -170,7 +169,7 @@ namespace MonoDevelop.Inspector.Mac
 				Selectable = false,
 				Alignment = alignment
 			};
-			label.TranslatesAutoresizingMaskIntoConstraints = false;
+			label.TranslatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints;
 			return label;
 		}
 

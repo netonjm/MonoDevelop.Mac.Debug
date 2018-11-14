@@ -117,7 +117,8 @@ namespace MonoDevelop.Inspector.Mac
 			AddSeparator ();
 
             var deleteImage = (NSImage)inspectDelegate.GetImageResource("delete-16.png").NativeObject;
-            deleteButton = new ImageButton(deleteImage);
+            deleteButton = new ImageButton();
+			deleteButton.Image = deleteImage;
 			deleteButton.ToolTip = "Delete selected item";
 			AddButton (deleteButton);
 			deleteButton.Activated += (s,e) =>
@@ -126,7 +127,8 @@ namespace MonoDevelop.Inspector.Mac
 			};
 
             var changeImg = (NSImage)inspectDelegate.GetImageResource("image-16.png").NativeObject;
-			changeImage = new ImageButton(changeImg);
+			changeImage = new ImageButton();
+			changeImage.Image = changeImg;
 			changeImage.ToolTip = "Change image from selected item";
 			AddButton (changeImage);
 
