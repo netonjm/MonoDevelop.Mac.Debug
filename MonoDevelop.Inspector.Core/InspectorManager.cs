@@ -11,7 +11,7 @@ namespace MonoDevelop.Inspector
     internal class InspectorManager : IDisposable
 	{
 		const string Name = "Accessibility .NET Inspector";
-		const int ToolbarWindowWidth = 500;
+		const int ToolbarWindowWidth = 400;
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
         IViewWrapper view => nativeObject as IViewWrapper;
