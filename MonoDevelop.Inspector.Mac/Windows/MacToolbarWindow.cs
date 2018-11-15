@@ -216,9 +216,13 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
+		bool handleChange;
+
         public void ChangeView (InspectorManager manager, IViewWrapper viewWrapper)
         {
-            bool showImage = false;
+			handleChange = true;
+
+			bool showImage = false;
             bool showFont = false;
             //NSPopUpButton
             var fontData = manager.Delegate.GetFont(viewWrapper);
@@ -243,7 +247,10 @@ namespace MonoDevelop.Inspector.Mac
 
             imageButtonVisible = showImage;
             fontButtonsVisible = showFont;
-        }
+
+			handleChange = false;
+
+		}
 
         void ToolkitButton_Activated (object sender, EventArgs e)
 		{
@@ -298,6 +305,9 @@ namespace MonoDevelop.Inspector.Mac
 
 		void OnFontChanged ()
 		{
+			if (handleChange) {
+				return;
+			}
 			var currentIndex = (int)fontsCombobox.SelectedIndex;
 			if (currentIndex >= -1)
 			{
