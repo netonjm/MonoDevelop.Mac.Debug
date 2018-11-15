@@ -298,10 +298,10 @@ namespace MonoDevelop.Inspector.Mac
                 {
                     errorType |= DetectedErrorType.AccessibilityTitle;
                 }
-                if (string.IsNullOrEmpty(customView.AccessibilityHelp))
-                {
-                    errorType |= DetectedErrorType.AccessibilityHelp;
-                }
+                //if (string.IsNullOrEmpty(customView.AccessibilityHelp))
+                //{
+                //    errorType |= DetectedErrorType.AccessibilityHelp;
+                //}
                 if (customView.AccessibilityParent == null)
                 {
                     errorType |= DetectedErrorType.AccessibilityParent;

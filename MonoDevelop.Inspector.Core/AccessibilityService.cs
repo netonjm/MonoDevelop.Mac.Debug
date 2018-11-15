@@ -31,9 +31,9 @@ namespace MonoDevelop.Inspector.Services
 			if (string.IsNullOrEmpty (customView.AccessibilityTitle)) {
 				return true;
 			}
-			if (string.IsNullOrEmpty (customView.AccessibilityHelp)) {
-				return true;
-			}
+			//if (string.IsNullOrEmpty (customView.AccessibilityHelp)) {
+			//	return true;
+			//}
 
 			return false;
 		}
