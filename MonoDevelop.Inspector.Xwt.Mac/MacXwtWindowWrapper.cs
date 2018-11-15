@@ -4,6 +4,7 @@ using Xwt;
 using System.Linq;
 using CoreGraphics;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -50,7 +51,7 @@ namespace MonoDevelop.Inspector.Mac
 		public event EventHandler MovedRequested;
 		public event EventHandler LostFocus;
 		public event EventHandler GotFocus;
-
+		public event EventHandler<CultureInfo> CultureChanged;
 		public event EventHandler BecomeMainWindow;
 
 		protected override void OnShown ()
