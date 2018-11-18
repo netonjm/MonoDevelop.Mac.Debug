@@ -2,29 +2,78 @@
 using AppKit;
 using FigmaSharp;
 using MonoDevelop.Inspector.Mac;
+using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace MonoDevelop.Inspector.Figma
 {
+    class FigmaConfig
+    {
+        public string Token { get; set; } = "TOKEN";
+        public string File { get; set; } = "FILE_ID";
+        public string NodeName { get; set; } = "FILE WINDOW NAME";
+        public string ViewName { get; set; } = "FILE CONTAINER NAME";
+    }
+
     public class FigmaInspectorTabModule : IInspectorTabModule, IDisposable
     {
-        const string DefaultToken = "TOKEN";
-        const string DefaultFileId = "FILE_ID";
-        const string DefaultWindowName = "FILE WINDOW NAME";
-        const string DefaultContainerID = "FILE CONTAINER NAME";
-
         public FigmaInspectorTabModule() 
         {
         }
 
         public bool IsEnabled => true;
 
-        NSTextField tokenTextField, documentTextField, windowTextField, windowContainerIdTextField;
+        NSTextField tokenTextField, fileTextField, nodeTextField, viewTextField;
 
         IInspectorWindow inspectorWindow;
 
-        public void Load (IInspectorWindow inspectorWindow, ITabWrapper tab)
+        FigmaConfig ReadConfig (string filePath)
+        {
+            Console.WriteLine("Loading config from: {0}", filePath);
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    var config = JsonConvert.DeserializeObject<FigmaConfig>(File.ReadAllText(filePath));
+                    Console.WriteLine("DONE.");
+                    return config;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            return new FigmaConfig();
+        }
+
+        void WriteConfig(FigmaConfig figmaConfig, string filePath)
+        {
+            Console.WriteLine("Writting config in: {0}", filePath);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            try
+            {
+                File.WriteAllText (filePath, JsonConvert.SerializeObject(figmaConfig));
+                Console.WriteLine("DONE.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        string configFilePath;
+        FigmaConfig config;
+
+        void IInspectorTabModule.Load(IInspectorWindow inspectorWindow, ITabWrapper tab)
         {
             this.inspectorWindow = inspectorWindow;
+            var path = Path.GetDirectoryName(GetType().Assembly.Location);
+            configFilePath = Path.Combine(path, "user.cfg");
+            config = ReadConfig(configFilePath);
 
             var toolbarTab = tab.NativeObject as NSTabView;
             var figmaStackView = NativeViewHelper.CreateVerticalStackView(translatesAutoresizingMaskIntoConstraints: true);
@@ -33,31 +82,36 @@ namespace MonoDevelop.Inspector.Figma
             figmaStackView.AddArrangedSubview(figmaTokenStackView);
 
             figmaTokenStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Your personal access token:", translatesAutoresizingMaskIntoConstraints: true));
-            tokenTextField = NativeViewHelper.CreateTextEntry(DefaultToken, translatesAutoresizingMaskIntoConstraints: true);
+            tokenTextField = NativeViewHelper.CreateTextEntry(config.Token, translatesAutoresizingMaskIntoConstraints: true);
             figmaTokenStackView.AddArrangedSubview(tokenTextField);
+            tokenTextField.Activated += DataChanged ;
 
             var figmaDocumentStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
             figmaStackView.AddArrangedSubview(figmaDocumentStackView);
-            figmaDocumentStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Your File:", translatesAutoresizingMaskIntoConstraints: true));
-            documentTextField = NativeViewHelper.CreateTextEntry(DefaultFileId, translatesAutoresizingMaskIntoConstraints: true);
-            figmaDocumentStackView.AddArrangedSubview(documentTextField);
+            figmaDocumentStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("File:", translatesAutoresizingMaskIntoConstraints: true));
+            fileTextField = NativeViewHelper.CreateTextEntry(config.File, translatesAutoresizingMaskIntoConstraints: true);
+            fileTextField.Activated += DataChanged ;
+            figmaDocumentStackView.AddArrangedSubview(fileTextField);
 
             var figmaWindowNameStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
             figmaStackView.AddArrangedSubview(figmaWindowNameStackView);
 
-            figmaWindowNameStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Window Name:", translatesAutoresizingMaskIntoConstraints: true));
-            windowTextField = NativeViewHelper.CreateTextEntry(DefaultWindowName, translatesAutoresizingMaskIntoConstraints: true);
-            figmaWindowNameStackView.AddArrangedSubview(windowTextField);
+            figmaWindowNameStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Node Name:", translatesAutoresizingMaskIntoConstraints: true));
+            nodeTextField = NativeViewHelper.CreateTextEntry(config.NodeName, translatesAutoresizingMaskIntoConstraints: true);
+            nodeTextField.Activated += DataChanged;
+
+            figmaWindowNameStackView.AddArrangedSubview(nodeTextField);
 
             var figmaWindowContainerIdStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
             figmaStackView.AddArrangedSubview(figmaWindowContainerIdStackView);
 
+            figmaWindowContainerIdStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("View Name:", translatesAutoresizingMaskIntoConstraints: true));
+            viewTextField = NativeViewHelper.CreateTextEntry(config.ViewName, translatesAutoresizingMaskIntoConstraints: true);
+            viewTextField.Activated += DataChanged ;
 
-            figmaWindowContainerIdStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Window Container Id:", translatesAutoresizingMaskIntoConstraints: true));
-            windowContainerIdTextField = NativeViewHelper.CreateTextEntry(DefaultContainerID, translatesAutoresizingMaskIntoConstraints: true);
-            figmaWindowContainerIdStackView.AddArrangedSubview(windowContainerIdTextField);
+            figmaWindowContainerIdStackView.AddArrangedSubview(viewTextField);
 
-            var figmaCompute = new NSButton() { TranslatesAutoresizingMaskIntoConstraints = true };
+            figmaCompute = new NSButton() { TranslatesAutoresizingMaskIntoConstraints = true };
             figmaStackView.AddArrangedSubview(figmaCompute);
             figmaCompute.Title = "Load in selected view";
 
@@ -74,27 +128,36 @@ namespace MonoDevelop.Inspector.Figma
             figmaCompute.Activated += FigmaCompute_Activated;
         }
 
+        void DataChanged (object sender, EventArgs e)
+        {
+            config.File = fileTextField.StringValue;
+            config.Token = tokenTextField.StringValue;
+            config.ViewName = viewTextField.StringValue;
+            config.NodeName = nodeTextField.StringValue;
+            WriteConfig(config, configFilePath);
+        }
+
+        NSButton figmaCompute;
+
         void FigmaCompute_Activated(object sender, EventArgs e)
         {
             FigmaEnvirontment.SetAccessToken(tokenTextField.StringValue);
 
-            //InspectorContext.
+            if (InspectorContext.Current.Manager.SelectedView?.NativeObject is NSView currentView)
+            {
+                var children = currentView.Subviews.ToList();
+                foreach (var item in children)
+                {
+                    item.RemoveFromSuperview();
+                }
 
-            //if (selectedView.NativeObject is NSView currentView)
-            //{
-            //    var children = currentView.Subviews.ToList();
-            //    foreach (var item in children)
-            //    {
-            //        item.RemoveFromSuperview();
-            //    }
-
-            //    currentView.LoadFigma(file, viewName, nodeName);
-            //}
+                currentView.LoadFigma(fileTextField.StringValue, viewTextField.StringValue, nodeTextField.StringValue);
+            }
         }
 
         public void Dispose()
         {
-            //figmaCompute.Activated -= FigmaCompute_Activated;
+            figmaCompute.Activated -= FigmaCompute_Activated;
         }
     }
 }

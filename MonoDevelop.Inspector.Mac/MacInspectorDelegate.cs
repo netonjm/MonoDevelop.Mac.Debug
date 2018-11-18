@@ -11,7 +11,8 @@ using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Touchbar;
 using System.Globalization;
 using System.Threading;
-using FigmaSharp;
+using System.IO;
+using System.Reflection;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -90,11 +91,69 @@ namespace MonoDevelop.Inspector.Mac
             return new MacMenuWrapper(submenu);
         }
 
+        void LoadModule (string path, InspectorContext context)
+        {
+          
+            Console.WriteLine("Loading {0}...", path);
+            foreach (var file in Directory.EnumerateFiles(path, "*.dll"))
+            {
+                var fileName = Path.GetFileName(file);
+
+                if (fileName.StartsWith("MonoDevelop.Inspector.", StringComparison.Ordinal))
+                {
+                    Console.WriteLine("Found {0}.", fileName);
+                    try
+                    {
+                        var assembly = Assembly.LoadFile(file);
+                        var interfaceType = typeof(IInspectorTabModule);
+                        var types = assembly.GetTypes()
+                            .Where(interfaceType.IsAssignableFrom);
+
+                        foreach (var type in types)
+                        {
+                            Console.WriteLine("[{0}] Creating instance {1}", fileName, type);
+                            try
+                            {
+                                if (Activator.CreateInstance(type) is IInspectorTabModule element)
+                                    context.Modules.Add(element);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+                            Console.WriteLine("[{0}] Loaded", fileName);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
+        }
+
+        public void LoadModules (InspectorContext context)
+        {
+            var modules = InspectorContext.Current.ModulesDirectoryPath;
+            Console.WriteLine("Loading modules from: {0}", modules);
+            if (!Directory.Exists (modules))
+            {
+                Console.WriteLine("Error: folder not found.");
+                return;
+            }
+
+            var modulesDirectories = Directory.EnumerateDirectories(modules);
+            Console.WriteLine("{0} module/s found.", modulesDirectories.Count ());
+            foreach (var module in modulesDirectories)
+            {
+                LoadModule(module, context);
+            }
+        }
+
         public void InitializeManager (InspectorContext context, ToolbarService service)
         {
-            //our native entry point
-            context.Modules.Add(new Figma.FigmaInspectorTabModule());
-
+            LoadModules(context);
+          
             var over = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
             var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
             var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Blue);

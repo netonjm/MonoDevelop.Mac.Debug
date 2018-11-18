@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2D5C2F94-9D25-459D-9767-3B6942DFB7D7}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>MonoDevelop.Inspector.Figma</RootNamespace>
-    <AssemblyName>MonoDevelop.Inspector.Figma</AssemblyName>
+    <RootNamespace>MonoDevelop.Inspector.Figma.Mac</RootNamespace>
+    <AssemblyName>MonoDevelop.Inspector.Figma.Mac</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,6 +29,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Xamarin.Mac" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -48,6 +51,9 @@
       <Project>{565D8019-7355-4331-86D3-E72D8E17D7B5}</Project>
       <Name>MonoDevelop.Inspector.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

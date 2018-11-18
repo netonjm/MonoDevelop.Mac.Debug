@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MonoDevelop.Inspector
 {
@@ -12,10 +13,13 @@ namespace MonoDevelop.Inspector
         readonly List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
         internal InspectorManager Manager { get; set; }
 
+        readonly public string ModulesDirectoryPath;
+
         public InspectorContext ()
 		{
-
-		}
+            var home = Environment.GetEnvironmentVariable("HOME");
+            ModulesDirectoryPath = Path.Combine(home, ".cache", "MonoDevelop.Inspector", "modules");
+        }
 
         protected bool hasToolkit;
         public void Initialize (InspectorManager manager, bool hasToolkit)
