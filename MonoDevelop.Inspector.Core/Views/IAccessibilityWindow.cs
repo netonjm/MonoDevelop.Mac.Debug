@@ -4,14 +4,12 @@ using System;
 
 namespace MonoDevelop.Inspector
 {
-	public interface IAccessibilityWindow : IWindowWrapper
+    public interface IAccessibilityWindow : IWindowWrapper
 	{
 		event EventHandler<IViewWrapper> RaiseAccessibilityIssueSelected;
 		event EventHandler AuditRequested;
 		event EventHandler ShowErrorsRequested;
 
 		string IssuesLabel { get; set; }
-
-
 	}
 }
