@@ -14,7 +14,8 @@ namespace MonoDevelop.Inspector
 		const int ToolbarWindowWidth = 400;
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
-        IViewWrapper view => nativeObject as IViewWrapper;
+
+        internal IViewWrapper SelectedView => nativeObject as IViewWrapper;
         INativeObject nativeObject;
         IViewWrapper nextKeyView, previousKeyView;
 		IMainWindowWrapper selectedWindow;
@@ -84,8 +85,8 @@ namespace MonoDevelop.Inspector
 				if (debugOverlayWindow != null) {
 					debugOverlayWindow.SetParentWindow (selectedWindow);
 					debugOverlayWindow.Visible = value;
-					if (view != null) {
-						debugOverlayWindow.AlignWith (view);
+					if (SelectedView != null) {
+						debugOverlayWindow.AlignWith (SelectedView);
 					}
 					debugOverlayWindow.OrderFront ();
 				}
@@ -223,7 +224,7 @@ namespace MonoDevelop.Inspector
 				  RemoveView(e);
 			};
 
-            inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
+			inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
 
             toolbarWindow = toolWindow; //new MacToolbarWindow (this);
 
@@ -248,12 +249,12 @@ namespace MonoDevelop.Inspector
 
 			toolbarWindow.ItemDeleted += (sender, e) =>
 			{
-				RemoveView(view);
+				RemoveView(SelectedView);
 			};
 
 			toolbarWindow.FontChanged += (sender, e) =>
 			{
-				Delegate.SetFont(view, e.Font);
+				Delegate.SetFont(SelectedView, e.Font);
 				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
@@ -264,7 +265,7 @@ namespace MonoDevelop.Inspector
 
             toolbarWindow.ItemImageChanged += async (sender, e) =>
 			{
-				await Delegate.InvokeImageChanged(view, selectedWindow);
+				await Delegate.InvokeImageChanged(SelectedView, selectedWindow);
 			};
 
 			toolbarWindow.KeyViewLoop += (sender, e) => {
@@ -294,10 +295,10 @@ namespace MonoDevelop.Inspector
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
         {
-            if (view == null) {
+            if (SelectedView == null) {
                 return;
             }
-            Delegate.CreateItem(view, e);
+            Delegate.CreateItem(SelectedView, e);
             RefreshNeeded();
         }
 
@@ -375,7 +376,7 @@ namespace MonoDevelop.Inspector
 			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
 			inspectorWindow.AlignRight(selectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft (selectedWindow, WindowMargin);
-			inspectorWindow.GenerateStatusView (view, Delegate, ViewMode);
+			inspectorWindow.GenerateStatusView (SelectedView, Delegate, ViewMode);
 		}
 
 		void PopulateSubmenu ()
@@ -429,22 +430,22 @@ namespace MonoDevelop.Inspector
 
 		internal void ChangeFocusedView (INativeObject nextView)
 		{
-			if (selectedWindow == null || nextView == null || view == nextView) {
+			if (selectedWindow == null || nextView == null || SelectedView == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
 
             nativeObject = nextView;
-            nextKeyView = view?.NextValidKeyView;
-            previousKeyView = view?.PreviousValidKeyView;
+            nextKeyView = SelectedView?.NextValidKeyView;
+            previousKeyView = SelectedView?.PreviousValidKeyView;
 
 			RefreshWindows ();
             RefreshOverlaysVisibility();
 
-            if (view != null)
+            if (SelectedView != null)
             {
-                toolbarWindow.ChangeView(this, view);
-                FocusedViewChanged?.Invoke(this, view);
+                toolbarWindow.ChangeView(this, SelectedView);
+                FocusedViewChanged?.Invoke(this, SelectedView);
             }
 		}
 

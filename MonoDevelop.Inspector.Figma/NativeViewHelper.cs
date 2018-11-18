@@ -5,56 +5,12 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public static class NativeViewHelper
+    static class NativeViewHelper
 	{
         readonly static public float DefaultSize = (float) NSFont.SystemFontSize;
         readonly static public NSFont DefaultFont = NSFont.FromFontName (DefaultFontName, DefaultSize);
 
         public const string DefaultFontName = ".AppleSystemUIFont";
-
-        public static FontData GetFont (NSView view)
-		{
-			NSFont result = DefaultFont;
-			float size = DefaultSize;
-			if (view is NSTextField textField && textField.Font != null)
-			{
-				result = textField.Font;
-				size = (float) textField.Font.PointSize;
-			} else if (view is NSTextView textView && textView.Font != null)
-			{
-				result = textView.Font;
-				size = (float)textView.Font.PointSize;
-			} else if (view is NSButton btn && btn.Font != null)
-			{
-				result = btn.Font;
-				size = (float)btn.Font.PointSize;
-			} else if (view is NSSecureTextField secureTextField && secureTextField.Font != null)
-			{
-				result = secureTextField.Font;
-				size = (float)secureTextField.Font.PointSize;
-			}
-			return new FontData(new MacFont (result), size);
-		}
-
-		public static void SetFont (NSView view, NSFont font)
-		{
-			if (view is NSTextField)
-			{
-				((NSTextField)view).Font = font;
-			}
-			if (view is NSTextView)
-			{
-				 ((NSTextView)view).Font = font;
-			}
-			if (view is NSButton)
-			{
-				 ((NSButton)view).Font = font;
-			}
-			if (view is NSSecureTextField)
-			{
-				 ((NSSecureTextField)view).Font = font;
-			}
-		}
 
 		public static NSButton CreateButton(string title) => CreateButton (NSBezelStyle.RoundRect, NSFont.SystemFontOfSize(NSFont.SystemFontSize), title);
 

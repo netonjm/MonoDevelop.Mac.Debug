@@ -33,5 +33,5 @@ namespace MonoDevelop.Inspector
         void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);
         void CreateItem(IViewWrapper view, ToolbarView e);
         void SetCultureInfo(CultureInfo cultureInfo);
-    }
+	}
 }

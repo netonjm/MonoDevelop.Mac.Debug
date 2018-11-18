@@ -11,6 +11,8 @@ using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Touchbar;
 using System.Globalization;
 using System.Threading;
+using System.IO;
+using System.Reflection;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -89,6 +91,81 @@ namespace MonoDevelop.Inspector.Mac
             return new MacMenuWrapper(submenu);
         }
 
+        void LoadModule (string path, InspectorContext context)
+        {
+          
+            Console.WriteLine("Loading {0}...", path);
+            foreach (var file in Directory.EnumerateFiles(path, "*.dll"))
+            {
+                var fileName = Path.GetFileName(file);
+
+                if (fileName.StartsWith("MonoDevelop.Inspector.", StringComparison.Ordinal))
+                {
+                    Console.WriteLine("Found {0}.", fileName);
+                    try
+                    {
+                        var assembly = Assembly.LoadFile(file);
+                        var interfaceType = typeof(IInspectorTabModule);
+                        var types = assembly.GetTypes()
+                            .Where(interfaceType.IsAssignableFrom);
+
+                        foreach (var type in types)
+                        {
+                            Console.WriteLine("[{0}] Creating instance {1}", fileName, type);
+                            try
+                            {
+                                if (Activator.CreateInstance(type) is IInspectorTabModule element)
+                                    context.Modules.Add(element);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+                            Console.WriteLine("[{0}] Loaded", fileName);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
+        }
+
+        public void LoadModules (InspectorContext context)
+        {
+            var modules = InspectorContext.Current.ModulesDirectoryPath;
+            Console.WriteLine("Loading modules from: {0}", modules);
+            if (!Directory.Exists (modules))
+            {
+                Console.WriteLine("Error: folder not found.");
+                return;
+            }
+
+            var modulesDirectories = Directory.EnumerateDirectories(modules);
+            Console.WriteLine("{0} module/s found.", modulesDirectories.Count ());
+            foreach (var module in modulesDirectories)
+            {
+                LoadModule(module, context);
+            }
+        }
+
+        public void InitializeManager (InspectorContext context, ToolbarService service)
+        {
+            LoadModules(context);
+          
+            var over = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
+            var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
+            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Blue);
+            var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+            var ins = new InspectorWindow(this, new CGRect(10, 10, 600, 700)); ;
+            var tool = new MacToolbarWindow(this, new CGRect(10, 10, 100, 700));
+            tool.ShowToolkit(false);
+            var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
+            context.Initialize(manager, false);
+            service.SetDelegate(this);
+        }
+
         public void SetCultureInfo(CultureInfo e)
         {
             Thread.CurrentThread.CurrentCulture = e;
@@ -97,9 +174,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public IButtonWrapper GetImageButton(IImageWrapper imageWrapper)
         {
-            var invokeButton = new ImageButton((NSImage)imageWrapper.NativeObject);
-
-            return new MacButtonWrapper(invokeButton);
+            var invokeButton = new ImageButton();
+			invokeButton.Image = (NSImage)imageWrapper.NativeObject;
+			return new MacButtonWrapper(invokeButton);
         }
 
         class MacConstrainContainerWrapper : IConstrainContainerWrapper
@@ -498,10 +575,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
         {
-            
 
-        }
+		}
 
-        TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
     }
 }
