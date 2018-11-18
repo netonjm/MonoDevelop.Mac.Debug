@@ -26,8 +26,6 @@ namespace MonoDevelop.Inspector.Mac
         public void SetDelegate (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
-
-
         }
 
         public IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)

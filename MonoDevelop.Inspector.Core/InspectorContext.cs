@@ -4,12 +4,13 @@ using System.Collections.Generic;
 
 namespace MonoDevelop.Inspector
 {
-	abstract internal class InspectorContext
+	internal class InspectorContext
 	{
         public event EventHandler<IViewWrapper> FocusedViewChanged;
+        public readonly List<IInspectorTabModule> Modules = new List<IInspectorTabModule>();
 
         readonly List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
-        InspectorManager manager { get; set; }
+        internal InspectorManager Manager { get; set; }
 
         public InspectorContext ()
 		{
@@ -17,29 +18,28 @@ namespace MonoDevelop.Inspector
 		}
 
         protected bool hasToolkit;
-        public void Initialize (bool hasToolkit)
+        public void Initialize (InspectorManager manager, bool hasToolkit)
         {
             this.hasToolkit = hasToolkit;
-            manager = GetInitializationContext();
-            manager.FocusedViewChanged += (s,e) => FocusedViewChanged?.Invoke (s,e);
+            Manager = manager;
+            Manager.FocusedViewChanged += (s,e) => FocusedViewChanged?.Invoke (s,e);
         }
-
-        protected abstract InspectorManager GetInitializationContext();
 
         public void Attach (IMainWindowWrapper window) 
 		{
 			if (!windows.Contains (window)) {
 				windows.Add(window);
 			}
-			manager.SetWindow(window);
+			Manager.SetWindow(window);
 		}
 
-		public void ChangeFocusedView(IViewWrapper nSView) => manager.ChangeFocusedView(nSView);
+		public void ChangeFocusedView(IViewWrapper nSView) => Manager.ChangeFocusedView(nSView);
 
 		public void Remove (IMainWindowWrapper window)
 		{
 			windows.Remove(window);
-			manager.SetWindow(null);
+			Manager.SetWindow(null);
 		}
-	}
+        public static InspectorContext Current { get; set; } = new InspectorContext();
+    }
 }

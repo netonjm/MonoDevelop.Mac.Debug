@@ -116,7 +116,6 @@ namespace MonoDevelop.Inspector.Mac
             Selectable = true;
             AllowsEmptySelection = true;
             DataSource = dataSource = new MacToolbarDataSource(items);
-            TranslatesAutoresizingMaskIntoConstraints = false;
             ShowCategories(false);
 
         }

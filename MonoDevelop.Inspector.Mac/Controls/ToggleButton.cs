@@ -20,7 +20,6 @@ namespace MonoDevelop.Inspector.Mac
     class ToggleButton : NSButton
     {
         public event EventHandler Focused;
-        public override CGSize IntrinsicContentSize => Hidden ? CGSize.Empty : new CGSize(25, 25);
         public ToggleButton()
         {
             Title = "";

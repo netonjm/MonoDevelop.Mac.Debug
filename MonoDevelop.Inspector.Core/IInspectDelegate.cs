@@ -33,6 +33,5 @@ namespace MonoDevelop.Inspector
         void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);
         void CreateItem(IViewWrapper view, ToolbarView e);
         void SetCultureInfo(CultureInfo cultureInfo);
-		void LoadFigma (IViewWrapper selectedView, string token, string file, string viewName, string nodeName = null);
 	}
 }

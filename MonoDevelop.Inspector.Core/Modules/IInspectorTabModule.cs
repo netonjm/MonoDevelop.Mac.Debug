@@ -5,6 +5,7 @@ namespace MonoDevelop.Inspector
 {
     public interface IInspectorTabModule
     {
-
+        bool IsEnabled { get; }
+        void Load (IInspectorWindow inspectorWindow, ITabWrapper tab);
     }
 }

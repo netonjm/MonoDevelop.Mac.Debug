@@ -1,5 +1,6 @@
 ﻿using System;
 using AppKit;
+using CoreGraphics;
 using Foundation;
 using MonoDevelop.Inspector.Mac.Touchbar;
 
@@ -17,28 +18,26 @@ namespace MonoDevelop.Inspector.Mac
         }
     }
 
-    internal class XwtMacInspectorContext : MacInspectorContext
-    {
-        public override IInspectDelegate GetInspectorDelegate()
-        {
-            return new XwtInspectorDelegate();
-        }
-    }
-
     public class MacXwtAccInspectorWindow : MacXwtWindowWrapper, IMainWindowWrapper
     {
         NSTouchBar touchbar;
-        MacInspectorContext context;
+        InspectorContext context;
         ToolbarService service;
 
         public MacXwtAccInspectorWindow()
         {
+            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+
             touchbar = new NSTouchBar();
             service = ToolbarService.Current;
-            context = MacInspectorContext.Current;
-            context.Initialize(true);
-            service.SetDelegate(context.GetInspectorDelegate());
-            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+            context = InspectorContext.Current;
+
+            if (context.Manager == null)
+            {
+                var inspectorDelegate = new XwtMacInspectorDelegate();
+                inspectorDelegate.InitializeManager(context, service);
+            }
+
             context.FocusedViewChanged += Context_FocusedViewChanged;
         }
 

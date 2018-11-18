@@ -52,6 +52,8 @@
     <Compile Include="Views\IMenuWrapper.cs" />
     <Compile Include="Views\IImageWrapper.cs" />
     <Compile Include="Views\IToolbarWindow.cs" />
+    <Compile Include="Views\ITabWrapper.cs" />
+    <Compile Include="IInspectorContextDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />

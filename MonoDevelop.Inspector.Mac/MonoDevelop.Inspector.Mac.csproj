@@ -90,6 +90,7 @@
     <Compile Include="Touchbar\ColorPickerDelegate.cs" />
     <Compile Include="ToolbarService.cs" />
     <Compile Include="TouchBarBaseDelegate.cs" />
+    <Compile Include="Windows\MacTabWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyPanel\" />
@@ -121,6 +122,10 @@
     <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Cocoa\FigmaSharp.Cocoa.csproj">
       <Project>{C16867FC-93FC-4E4C-B4DF-6F40D9615E01}</Project>
       <Name>FigmaSharp.Cocoa</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoDevelop.Inspector.Figma\MonoDevelop.Inspector.Figma.Mac.csproj">
+      <Project>{2D5C2F94-9D25-459D-9767-3B6942DFB7D7}</Project>
+      <Name>MonoDevelop.Inspector.Figma.Mac</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

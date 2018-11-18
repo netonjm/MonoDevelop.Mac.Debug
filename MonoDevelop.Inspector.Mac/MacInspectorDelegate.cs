@@ -90,6 +90,23 @@ namespace MonoDevelop.Inspector.Mac
             return new MacMenuWrapper(submenu);
         }
 
+        public void InitializeManager (InspectorContext context, ToolbarService service)
+        {
+            //our native entry point
+            context.Modules.Add(new Figma.FigmaInspectorTabModule());
+
+            var over = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
+            var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
+            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Blue);
+            var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+            var ins = new InspectorWindow(this, new CGRect(10, 10, 600, 700)); ;
+            var tool = new MacToolbarWindow(this, new CGRect(10, 10, 100, 700));
+            tool.ShowToolkit(false);
+            var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
+            context.Initialize(manager, false);
+            service.SetDelegate(this);
+        }
+
         public void SetCultureInfo(CultureInfo e)
         {
             Thread.CurrentThread.CurrentCulture = e;
@@ -500,21 +517,6 @@ namespace MonoDevelop.Inspector.Mac
         public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
         {
 
-
-		}
-
-		public void LoadFigma (IViewWrapper selectedView, string token, string file, string viewName, string nodeName = null)
-		{
-			FigmaEnvirontment.SetAccessToken (token);
-			if (selectedView.NativeObject is NSView currentView) {
-
-				var children = currentView.Subviews.ToList ();
-				foreach (var item in children) {
-					item.RemoveFromSuperview ();
-				}
-
-				currentView.LoadFigma (file, viewName, nodeName);
-			}
 		}
 
 		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();

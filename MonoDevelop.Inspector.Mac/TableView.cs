@@ -84,7 +84,6 @@ namespace MonoDevelop.Inspector.Mac
 			ContentInsets = new NSEdgeInsets(0, 0, 0, 0);
 			HasVerticalScroller = true;
 			HasHorizontalScroller = false;
-			TranslatesAutoresizingMaskIntoConstraints = false;
 			DocumentView = content;
 		}
 	}

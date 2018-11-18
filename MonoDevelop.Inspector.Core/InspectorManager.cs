@@ -223,11 +223,6 @@ namespace MonoDevelop.Inspector
 				  RemoveView(e);
 			};
 
-			inspectorWindow.LoadFigma += (s, e) =>
-			{
-				inspectorDelegate.LoadFigma (view, e.Item1, e.Item2, e.Item3, e.Item4);
-			};
-
 			inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
 
             toolbarWindow = toolWindow; //new MacToolbarWindow (this);

@@ -7,16 +7,12 @@ using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Tests;
 using Xamarin.PropertyEditing.Themes;
 using Foundation;
+using System.Linq;
 
 namespace MonoDevelop.Inspector.Mac
 {
     class InspectorWindow : MacWindowWrapper, IInspectorWindow
     {
-        const string DefaultToken = "TOKEN";
-        const string DefaultFileId = "FILE_ID";
-        const string DefaultWindowName = "FILE WINDOW NAME";
-        const string DefaultContainerID = "FILE CONTAINER NAME";
-
         const ushort DeleteKey = 51;
 
         public event EventHandler<INativeObject> RaiseFirstResponder;
@@ -100,6 +96,8 @@ namespace MonoDevelop.Inspector.Mac
 
             //TOOLBAR
             var toolbarTab = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            var toolbarTabViewWrapper = new MacTabWrapper(toolbarTab);
+
             toolbarTab.WantsLayer = true;
             toolbarTab.Layer.BackgroundColor = NSColor.Red.CGColor;
 
@@ -114,23 +112,22 @@ namespace MonoDevelop.Inspector.Mac
 
             var toolbarTabItem = new NSTabViewItem();
             toolbarTabItem.Label = "Toolbar";
-            toolbarTab.Add(toolbarTabItem);
-
+         
             var toolbarStackView = NativeViewHelper.CreateVerticalStackView();
+            toolbarStackView.TranslatesAutoresizingMaskIntoConstraints = true;
             var toolbarHorizontalStackView = NativeViewHelper.CreateHorizontalStackView();
+            toolbarHorizontalStackView.TranslatesAutoresizingMaskIntoConstraints = true;
 
-            toolbarSearchTextField = new NSSearchField() { TranslatesAutoresizingMaskIntoConstraints = false };
+            toolbarSearchTextField = new NSSearchField();
             toolbarSearchTextField.Changed += (object sender, EventArgs e) =>
             {
                 Search();
             };
 
-            toolbarSearchTextField.SetContentCompressionResistancePriority((int)NSLayoutPriority.DefaultLow, NSLayoutConstraintOrientation.Horizontal);
-            toolbarSearchTextField.SetContentHuggingPriorityForOrientation((int)NSLayoutPriority.DefaultLow, NSLayoutConstraintOrientation.Horizontal);
-
             toolbarHorizontalStackView.AddArrangedSubview(toolbarSearchTextField);
 
             var compactModeToggleButton = new ToggleButton();
+            compactModeToggleButton.TranslatesAutoresizingMaskIntoConstraints = true;
             compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
             compactModeToggleButton.ToolTip = "Use compact display";
             toolbarHorizontalStackView.AddArrangedSubview(compactModeToggleButton);
@@ -142,26 +139,26 @@ namespace MonoDevelop.Inspector.Mac
             toolbarStackView.AddArrangedSubview(toolbarViewScrollView);
 
             toolbarTabItem.View = toolbarStackView;
-
             toolbarView.ActivateSelectedItem += (sender, e) =>
             {
                 RaiseInsertItem?.Invoke(this, toolbarView.SelectedItem.TypeOfView);
             };
-            //toolbarStackView.LeftAnchor.ConstraintEqualToAnchor(toolbarTabItem.View.LeftAnchor, 0).Active = true;
-            //toolbarStackView.RightAnchor.ConstraintEqualToAnchor(toolbarTabItem.View.RightAnchor, 0).Active = true;
-            //toolbarStackView.TopAnchor.ConstraintEqualToAnchor(toolbarTabItem.View.TopAnchor, 0).Active = true;
-            //toolbarStackView.BottomAnchor.ConstraintEqualToAnchor(toolbarTabItem.View.BottomAnchor, 0).Active = true;
-
 
             var outlineTabItem = new NSTabViewItem();
             outlineTabItem.Label = "View Hierarchy";
-            outlineTabItem.View.AddSubview(outlineViewScrollView);
-            outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor(outlineTabItem.View.LeftAnchor, 0).Active = true;
-            outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(outlineTabItem.View.RightAnchor, 0).Active = true;
-            outlineViewScrollView.TopAnchor.ConstraintEqualToAnchor(outlineTabItem.View.TopAnchor, 0).Active = true;
-            outlineViewScrollView.BottomAnchor.ConstraintEqualToAnchor(outlineTabItem.View.BottomAnchor, 0).Active = true;
+            outlineTabItem.View = outlineViewScrollView;
 
             toolbarTab.Add(outlineTabItem);
+            toolbarTab.Add(toolbarTabItem);
+
+            foreach (var module in InspectorContext.Current.Modules)
+            {
+                if (!module.IsEnabled)
+                {
+                    continue;
+                }
+                module.Load(this, toolbarTabViewWrapper);
+            }
 
             //===================
 
@@ -217,7 +214,6 @@ namespace MonoDevelop.Inspector.Mac
 
             tabMethod.Label = "Methods";
 
-
             tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
             tabView.Add(tabPropertyPanel);
             tabView.Add(tabMethod);
@@ -233,71 +229,12 @@ namespace MonoDevelop.Inspector.Mac
                     methodListView.SetObject(viewSelected.NativeObject, methodSearchView.StringValue);
                 }
             };
-
-            //////
-
-            var figmaStackView = NativeViewHelper.CreateVerticalStackView(translatesAutoresizingMaskIntoConstraints: true);
-
-            var figmaTokenStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
-            figmaStackView.AddArrangedSubview(figmaTokenStackView);
-
-            figmaTokenStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Your personal access token:", translatesAutoresizingMaskIntoConstraints: true));
-            tokenTextField = NativeViewHelper.CreateTextEntry(DefaultToken, translatesAutoresizingMaskIntoConstraints: true);
-            figmaTokenStackView.AddArrangedSubview(tokenTextField);
-
-            var figmaDocumentStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
-            figmaStackView.AddArrangedSubview(figmaDocumentStackView);
-            figmaDocumentStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Your File:", translatesAutoresizingMaskIntoConstraints: true));
-            documentTextField = NativeViewHelper.CreateTextEntry(DefaultFileId, translatesAutoresizingMaskIntoConstraints: true);
-            figmaDocumentStackView.AddArrangedSubview(documentTextField);
-
-            var figmaWindowNameStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
-            figmaStackView.AddArrangedSubview(figmaWindowNameStackView);
-
-            figmaWindowNameStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Window Name:", translatesAutoresizingMaskIntoConstraints: true));
-            windowTextField = NativeViewHelper.CreateTextEntry(DefaultWindowName, translatesAutoresizingMaskIntoConstraints: true);
-            figmaWindowNameStackView.AddArrangedSubview(windowTextField);
-
-            var figmaWindowContainerIdStackView = NativeViewHelper.CreateHorizontalStackView(translatesAutoresizingMaskIntoConstraints: true);
-            figmaStackView.AddArrangedSubview(figmaWindowContainerIdStackView);
-
-
-            figmaWindowContainerIdStackView.AddArrangedSubview(NativeViewHelper.CreateLabel("Window Container Id:", translatesAutoresizingMaskIntoConstraints: true));
-            windowContainerIdTextField = NativeViewHelper.CreateTextEntry(DefaultContainerID, translatesAutoresizingMaskIntoConstraints: true);
-            figmaWindowContainerIdStackView.AddArrangedSubview(windowContainerIdTextField);
-
-            var figmaCompute = new NSButton() { TranslatesAutoresizingMaskIntoConstraints = true };
-            figmaStackView.AddArrangedSubview(figmaCompute);
-            figmaCompute.Title = "Load in selected view";
-
-            //Separator
-            figmaStackView.AddArrangedSubview(new NSView());
-
-            var tabFigmaPanel = new NSTabViewItem();
-            tabFigmaPanel.View = figmaStackView;
-            tabFigmaPanel.Label = "Figma";
-
-            toolbarTab.Add(tabFigmaPanel);
-
+          
             compactModeToggleButton.Activated += (sender, e) =>
             {
                 toolbarView.ShowOnlyImages(!toolbarView.IsImageMode);
             };
-
-            figmaCompute.Activated += (sender, e) =>
-            {
-                LoadFigma?.Invoke(this,
-            new Tuple<string, string, string, string>(
-                    tokenTextField.StringValue,
-                    documentTextField.StringValue,
-                    windowContainerIdTextField.StringValue,
-                    windowTextField.StringValue
-                    )
-                );
-            };
         }
-
-        NSTextField tokenTextField, documentTextField, windowTextField, windowContainerIdTextField;
 
         NSSearchField methodSearchView;
         ScrollContainerView scrollView;
