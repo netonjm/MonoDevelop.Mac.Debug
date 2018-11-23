@@ -3,7 +3,7 @@ using AppKit;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public class ContrastAnalisys
+	public class ContrastAnalysis
 	{
 		public IViewWrapper View1 { get; set; }
 		public IViewWrapper View2 { get; set; }
@@ -11,7 +11,7 @@ namespace MonoDevelop.Inspector.Mac
 		public NSColor Color2 { get; private set; }
 		public NSFont Font { get; private set; }
 
-		public ContrastAnalisys(NSColor color11, NSColor color12, NSFont font)
+		public ContrastAnalysis(NSColor color11, NSColor color12, NSFont font)
 		{
 			Color1 = color11;
 			Color2 = color12;

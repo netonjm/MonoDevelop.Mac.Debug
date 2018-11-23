@@ -349,7 +349,7 @@ namespace MonoDevelop.Inspector.Mac
 
             var errorType = DetectedErrorType.None;
 
-            ContrastAnalisys contrastAnalisys = null;
+            ContrastAnalysis contrastAnalisys = null;
             if (customView is ITextBoxWrapper textField)
             {
                 var parentColor = textField.BackgroundColor;
@@ -358,7 +358,7 @@ namespace MonoDevelop.Inspector.Mac
                     var result = BackColorSearch(textField.Superview);
                     if (result != null)
                     {
-                        contrastAnalisys = new ContrastAnalisys((NSColor)textField.TextColor.NativeObject, (NSColor)result.Color.NativeObject, (NSFont)textField.Font.NativeObject);
+                        contrastAnalisys = new ContrastAnalysis((NSColor)textField.TextColor.NativeObject, (NSColor)result.Color.NativeObject, (NSFont)textField.Font.NativeObject);
                         contrastAnalisys.View1 = customView;
                         contrastAnalisys.View2 = textField.Superview;
                         if (!contrastAnalisys.IsPassed)
