@@ -5,6 +5,7 @@ using MonoDevelop.Inspector.Mac;
 using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace MonoDevelop.Inspector.Figma
 {
@@ -151,8 +152,10 @@ namespace MonoDevelop.Inspector.Figma
                     item.RemoveFromSuperview();
                 }
 
-                currentView.LoadFigma(fileTextField.StringValue, viewTextField.StringValue, nodeTextField.StringValue);
-            }
+				var list = new List<FigmaImageView> ();
+                currentView.LoadFigmaFromUrlFile(fileTextField.StringValue, out list, viewTextField.StringValue, nodeTextField.StringValue);
+				list.Load (fileTextField.StringValue);
+			}
         }
 
         public void Dispose()

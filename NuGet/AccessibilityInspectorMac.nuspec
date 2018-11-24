@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Accessibility.Inspector.Mac</id>
-    <version>0.1.7</version>
+    <version>0.2.0</version>
     <title>Accessibility Inspector for Xamarin.Mac</title>
     <authors>Jose Medrano</authors>
     <owners>Jose Medrano</owners>
