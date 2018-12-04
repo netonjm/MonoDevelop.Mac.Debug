@@ -4,20 +4,19 @@ using System.Threading.Tasks;
 using Xamarin.PropertyEditing;
 using Xamarin.PropertyEditing.Common;
 using Xamarin.PropertyEditing.Reflection;
+using System.Linq;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public class MockEditorProvider
+	public class PropertyEditorProvider
 		: IEditorProvider
 	{
-		public static readonly TargetPlatform MockPlatform = new TargetPlatform(new MockEditorProvider());
-
-		public MockEditorProvider(IResourceProvider resources = null)
+		public PropertyEditorProvider(IResourceProvider resources = null)
 		{
 			this.resources = resources;
 		}
 
-		public MockEditorProvider(IObjectEditor editor)
+		public PropertyEditorProvider(IObjectEditor editor)
 		{
 			editorCache.Add(editor.Target, editor);
 		}
@@ -48,7 +47,28 @@ namespace MonoDevelop.Inspector.Mac
 		{
 			if (type == KnownTypes[typeof(CommonValueConverter)])
 				return Task.FromResult(new AssignableTypesResult(new[] { type }));
-			return ReflectionObjectEditor.GetAssignableTypes(type, childTypes);
+
+			return Task.Run (() => {
+				var types = AppDomain.CurrentDomain.GetAssemblies ().SelectMany (a => a.GetTypes ()).AsParallel ()
+					.Where (t => t.Namespace != null && !t.IsAbstract && !t.IsInterface && t.IsPublic && t.GetConstructor (Type.EmptyTypes) != null);
+
+				Type realType = ReflectionEditorProvider.GetRealType (type);
+				if (childTypes) {
+					var generic = realType.GetInterface ("ICollection`1");
+					if (generic != null) {
+						realType = generic.GetGenericArguments ()[0];
+					} else {
+						realType = typeof (object);
+					}
+				}
+
+				types = types.Where (t => realType.IsAssignableFrom (t));
+
+				return new AssignableTypesResult (types.Select (t => {
+					string asmName = t.Assembly.GetName ().Name;
+					return new TypeInfo (new AssemblyInfo (asmName, isRelevant: asmName.StartsWith ("Xamarin")), t.Namespace, t.Name);
+				}).ToList ());
+			});
 		}
 
 		IObjectEditor ChooseEditor(object item)

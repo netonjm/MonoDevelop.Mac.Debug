@@ -62,8 +62,6 @@
     <Compile Include="ViewWrapper.cs" />
     <Compile Include="TableView.cs" />
     <Compile Include="MethodListView.cs" />
-    <Compile Include="PropertyPanel\MockBindingProvider.cs" />
-    <Compile Include="PropertyPanel\MockResourceProvider.cs" />
     <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="VerticalSeparator.cs" />
     <Compile Include="OutlineView.cs" />

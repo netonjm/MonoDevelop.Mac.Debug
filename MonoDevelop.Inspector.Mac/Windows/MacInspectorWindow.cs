@@ -4,7 +4,6 @@ using AppKit;
 using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
-using Xamarin.PropertyEditing.Tests;
 using Xamarin.PropertyEditing.Themes;
 using Foundation;
 using System.Linq;
@@ -21,9 +20,7 @@ namespace MonoDevelop.Inspector.Mac
         public const int ButtonWidth = 30;
         const int margin = 10;
         const int ScrollViewSize = 240;
-        readonly MockEditorProvider editorProvider;
-        readonly MockResourceProvider resourceProvider;
-        readonly MockBindingProvider bindingProvider;
+        readonly PropertyEditorProvider editorProvider;
 
         PropertyEditorPanel propertyEditorPanel;
         NSLayoutConstraint constraint;
@@ -48,11 +45,9 @@ namespace MonoDevelop.Inspector.Mac
 
             propertyEditorPanel = new PropertyEditorPanel();
 
-            editorProvider = new MockEditorProvider();
-            resourceProvider = new MockResourceProvider();
-            bindingProvider = new MockBindingProvider();
+            editorProvider = new PropertyEditorProvider();
 
-            propertyEditorPanel.TargetPlatform = new TargetPlatform(editorProvider, resourceProvider, bindingProvider)
+            propertyEditorPanel.TargetPlatform = new TargetPlatform(editorProvider)
             {
                 SupportsCustomExpressions = true,
                 SupportsMaterialDesign = true,
