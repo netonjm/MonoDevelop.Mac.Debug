@@ -93,44 +93,46 @@ namespace MonoDevelop.Inspector.Mac
 
         void LoadModule (string path, InspectorContext context)
         {
-          
-            Console.WriteLine("Loading {0}...", path);
+
+			Dictionary<Type, string> instanciableTypes = new Dictionary<Type, string> ();
+
+			Console.WriteLine("Loading {0}...", path);
             foreach (var file in Directory.EnumerateFiles(path, "*.dll"))
             {
                 var fileName = Path.GetFileName(file);
-
-                if (fileName.StartsWith("MonoDevelop.Inspector.", StringComparison.Ordinal))
+                Console.WriteLine("[{0}] Found.", fileName);
+                try
                 {
-                    Console.WriteLine("Found {0}.", fileName);
-                    try
-                    {
-                        var assembly = Assembly.LoadFile(file);
-                        var interfaceType = typeof(IInspectorTabModule);
-                        var types = assembly.GetTypes()
-                            .Where(interfaceType.IsAssignableFrom);
+                    var assembly = Assembly.LoadFile(file);
+                    var interfaceType = typeof(IInspectorTabModule);
+                    var types = assembly.GetTypes()
+                        .Where(interfaceType.IsAssignableFrom);
 
-                        foreach (var type in types)
-                        {
-                            Console.WriteLine("[{0}] Creating instance {1}", fileName, type);
-                            try
-                            {
-                                if (Activator.CreateInstance(type) is IInspectorTabModule element)
-                                    context.Modules.Add(element);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex);
-                            }
-                            Console.WriteLine("[{0}] Loaded", fileName);
-                        }
-                    }
-                    catch (Exception ex)
+					Console.WriteLine ("[{0}] Loaded.", fileName);
+					foreach (var type in types)
                     {
-                        Console.WriteLine(ex);
+						instanciableTypes.Add (type, fileName);
                     }
                 }
+                catch (Exception ex)
+                {
+					Console.WriteLine ("[{0}] Error loading.", fileName);
+					//Console.WriteLine(ex);
+				}
             }
-        }
+			if (instanciableTypes.Count > 0) {
+				foreach (var item in instanciableTypes) {
+					Console.WriteLine ("[{0}] Creating instance {1}", item.Value, item.Key);
+					try {
+						if (Activator.CreateInstance (item.Key) is IInspectorTabModule element)
+							context.Modules.Add (element);
+					} catch (Exception ex) {
+						Console.WriteLine (ex);
+					}
+					Console.WriteLine ("[{0}] Loaded", item.Value);
+				}
+			}
+		}
 
         public void LoadModules (InspectorContext context)
         {
