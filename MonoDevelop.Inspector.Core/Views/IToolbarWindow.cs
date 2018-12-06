@@ -14,6 +14,7 @@ namespace MonoDevelop.Inspector
 	{
         void ShowToolkit(bool value);
         event EventHandler<bool> KeyViewLoop;
+        event EventHandler HoverSelectionStarted;
 		event EventHandler<bool> NextKeyViewLoop;
 		event EventHandler<bool> PreviousKeyViewLoop;
 		event EventHandler<bool> ThemeChanged;

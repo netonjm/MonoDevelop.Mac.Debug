@@ -16,7 +16,8 @@ namespace MonoDevelop.Inspector
 		IViewWrapper ContentView { get; set; }
 		IViewWrapper FirstResponder { get; }
 		bool HasParentWindow { get; }
-      
+        void Focus();
+
         event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;

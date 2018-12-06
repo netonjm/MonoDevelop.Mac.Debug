@@ -273,7 +273,14 @@ namespace MonoDevelop.Inspector
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
-			toolbarWindow.NextKeyViewLoop += (sender, e) => {
+            toolbarWindow.HoverSelectionStarted += (sender, e) =>
+            {
+                hoverSelectionFinished = true;
+                Delegate.StartHoverSelection(selectedWindow);
+                selectedWindow.Focus();
+            };
+
+            toolbarWindow.NextKeyViewLoop += (sender, e) => {
 				IsNextResponderOverlayVisible = e;
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
@@ -291,7 +298,20 @@ namespace MonoDevelop.Inspector
 				IsFirstResponderOverlayVisible = true;
 				ChangeFocusedView(e);
 			};
-		}
+
+            Delegate.ViewSelected += (sender, e) =>
+            {
+                hoverSelectionFinished = false;
+                if (e == null)
+                {
+                    return;
+                }
+                IsFirstResponderOverlayVisible = true;
+                ChangeFocusedView(e);
+            };
+        }
+
+        bool hoverSelectionFinished;
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
         {

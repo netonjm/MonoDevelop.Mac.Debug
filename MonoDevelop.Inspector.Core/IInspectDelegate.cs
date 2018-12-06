@@ -9,6 +9,8 @@ namespace MonoDevelop.Inspector
 {
     public interface IInspectDelegate
 	{
+        event EventHandler<IViewWrapper> ViewSelected;
+
         void SetFont(IViewWrapper view, IFontWrapper font);
 		FontData GetFont(IViewWrapper view);
 		void ConvertToNodes(IViewWrapper view, INodeView nodeView, InspectorViewMode viewMode);
@@ -33,5 +35,9 @@ namespace MonoDevelop.Inspector
         void SetAppearance(bool isDark,params IWindowWrapper[] inspectorWindow);
         void CreateItem(IViewWrapper view, ToolbarView e);
         void SetCultureInfo(CultureInfo cultureInfo);
-	}
+        void StartHoverSelection (IWindowWrapper currentWindow);
+        void StopHoverSelection();
+        void PreviousHoverSelection();
+        void DeepHoverSelection();
+    }
 }

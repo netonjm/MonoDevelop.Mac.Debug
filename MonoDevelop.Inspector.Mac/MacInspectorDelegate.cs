@@ -169,9 +169,9 @@ namespace MonoDevelop.Inspector.Mac
         {
             LoadModules(context);
           
-            var over = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
+            var over = new MacBorderedWindow(CGRect.Empty, NSColor.FromRgb (red: 0.19f, green: 0.76f, blue: 1.00f));
             var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
-            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Blue);
+            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
             var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorWindow(this, new CGRect(10, 10, 600, 700)); ;
             var tool = new MacToolbarWindow(this, new CGRect(10, 10, 100, 700));
@@ -591,7 +591,146 @@ namespace MonoDevelop.Inspector.Mac
         public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
         {
 
-		}
+        }
 
+        #region Hover selection
+
+        public void StartHoverSelection (IWindowWrapper currentWindow)
+        {
+            StopHoverSelection();
+
+            var nativeWindow = currentWindow.NativeObject as NSWindow;
+          
+            endSelection = false;
+
+            clickMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, (NSEvent theEvent) =>
+            {
+                var selected = GetHoverSelectedView ();
+                if (selected != null)
+                {
+                    StopHoverSelection();
+                    ViewSelected?.Invoke(this, new MacViewWrapper(selected));
+                }
+                return null;
+            });
+
+            moveMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.MouseMoved, (NSEvent theEvent) =>
+            {
+                if (endSelection)
+                {
+                    return null;
+                }
+                var point = nativeWindow.ConvertBaseToScreen(theEvent.LocationInWindow);
+                if (!nativeWindow.AccessibilityFrame.Contains(point))
+                {
+                    return null;
+                }
+                containerViews.Clear();
+                AddContainerViews(nativeWindow.ContentView, point, containerViews);
+
+                if (containerViews.Count > 0)
+                {
+                    index = containerViews.Count - 1;
+                }
+                else
+                {
+                    index = -1;
+                }
+
+                var selectedView = GetHoverSelectedView();
+                if (selectedView != null)
+                {
+                    ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+                }
+                return null;
+            });
+        }
+
+        public void DeepHoverSelection ()
+        {
+            if (endSelection)
+            {
+                return;
+            }
+            if (index == 0)
+            {
+                return;
+            }
+            index--;
+            var selectedView = GetHoverSelectedView();
+            if (selectedView != null)
+            {
+                ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+            }
+        }
+
+        public void PreviousHoverSelection()
+        {
+            if (endSelection)
+            {
+                return;
+            }
+            if (index >= containerViews.Count - 2)
+            {
+                return;
+            }
+            index++;
+            var selectedView = GetHoverSelectedView();
+            if (selectedView != null)
+            {
+                ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+            }
+           
+        }
+
+        public void StopHoverSelection ()
+        {
+            endSelection = true;
+            if (clickMonitor != null)
+            {
+                NSEvent.RemoveMonitor(clickMonitor);
+            }
+
+            if (moveMonitor != null)
+            {
+                NSEvent.RemoveMonitor(moveMonitor);
+            }
+        }
+
+        int index;
+        bool endSelection;
+        NSObject clickMonitor, moveMonitor;
+        List<NSView> containerViews = new List<NSView>();
+
+        NSView GetHoverSelectedView () => index == -1 || index >= containerViews.Count ? null : containerViews[index];
+
+        static void AddContainerViews(NSView view, CGPoint point, List<NSView> containerViews)
+        {
+            if (view.AccessibilityFrame.Contains(point))
+            {
+                containerViews.Add(view);
+            }
+
+            if (view.Subviews == null)
+            {
+                return;
+            }
+
+            foreach (var item in view.Subviews)
+            {
+                try
+                {
+                    AddContainerViews(item, point, containerViews);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        public event EventHandler<IViewWrapper> ViewSelected;
+
+        #endregion
     }
 }

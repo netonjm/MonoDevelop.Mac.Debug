@@ -14,7 +14,8 @@ namespace MonoDevelop.Inspector.Mac
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
-		public event EventHandler<bool> PreviousKeyViewLoop;
+        public event EventHandler HoverSelectionStarted;
+        public event EventHandler<bool> PreviousKeyViewLoop;
 		public event EventHandler<bool> ThemeChanged;
 
         public event EventHandler ItemDeleted;
@@ -33,6 +34,8 @@ namespace MonoDevelop.Inspector.Mac
 
         readonly ToggleButton toolkitButton;
 
+        ToggleButton inspectViewButton;
+
         NSView rescanSeparator;
       
         public void ShowToolkit (bool value)
@@ -48,7 +51,7 @@ namespace MonoDevelop.Inspector.Mac
             } 
         }
 
-		public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
+        public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
         {
             this.inspectDelegate = inspectDelegate;
 			//BackgroundColor = NSColor.Clear;
@@ -74,7 +77,7 @@ namespace MonoDevelop.Inspector.Mac
             secondStackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
 
             //Visual issues view
-            var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
+            var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-previous.png").NativeObject;
             var keyViewLoopButton = new ToggleButton() { Image = actualImage };
 			keyViewLoopButton.ToolTip = "Shows current focused item";
 			AddButton (keyViewLoopButton);
@@ -82,7 +85,7 @@ namespace MonoDevelop.Inspector.Mac
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
-            var previousImage = (NSImage)inspectDelegate.GetImageResource("overlay-previous.png").NativeObject;
+            var previousImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
             var prevKeyViewLoopButton = new ToggleButton() { Image = previousImage }; 
 			prevKeyViewLoopButton.ToolTip = "Shows previous view item";
 			AddButton (prevKeyViewLoopButton);
@@ -98,7 +101,16 @@ namespace MonoDevelop.Inspector.Mac
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
 			};
 
-			AddSeparator ();
+            AddSeparator();
+
+            var pickerImage = (NSImage)inspectDelegate.GetImageResource("pad-breakpoints-16.png").NativeObject;
+            inspectViewButton = new ToggleButton { Image = pickerImage };
+            inspectViewButton.ToolTip = "Inspect a view";
+            AddButton(inspectViewButton);
+            inspectViewButton.Activated += (s, e) => {
+                HoverSelectionStarted?.Invoke(this, EventArgs.Empty);
+            };
+            AddSeparator();
 
             var rescanImage = (NSImage)inspectDelegate.GetImageResource("rescan-16.png").NativeObject;
             toolkitButton = new ToggleButton { Image = rescanImage };
