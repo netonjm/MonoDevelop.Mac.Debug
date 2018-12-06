@@ -40,6 +40,8 @@ namespace MonoDevelop.Inspector.Mac
 
     class MacInspectorDelegate : IInspectDelegate
     {
+        TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
+
         public MacInspectorDelegate()
         {
         }
@@ -94,7 +96,7 @@ namespace MonoDevelop.Inspector.Mac
         void LoadModule (string path, InspectorContext context)
         {
 
-			Dictionary<Type, string> instanciableTypes = new Dictionary<Type, string> ();
+			Dictionary<Assembly, string> instanciableTypes = new Dictionary<Assembly, string> ();
 
 			Console.WriteLine("Loading {0}...", path);
             foreach (var file in Directory.EnumerateFiles(path, "*.dll"))
@@ -104,15 +106,8 @@ namespace MonoDevelop.Inspector.Mac
                 try
                 {
                     var assembly = Assembly.LoadFile(file);
-                    var interfaceType = typeof(IInspectorTabModule);
-                    var types = assembly.GetTypes()
-                        .Where(interfaceType.IsAssignableFrom);
-
-					Console.WriteLine ("[{0}] Loaded.", fileName);
-					foreach (var type in types)
-                    {
-						instanciableTypes.Add (type, fileName);
-                    }
+                    instanciableTypes.Add(assembly, file);
+                   
                 }
                 catch (Exception ex)
                 {
@@ -120,18 +115,36 @@ namespace MonoDevelop.Inspector.Mac
 					//Console.WriteLine(ex);
 				}
             }
-			if (instanciableTypes.Count > 0) {
-				foreach (var item in instanciableTypes) {
-					Console.WriteLine ("[{0}] Creating instance {1}", item.Value, item.Key);
-					try {
-						if (Activator.CreateInstance (item.Key) is IInspectorTabModule element)
-							context.Modules.Add (element);
-					} catch (Exception ex) {
-						Console.WriteLine (ex);
-					}
-					Console.WriteLine ("[{0}] Loaded", item.Value);
-				}
-			}
+
+            foreach (var assemblyTypes in instanciableTypes)
+            {
+                try
+                {
+                    var interfaceType = typeof(IInspectorTabModule);
+                    var types = assemblyTypes.Key.GetTypes()
+                        .Where(interfaceType.IsAssignableFrom);
+
+                    Console.WriteLine("[{0}] Loaded.", assemblyTypes.Value);
+                    foreach (var type in types)
+                    {
+                        Console.WriteLine("[{0}] Creating instance {1}", assemblyTypes.Key, type);
+                        try
+                        {
+                            if (Activator.CreateInstance(type) is IInspectorTabModule element)
+                                context.Modules.Add(element);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                        Console.WriteLine("[{0}] Loaded", type);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
 		}
 
         public void LoadModules (InspectorContext context)
@@ -580,6 +593,5 @@ namespace MonoDevelop.Inspector.Mac
 
 		}
 
-		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
     }
 }
