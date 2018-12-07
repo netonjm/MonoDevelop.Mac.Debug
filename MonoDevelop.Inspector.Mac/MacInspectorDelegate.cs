@@ -225,19 +225,28 @@ namespace MonoDevelop.Inspector.Mac
             var nodeWrapper = new MacNodeWrapper(current);
             node.AddChild(nodeWrapper);
 
-            if (customView.HasConstraints) {
-                var contraintContainer = new MacConstrainContainerWrapper(customView);
-                var constraintsContainerNodeView = new NodeView(contraintContainer);
-                var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
-                nodeWrapper.AddChild(constraintsContainerNodeWrapper);
+            //if (customView.HasConstraints) {
+            //    var contraintContainer = new MacConstrainContainerWrapper(customView);
+            //    var constraintsContainerNodeView = new NodeView(contraintContainer);
+            //    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
+            //    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
 
-                foreach (var item in customView.Constraints)
-                {
-                    var constraintNodeView = new NodeView(item);
-                    var constraintWrapper = new MacNodeWrapper(constraintNodeView);
-                    constraintsContainerNodeWrapper.AddChild(constraintWrapper);
-                }
-            }
+            //    foreach (var item in customView.Constraints)
+            //    {
+            //        var constraintNodeView = new NodeView(item);
+            //        var constraintWrapper = new MacNodeWrapper(constraintNodeView);
+            //        constraintsContainerNodeWrapper.AddChild(constraintWrapper);
+            //    }
+            //}
+            //if (customView.NativeObject is NSScrollView scrollView)
+            //{
+            //    var documentView = new MacViewWrapper(scrollView.DocumentView as NSView);
+            //    var contraintContainer = new MacConstrainContainerWrapper(documentView);
+            //    var constraintsContainerNodeView = new NodeView(contraintContainer);
+            //    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
+            //    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
+            //}
+
 
             if (customView.Subviews == null)
             {
