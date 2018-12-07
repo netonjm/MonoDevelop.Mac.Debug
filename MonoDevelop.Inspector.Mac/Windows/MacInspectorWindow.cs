@@ -257,6 +257,17 @@ namespace MonoDevelop.Inspector.Mac
 
             toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ImageBox, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Image Button", Description = "For use in window content areas or toolbar" });
 
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ScrollView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "ScrollView", Description = "Scroll view container" });
+
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.CustomView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Custom View", Description = "Custom view container" });
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.SegmentedControl, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Segmented Control", Description = "Segmented control view" });
+
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.Box, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Box Control", Description = "Box control view" });
+
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.TabView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Tab View Control", Description = "TabView control" });
+            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.TabViewItem, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Tab View Item Control", Description = "Tab View Item control" });
+
+
             toolbarData.Add(toolbarItem);
 
             Search();

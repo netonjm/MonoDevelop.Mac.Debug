@@ -546,14 +546,27 @@ namespace MonoDevelop.Inspector.Mac
         public void CreateItem(IViewWrapper view, ToolbarView e)
         {
             var nativeView = view.NativeObject;
-            var createdView = Getview(e);
-            if (nativeView is NSStackView stack)
-                stack.AddArrangedSubview(createdView);
-            else if (nativeView is NSView customView)
-                customView.AddSubview(createdView);
+
+            var createdObject = Getview(e);
+            if (createdObject is NSView createdView)
+            {
+                if (nativeView is NSStackView stack)
+                    stack.AddArrangedSubview(createdView);
+                else if (nativeView is NSScrollView scrollView)
+                    scrollView.DocumentView = createdView;
+                else if (nativeView is NSView customView)
+                    customView.AddSubview(createdView);
+            }
+            else
+            {
+                if (createdObject is NSTabViewItem tabViewItem && nativeView is NSTabView tabView)
+                {
+                    tabView.Add(tabViewItem);
+                }
+            }
         }
 
-        NSView Getview(ToolbarView e)
+        NSObject Getview(ToolbarView e)
         {
             switch (e)
             {
@@ -562,7 +575,7 @@ namespace MonoDevelop.Inspector.Mac
                 case ToolbarView.DatePicker:
                     return new NSDatePicker();
                 case ToolbarView.ImageBox:
-                    return new NSImageView();
+                    return new NSImageView() { Frame = new CGRect(0, 0, 200, 20) };
                 case ToolbarView.Label:
                     return NativeViewHelper.CreateLabel("Label");
                 case ToolbarView.WrappingLabel:
@@ -575,6 +588,25 @@ namespace MonoDevelop.Inspector.Mac
                     return new NSButton() { Title = "Button" };
                 case ToolbarView.Search:
                     return new NSSearchField();
+                case ToolbarView.CustomView:
+                    return new NSView();
+                case ToolbarView.TabView:
+                    var tabView = new NSTabView();
+                    var content = new NSTabViewItem() { Label = "Page 1" };
+                    tabView.Add(content);
+                    return tabView;
+                case ToolbarView.Box:
+                    return new NSBox() { BorderColor = NSColor.Black, BorderWidth = 1, FillColor = NSColor.Red, Frame = new CGRect(0, 0, 200, 20) };
+                case ToolbarView.SegmentedControl:
+                    var segmented = new NSSegmentedControl() ;
+                    segmented.SegmentCount = 2;
+                    segmented.SetLabel("Item 1", 0);
+                    segmented.SetLabel("Item 2", 1);
+                    return segmented;
+                case ToolbarView.TabViewItem:
+                    return new NSTabViewItem() { Label = "Item" };
+                case ToolbarView.ScrollView:
+                    return new NSScrollView() { Frame = new CGRect (0,0,300,300), HasVerticalScroller = true, HasHorizontalScroller = true };
             }
             return new NSView();
         }
