@@ -146,12 +146,6 @@ namespace MonoDevelop.Inspector.Figma
 
             if (InspectorContext.Current.Manager.SelectedView?.NativeObject is NSView currentView)
             {
-                var children = currentView.Subviews.ToList();
-                foreach (var item in children)
-                {
-                    item.RemoveFromSuperview();
-                }
-
 				var list = new List<FigmaImageView> ();
                 currentView.LoadFigmaFromUrlFile(fileTextField.StringValue, out list, viewTextField.StringValue, nodeTextField.StringValue);
 				list.Load (fileTextField.StringValue);
