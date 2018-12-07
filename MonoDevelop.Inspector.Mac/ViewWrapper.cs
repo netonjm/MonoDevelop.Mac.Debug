@@ -328,7 +328,7 @@ namespace MonoDevelop.Inspector.Mac
 		{
 			if (view.AccessibilityChildren == null || view.AccessibilityChildren.Length == 0 || view.AccessibilityChildren.Length > 10)
 			{
-				return $"Count {view.AccessibilityChildren.Length}";
+				return $"Count {view.AccessibilityChildren?.Length}";
 			}
 
 			var builder = new StringBuilder();
