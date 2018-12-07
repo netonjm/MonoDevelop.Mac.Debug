@@ -22,12 +22,13 @@ namespace MonoDevelop.Inspector.Mac
 
 		Node selectedNode;
 		public Node SelectedNode {
-			get => selectedNode;
-		 	set {
+			get {
+				return selectedNode;
+			}
+		 	private set {
 				if (selectedNode == value) {
 					return;
 				}
-
 				selectedNode = value;
 				SelectionNodeChanged?.Invoke (this, EventArgs.Empty);
 			}
@@ -76,7 +77,7 @@ namespace MonoDevelop.Inspector.Mac
 
 			public override bool ShouldSelectItem (NSOutlineView outlineView, NSObject item)
 			{
-				((OutlineView) outlineView).SelectedNode = (Node)item;
+				((OutlineView)outlineView).SelectedNode = (Node)item;
 				return true;
 			}
 		}

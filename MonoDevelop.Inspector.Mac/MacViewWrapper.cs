@@ -172,6 +172,20 @@ namespace MonoDevelop.Inspector.Mac
 			widget.RemoveFromSuperview ();
 		}
 
+		public void MakeFirstResponder ()
+		{
+			var window = widget.Window;
+			if (window != null) {
+				if (window.CanBecomeKeyWindow && !window.IsKeyWindow) {
+					window.BecomeKeyWindow ();
+				}
+
+				if (widget.AcceptsFirstResponder ()) {
+					window.MakeFirstResponder (widget);
+				}
+			}
+		}
+
 		internal NSView widget;
 		public MacViewWrapper (NSView widget)
 		{

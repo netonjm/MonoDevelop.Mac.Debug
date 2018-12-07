@@ -289,7 +289,6 @@ namespace MonoDevelop.Inspector
 
             toolbarWindow.HoverSelectionStarted += (sender, e) =>
             {
-                hoverSelectionFinished = true;
                 Delegate.StartHoverSelection(selectedWindow);
                 selectedWindow.Focus();
             };
@@ -315,13 +314,13 @@ namespace MonoDevelop.Inspector
 
             Delegate.ViewSelected += (sender, e) =>
             {
-                hoverSelectionFinished = false;
                 if (e == null)
                 {
                     return;
                 }
                 IsFirstResponderOverlayVisible = true;
                 ChangeFocusedView(e);
+				e.MakeFirstResponder ();
             };
         }
 
@@ -329,8 +328,6 @@ namespace MonoDevelop.Inspector
 		{
 			accessibilityService.ScanErrors (Delegate, selectedWindow, ViewMode);
 		}
-
-		bool hoverSelectionFinished;
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
         {
@@ -358,8 +355,10 @@ namespace MonoDevelop.Inspector
                 constrainContainerWrapper.RemoveFromSuperview();
             }
 
-            if (parent != null)
-                ChangeFocusedView(parent);
+			if (parent != null) {
+				ChangeFocusedView (parent);
+				parent.MakeFirstResponder ();
+			}
             RefreshNeeded();
         }
 
@@ -485,7 +484,8 @@ namespace MonoDevelop.Inspector
             {
                 toolbarWindow.ChangeView(this, SelectedView);
                 FocusedViewChanged?.Invoke(this, SelectedView);
-            }
+
+			}
 		}
 
 		string GetAssemblyVersion ()

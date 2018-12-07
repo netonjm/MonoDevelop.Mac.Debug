@@ -12,15 +12,6 @@ namespace ExampleDebugMac
 {
 	static class MainClass
 	{
-
-        [Export("makeFirstResponder:")]
-        [BindingImpl(BindingImplOptions.GeneratedCode | BindingImplOptions.Optimizable)]
-        public static bool MakeFirstResponder(NSResponder aResponder)
-        {
-            return true;
-        }
-
-
         static void Main (string[] args)
 		{
             NSApplication.Init();

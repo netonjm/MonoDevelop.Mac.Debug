@@ -649,13 +649,14 @@ namespace MonoDevelop.Inspector.Mac
 
             clickMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, (NSEvent theEvent) =>
             {
-                var selected = GetHoverSelectedView ();
+				StopHoverSelection ();
+				var selected = GetHoverSelectedView ();
                 if (selected != null)
                 {
-                    StopHoverSelection();
                     ViewSelected?.Invoke(this, new MacViewWrapper(selected));
                 }
-                return null;
+
+				return null;
             });
 
             moveMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.MouseMoved, (NSEvent theEvent) =>
@@ -733,12 +734,14 @@ namespace MonoDevelop.Inspector.Mac
             if (clickMonitor != null)
             {
                 NSEvent.RemoveMonitor(clickMonitor);
-            }
+				clickMonitor = null;
+			}
 
             if (moveMonitor != null)
             {
                 NSEvent.RemoveMonitor(moveMonitor);
-            }
+				moveMonitor = null;
+			}
         }
 
         int index;
