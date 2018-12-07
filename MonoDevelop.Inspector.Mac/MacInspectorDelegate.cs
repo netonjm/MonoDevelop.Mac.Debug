@@ -751,6 +751,10 @@ namespace MonoDevelop.Inspector.Mac
             {
                 containerViews.Add(view);
             }
+            else
+            {
+                return;
+            }
 
             if (view.Subviews == null)
             {
