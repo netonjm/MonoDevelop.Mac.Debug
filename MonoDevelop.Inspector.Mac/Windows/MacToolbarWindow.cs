@@ -10,7 +10,39 @@ using System.Threading;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	class MacToolbarWindow : MacWindowWrapper, IToolbarWindow
+	class MacInspectorManagerWindow : MacWindowWrapper, IInspectorManagerWindow
+	{
+		public MacInspectorManagerWindow ()
+		{
+		}
+
+		public MacInspectorManagerWindow (NSCoder coder) : base (coder)
+		{
+		}
+
+		public MacInspectorManagerWindow (CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation) : base (contentRect, aStyle, bufferingType, deferCreation)
+		{
+		}
+
+		public MacInspectorManagerWindow (CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation, NSScreen screen) : base (contentRect, aStyle, bufferingType, deferCreation, screen)
+		{
+		}
+
+		protected MacInspectorManagerWindow (NSObjectFlag t) : base (t)
+		{
+		}
+
+		protected internal MacInspectorManagerWindow (IntPtr handle) : base (handle)
+		{
+		}
+
+		public virtual void Initialize ()
+		{
+
+		}
+	}
+
+	class MacToolbarWindow : MacInspectorManagerWindow, IToolbarWindow
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;

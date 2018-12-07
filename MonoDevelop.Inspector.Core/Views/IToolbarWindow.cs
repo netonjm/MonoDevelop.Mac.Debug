@@ -10,7 +10,7 @@ namespace MonoDevelop.Inspector
 
     }
 
-    interface IToolbarWindow : IWindowWrapper
+    interface IToolbarWindow : IInspectorManagerWindow
 	{
         void ShowToolkit(bool value);
         event EventHandler<bool> KeyViewLoop;

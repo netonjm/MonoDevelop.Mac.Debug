@@ -27,52 +27,19 @@ namespace MonoDevelop.Inspector.Figma
 
         NSTextField tokenTextField, fileTextField, nodeTextField, viewTextField;
 
-        IInspectorWindow inspectorWindow;
+		IInspectorManager manager;
+		IInspectorWindow inspectorWindow;
 
-        FigmaConfig ReadConfig (string filePath)
+		string configFilePath;
+		FigmaConfig config;
+
+
+		void IInspectorTabModule.Load (ITabWrapper tab)
         {
-            Console.WriteLine("Loading config from: {0}", filePath);
-            if (File.Exists(filePath))
-            {
-                try
-                {
-                    var config = JsonConvert.DeserializeObject<FigmaConfig>(File.ReadAllText(filePath));
-                    Console.WriteLine("DONE.");
-                    return config;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            return new FigmaConfig();
-        }
+			manager = InspectorContext.Current.Manager;
+			inspectorWindow = manager.Windows.OfType<IInspectorWindow> ().FirstOrDefault ();
 
-        void WriteConfig(FigmaConfig figmaConfig, string filePath)
-        {
-            Console.WriteLine("Writting config in: {0}", filePath);
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-            try
-            {
-                File.WriteAllText (filePath, JsonConvert.SerializeObject(figmaConfig));
-                Console.WriteLine("DONE.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        string configFilePath;
-        FigmaConfig config;
-
-        void IInspectorTabModule.Load(IInspectorWindow inspectorWindow, ITabWrapper tab)
-        {
-            this.inspectorWindow = inspectorWindow;
-            var path = Path.GetDirectoryName(GetType().Assembly.Location);
+			var path = Path.GetDirectoryName(GetType().Assembly.Location);
             configFilePath = Path.Combine(path, "user.cfg");
             config = ReadConfig(configFilePath);
 
@@ -144,17 +111,48 @@ namespace MonoDevelop.Inspector.Figma
         {
             FigmaEnvirontment.SetAccessToken(tokenTextField.StringValue);
 
-            if (InspectorContext.Current.Manager.SelectedView?.NativeObject is NSView currentView)
+			if (manager.SelectedView?.NativeObject is NSView currentView)
             {
 				var list = new List<FigmaImageView> ();
                 currentView.LoadFigmaFromUrlFile(fileTextField.StringValue, out list, viewTextField.StringValue, nodeTextField.StringValue);
 				list.Load (fileTextField.StringValue);
 			}
-        }
+
+			manager.RescanViews ();
+		}
 
         public void Dispose()
         {
             figmaCompute.Activated -= FigmaCompute_Activated;
         }
-    }
+
+		static FigmaConfig ReadConfig (string filePath)
+		{
+			Console.WriteLine ("Loading config from: {0}", filePath);
+			if (File.Exists (filePath)) {
+				try {
+					var cfg = JsonConvert.DeserializeObject<FigmaConfig> (File.ReadAllText (filePath));
+					Console.WriteLine ("DONE.");
+					return cfg;
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+				}
+			}
+			return new FigmaConfig ();
+		}
+
+		static void WriteConfig (FigmaConfig figmaConfig, string filePath)
+		{
+			Console.WriteLine ("Writting config in: {0}", filePath);
+			if (File.Exists (filePath)) {
+				File.Delete (filePath);
+			}
+			try {
+				File.WriteAllText (filePath, JsonConvert.SerializeObject (figmaConfig));
+				Console.WriteLine ("DONE.");
+			} catch (Exception ex) {
+				Console.WriteLine (ex);
+			}
+		}
+	}
 }

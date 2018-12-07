@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    class InspectorWindow : MacWindowWrapper, IInspectorWindow
+    class InspectorWindow : MacInspectorManagerWindow, IInspectorWindow
     {
         const ushort DeleteKey = 51;
 
@@ -35,7 +35,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public event EventHandler<ToolbarView> RaiseInsertItem;
 
-        public InspectorWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+		MacTabWrapper toolbarTabViewWrapper;
+
+		public InspectorWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
         {
             this.inspectorDelegate = inspectorDelegate;
             ShowsToolbarButton = false;
@@ -90,7 +92,7 @@ namespace MonoDevelop.Inspector.Mac
 
             //TOOLBAR
             var toolbarTab = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            var toolbarTabViewWrapper = new MacTabWrapper(toolbarTab);
+            toolbarTabViewWrapper = new MacTabWrapper(toolbarTab);
 
             toolbarTab.WantsLayer = true;
             toolbarTab.Layer.BackgroundColor = NSColor.Red.CGColor;
@@ -144,15 +146,6 @@ namespace MonoDevelop.Inspector.Mac
 
             toolbarTab.Add(outlineTabItem);
             toolbarTab.Add(toolbarTabItem);
-
-            foreach (var module in InspectorContext.Current.Modules)
-            {
-                if (!module.IsEnabled)
-                {
-                    continue;
-                }
-                module.Load(this, toolbarTabViewWrapper);
-            }
 
             //===================
 
@@ -238,8 +231,9 @@ namespace MonoDevelop.Inspector.Mac
 
         List<CollectionHeaderItem> toolbarData = new List<CollectionHeaderItem>();
 
-        public void Initialize()
+        public override void Initialize()
         {
+			base.Initialize ();
             toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarHeaderCollectionViewItem), MacInspectorToolbarHeaderCollectionViewItem.Name);
             toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarCollectionViewItem), MacInspectorToolbarCollectionViewItem.Name);
             toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarImageCollectionViewItem), MacInspectorToolbarImageCollectionViewItem.Name);
@@ -272,9 +266,16 @@ namespace MonoDevelop.Inspector.Mac
             toolbarData.Add(toolbarItem);
 
             Search();
-        }
 
-        NSSearchField toolbarSearchTextField;
+			foreach (var mod in InspectorContext.Current.Modules) {
+				if (!mod.IsEnabled) {
+					continue;
+				}
+				mod.Load (toolbarTabViewWrapper);
+			}
+		}
+
+		NSSearchField toolbarSearchTextField;
 
         public void Search()
         {
@@ -310,10 +311,14 @@ namespace MonoDevelop.Inspector.Mac
 
         public void GenerateTree(IWindowWrapper window, InspectorViewMode viewMode)
         {
-            data = new NodeView(window.ContentView);
+			var selected = outlineView.SelectedNode;
+
+			data = new NodeView(window.ContentView);
             inspectorDelegate.ConvertToNodes(window.ContentView, new MacNodeWrapper(data), viewMode);
             outlineView.SetData(data);
-        }
+
+			outlineView.SelectedNode = selected;
+		}
 
         NSTextField resultMessage;
 

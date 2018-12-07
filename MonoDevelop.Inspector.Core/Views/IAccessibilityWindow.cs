@@ -4,7 +4,7 @@ using System;
 
 namespace MonoDevelop.Inspector
 {
-    public interface IAccessibilityWindow : IWindowWrapper
+    public interface IAccessibilityWindow : IInspectorManagerWindow
 	{
 		event EventHandler<IViewWrapper> RaiseAccessibilityIssueSelected;
 		event EventHandler AuditRequested;

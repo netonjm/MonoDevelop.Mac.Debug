@@ -9,7 +9,7 @@ using MonoDevelop.Inspector.Services;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	class MacAccessibilityWindow : MacWindowWrapper, IAccessibilityWindow
+	class MacAccessibilityWindow : MacInspectorManagerWindow, IAccessibilityWindow
 	{
 		const int margin = 10;
 		readonly NSStackView contentView;

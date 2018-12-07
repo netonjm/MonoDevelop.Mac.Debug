@@ -21,7 +21,12 @@ namespace MonoDevelop.Inspector
         TabViewItem
     }
 
-    public interface IInspectorWindow : IWindowWrapper
+	public interface IInspectorManagerWindow : IWindowWrapper
+	{
+		void Initialize ();
+	}
+
+	public interface IInspectorWindow : IInspectorManagerWindow
 	{
         event EventHandler<INativeObject> RaiseFirstResponder;
 		event EventHandler<INativeObject> RaiseDeleteItem;
@@ -30,6 +35,5 @@ namespace MonoDevelop.Inspector
 		void GenerateTree (IWindowWrapper window, InspectorViewMode viewMode);
 		void GenerateStatusView (IViewWrapper view, IInspectDelegate inspectDelegate, InspectorViewMode mode);
 		void RemoveItem ();
-        void Initialize();
 	}
 }

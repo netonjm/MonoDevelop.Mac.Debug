@@ -8,14 +8,24 @@ using MonoDevelop.Inspector.Services;
 
 namespace MonoDevelop.Inspector
 {
-    internal class InspectorManager : IDisposable
+	public interface IInspectorManager
+	{
+		event EventHandler<IViewWrapper> FocusedViewChanged;
+		List<IInspectorManagerWindow> Windows { get; }
+		IViewWrapper SelectedView { get; }
+		void RescanViews ();
+		void SetWindow (IMainWindowWrapper selectedWindow);
+		void ChangeFocusedView (INativeObject nextView);
+	}
+
+	internal class InspectorManager : IInspectorManager, IDisposable
 	{
 		const string Name = "Accessibility .NET Inspector";
 		const int ToolbarWindowWidth = 400;
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
 
-        internal IViewWrapper SelectedView => nativeObject as IViewWrapper;
+        public IViewWrapper SelectedView => nativeObject as IViewWrapper;
         INativeObject nativeObject;
         IViewWrapper nextKeyView, previousKeyView;
 		IMainWindowWrapper selectedWindow;
@@ -28,8 +38,11 @@ namespace MonoDevelop.Inspector
 		readonly IBorderedWindow debugOverlayWindow;
 		readonly IBorderedWindow debugNextOverlayWindow;
 		readonly IBorderedWindow debugPreviousOverlayWindow;
+
 		readonly IInspectorWindow inspectorWindow;
 		readonly IAccessibilityWindow accessibilityWindow;
+
+		public List<IInspectorManagerWindow> Windows { get; private set; } = new List<IInspectorManagerWindow> ();
 
 	 	readonly List<IMenuItemWrapper> menuItems = new List<IMenuItemWrapper>();
 
@@ -202,6 +215,7 @@ namespace MonoDevelop.Inspector
             debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
 
             accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+			Windows.Add (accessibilityWindow);
 			accessibilityWindow.SetTitle ("Accessibility Panel");
 			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
 				ShowDetectedErrors = !ShowDetectedErrors;
@@ -210,6 +224,8 @@ namespace MonoDevelop.Inspector
 			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
 
             inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
+			Windows.Add (inspectorWindow);
+
 			inspectorWindow.SetTitle ("Inspector Panel");
 			inspectorWindow.RaiseFirstResponder += (s, e) => {
 				if (selectedWindow.ContainsChildWindow (debugOverlayWindow))
@@ -227,7 +243,7 @@ namespace MonoDevelop.Inspector
 			inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
 
             toolbarWindow = toolWindow; //new MacToolbarWindow (this);
-
+			Windows.Add (toolbarWindow);
 			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
 		
 			toolbarWindow.ThemeChanged += (sender, isDark) => {
@@ -239,8 +255,6 @@ namespace MonoDevelop.Inspector
                 selectedWindow
                 );
             };
-
-            inspectorWindow.Initialize();
 
             toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
 				ViewMode = e;
@@ -311,7 +325,12 @@ namespace MonoDevelop.Inspector
             };
         }
 
-        bool hoverSelectionFinished;
+		public void RescanViews ()
+		{
+			accessibilityService.ScanErrors (Delegate, selectedWindow, ViewMode);
+		}
+
+		bool hoverSelectionFinished;
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
         {
@@ -448,7 +467,7 @@ namespace MonoDevelop.Inspector
 
 		public event EventHandler<IViewWrapper> FocusedViewChanged;
 
-		internal void ChangeFocusedView (INativeObject nextView)
+		public void ChangeFocusedView (INativeObject nextView)
 		{
 			if (selectedWindow == null || nextView == null || SelectedView == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
