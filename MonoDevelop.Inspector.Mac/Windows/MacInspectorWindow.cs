@@ -314,13 +314,9 @@ namespace MonoDevelop.Inspector.Mac
 
         public void GenerateTree(IWindowWrapper window, InspectorViewMode viewMode)
         {
-			var selected = outlineView.SelectedNode;
-
-			data = new NodeView(window.ContentView);
-            inspectorDelegate.ConvertToNodes(window.ContentView, new MacNodeWrapper(data), viewMode);
-            outlineView.SetData(data);
-			//outlineView.SelectedNode = selected;
-		}
+			var nodeView = outlineView.SelectedNode as NodeView; 			var selectedRow = outlineView.RowForItem (nodeView);  			data = new NodeView (window.ContentView);
+			inspectorDelegate.ConvertToNodes (window.ContentView, new MacNodeWrapper (data), viewMode);
+			outlineView.SetData (data);  			var newPosition = outlineView.RowForItem (nodeView); 			if (newPosition == -1) { 				outlineView.SelectRow (selectedRow, true); 			} else { 				outlineView.SelectRow (newPosition, true); 			} 		}
 
 		NSTextField resultMessage;
 
