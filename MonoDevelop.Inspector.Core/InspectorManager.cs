@@ -289,7 +289,8 @@ namespace MonoDevelop.Inspector
 
             toolbarWindow.HoverSelectionStarted += (sender, e) =>
             {
-                Delegate.StartHoverSelection(selectedWindow);
+				toolbarWindow.InspectButtonEnabled = false;
+				Delegate.StartHoverSelection(selectedWindow);
                 selectedWindow.Focus();
             };
 
@@ -312,17 +313,24 @@ namespace MonoDevelop.Inspector
 				ChangeFocusedView(e);
 			};
 
-            Delegate.ViewSelected += (sender, e) =>
-            {
-                if (e == null)
-                {
-                    return;
-                }
-                IsFirstResponderOverlayVisible = true;
-                ChangeFocusedView(e);
-				e.MakeFirstResponder ();
-            };
-        }
+			Delegate.HoverSelectionEnded += (sender, e) => {
+				if (e != null) {
+					HoverSelectView (e);
+				}
+				toolbarWindow.InspectButtonEnabled = true;
+			};
+			Delegate.HoverSelecting += (sender, e) => HoverSelectView (e);
+		}
+
+		void HoverSelectView (IViewWrapper viewWrapper)
+		{
+			if (viewWrapper == null) {
+				return;
+			}
+			IsFirstResponderOverlayVisible = true;
+			ChangeFocusedView (viewWrapper);
+			viewWrapper.MakeFirstResponder ();
+		}
 
 		public void RescanViews ()
 		{

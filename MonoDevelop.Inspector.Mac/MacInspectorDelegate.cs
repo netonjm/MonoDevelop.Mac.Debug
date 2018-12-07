@@ -657,10 +657,11 @@ namespace MonoDevelop.Inspector.Mac
             {
 				StopHoverSelection ();
 				var selected = GetHoverSelectedView ();
-                if (selected != null)
-                {
-                    ViewSelected?.Invoke(this, new MacViewWrapper(selected));
-                }
+                if (selected != null) {
+					HoverSelectionEnded?.Invoke(this, new MacViewWrapper(selected));
+                } else {
+					HoverSelectionEnded?.Invoke (this, null);
+				}
 
 				return null;
             });
@@ -691,7 +692,7 @@ namespace MonoDevelop.Inspector.Mac
                 var selectedView = GetHoverSelectedView();
                 if (selectedView != null)
                 {
-                    ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+                    HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
                 }
                 return null;
             });
@@ -711,7 +712,7 @@ namespace MonoDevelop.Inspector.Mac
             var selectedView = GetHoverSelectedView();
             if (selectedView != null)
             {
-                ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+                HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
             }
         }
 
@@ -729,7 +730,7 @@ namespace MonoDevelop.Inspector.Mac
             var selectedView = GetHoverSelectedView();
             if (selectedView != null)
             {
-                ViewSelected?.Invoke(this, new MacViewWrapper(selectedView));
+                HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
             }
            
         }
@@ -786,8 +787,9 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public event EventHandler<IViewWrapper> ViewSelected;
+        public event EventHandler<IViewWrapper> HoverSelecting;
+		public event EventHandler<IViewWrapper> HoverSelectionEnded;
 
-        #endregion
-    }
+		#endregion
+	}
 }

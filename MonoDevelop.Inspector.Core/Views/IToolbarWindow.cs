@@ -10,20 +10,22 @@ namespace MonoDevelop.Inspector
 
     }
 
-    interface IToolbarWindow : IInspectorManagerWindow
+	interface IToolbarWindow : IInspectorManagerWindow
 	{
-        void ShowToolkit(bool value);
-        event EventHandler<bool> KeyViewLoop;
-        event EventHandler HoverSelectionStarted;
+		void ShowToolkit (bool value);
+		event EventHandler<bool> KeyViewLoop;
+		event EventHandler HoverSelectionStarted;
 		event EventHandler<bool> NextKeyViewLoop;
 		event EventHandler<bool> PreviousKeyViewLoop;
 		event EventHandler<bool> ThemeChanged;
-        event EventHandler<CultureInfo> CultureChanged;
-        event EventHandler ItemDeleted;
+		event EventHandler<CultureInfo> CultureChanged;
+		event EventHandler ItemDeleted;
 		event EventHandler ItemImageChanged;
 		event EventHandler<FontData> FontChanged;
 		event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 		bool ImageChangedEnabled { get; set; }
-        void ChangeView(InspectorManager manager, IViewWrapper viewWrapper);
-    }
+		void ChangeView (InspectorManager manager, IViewWrapper viewWrapper);
+
+		bool InspectButtonEnabled { get; set; }
+	}
 }

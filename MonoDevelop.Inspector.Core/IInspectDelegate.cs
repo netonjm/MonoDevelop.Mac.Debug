@@ -9,9 +9,10 @@ namespace MonoDevelop.Inspector
 {
     public interface IInspectDelegate
 	{
-        event EventHandler<IViewWrapper> ViewSelected;
+		event EventHandler<IViewWrapper> HoverSelectionEnded;
+		event EventHandler<IViewWrapper> HoverSelecting;
 
-        void SetFont(IViewWrapper view, IFontWrapper font);
+		void SetFont(IViewWrapper view, IFontWrapper font);
 		FontData GetFont(IViewWrapper view);
 		void ConvertToNodes(IViewWrapper view, INodeView nodeView, InspectorViewMode viewMode);
         object GetWrapper (INativeObject viewSelected, InspectorViewMode viewMode);

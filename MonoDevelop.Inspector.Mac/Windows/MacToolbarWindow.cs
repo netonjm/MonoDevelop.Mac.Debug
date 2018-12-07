@@ -66,7 +66,7 @@ namespace MonoDevelop.Inspector.Mac
 
         readonly ToggleButton toolkitButton;
 
-        ToggleButton inspectViewButton;
+		NSButton inspectViewButton;
 
         NSView rescanSeparator;
       
@@ -83,7 +83,12 @@ namespace MonoDevelop.Inspector.Mac
             } 
         }
 
-        public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
+		public bool InspectButtonEnabled {
+			get => inspectViewButton.Enabled;
+			set => inspectViewButton.Enabled = value;
+		}
+
+		public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
         {
             this.inspectDelegate = inspectDelegate;
 			//BackgroundColor = NSColor.Clear;
@@ -135,9 +140,9 @@ namespace MonoDevelop.Inspector.Mac
 
             AddSeparator();
 
-            var pickerImage = (NSImage)inspectDelegate.GetImageResource("pad-breakpoints-16.png").NativeObject;
-            inspectViewButton = new ToggleButton { Image = pickerImage };
-            inspectViewButton.ToolTip = "Inspect a view";
+            inspectViewButton = new NSButton { Image = (NSImage)inspectDelegate.GetImageResource ("pad-breakpoints-16.png").NativeObject };
+			inspectViewButton.BezelStyle = NSBezelStyle.Rounded;
+			inspectViewButton.ToolTip = "Inspect a view";
             AddButton(inspectViewButton);
             inspectViewButton.Activated += (s, e) => {
                 HoverSelectionStarted?.Invoke(this, EventArgs.Empty);
