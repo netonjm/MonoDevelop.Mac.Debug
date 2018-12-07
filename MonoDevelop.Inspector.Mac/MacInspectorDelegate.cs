@@ -615,7 +615,10 @@ namespace MonoDevelop.Inspector.Mac
                 case ToolbarView.TabViewItem:
                     return new NSTabViewItem() { Label = "Item" };
                 case ToolbarView.ScrollView:
-                    return new NSScrollView() { Frame = new CGRect (0,0,300,300), HasVerticalScroller = true, HasHorizontalScroller = true };
+                    var scrollView = new NSScrollView() { Frame = new CGRect (0,0,300,300), HasVerticalScroller = true, HasHorizontalScroller = true };
+					scrollView.ScrollerStyle = NSScrollerStyle.Legacy;
+					scrollView.DocumentView = new NSView ();
+					return scrollView;
             }
             return new NSView();
         }
