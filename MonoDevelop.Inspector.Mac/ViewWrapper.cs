@@ -287,6 +287,9 @@ namespace MonoDevelop.Inspector.Mac
 
 		public ViewWrapper (NSView view)
 		{
+			if (view == null) {
+				throw new Exception ("ViewWrapper cannot embed a null view");
+			}
 			this.view = view;
 		}
 
