@@ -23,7 +23,6 @@ namespace MonoDevelop.Inspector.Mac
         readonly PropertyEditorProvider editorProvider;
 
         PropertyEditorPanel propertyEditorPanel;
-        NSLayoutConstraint constraint;
 
         readonly NSView contentView;
         MethodListView methodListView;
@@ -35,7 +34,6 @@ namespace MonoDevelop.Inspector.Mac
         MacInspectorToolbarView toolbarView;
 
         public event EventHandler<ToolbarView> RaiseInsertItem;
-        public event EventHandler<Tuple<string, string, string, string>> LoadFigma;
 
         public InspectorWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
         {
@@ -65,8 +63,9 @@ namespace MonoDevelop.Inspector.Mac
             stackView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
             stackView.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
 
-            constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height - margin * 2);
-            constraint.Active = true;
+            var bottom = stackView.BottomAnchor.ConstraintEqualToAnchor(contentView.BottomAnchor, -margin);
+            bottom.Priority = (uint)NSLayoutPriority.DefaultLow;
+            bottom.Active = true;
             outlineView = new OutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
 
@@ -212,6 +211,8 @@ namespace MonoDevelop.Inspector.Mac
             tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
             tabView.Add(tabPropertyPanel);
             tabView.Add(tabMethod);
+            tabView.SetContentCompressionResistancePriority((uint)NSLayoutPriority.WindowSizeStayPut, NSLayoutConstraintOrientation.Horizontal);
+            tabView.SetContentCompressionResistancePriority((uint)NSLayoutPriority.WindowSizeStayPut, NSLayoutConstraintOrientation.Vertical);
             stackView.AddArrangedSubview(tabView as NSView);
 
             tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
