@@ -16,778 +16,690 @@ using System.Reflection;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    public class MacColorWrapper : IColorWrapper
-    {
-        NSColor image;
-        public MacColorWrapper(NSColor image)
-        {
-            this.image = image;
-        }
+	public class MacColorWrapper : IColorWrapper
+	{
+		NSColor image;
+		public MacColorWrapper (NSColor image)
+		{
+			this.image = image;
+		}
 
-        public object NativeObject => image;
-    }
+		public object NativeObject => image;
+	}
 
-    public class MacImageWrapper : IImageWrapper
-    {
-        NSImage image;
-        public MacImageWrapper(NSImage image)
-        {
-            this.image = image;
-        }
+	public class MacImageWrapper : IImageWrapper
+	{
+		NSImage image;
+		public MacImageWrapper (NSImage image)
+		{
+			this.image = image;
+		}
 
-        public object NativeObject => image;
-    }
+		public object NativeObject => image;
+	}
 
-    class MacInspectorDelegate : IInspectDelegate
-    {
-        TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
+	class MacInspectorDelegate : IInspectDelegate
+	{
+		TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object> ();
 
-        public MacInspectorDelegate()
-        {
-        }
+		public MacInspectorDelegate ()
+		{
+		}
 
-        public IImageWrapper GetImageResource(string resource)
-        {
-            try
-            {
-                var assembly = System.Reflection.Assembly.GetAssembly(typeof(MacInspectorDelegate));
-                var resources = assembly.GetManifestResourceNames();
-                using (var stream = assembly.GetManifestResourceStream(resource))
-                {
-                    return new MacImageWrapper(NSImage.FromStream(stream));
-                }
-            }
-            catch (System.Exception ex)
-            {
-                return null;
-            }
-        }
+		public IImageWrapper GetImageResource (string resource)
+		{
+			try {
+				var assembly = System.Reflection.Assembly.GetAssembly (typeof (MacInspectorDelegate));
+				var resources = assembly.GetManifestResourceNames ();
+				using (var stream = assembly.GetManifestResourceStream (resource)) {
+					return new MacImageWrapper (NSImage.FromStream (stream));
+				}
+			} catch (System.Exception ex) {
+				return null;
+			}
+		}
 
-        public IMenuWrapper GetSubMenu()
-        {
-            var shared = NSApplication.SharedApplication;
-            if (shared.Menu == null)
-            {
-                shared.Menu = new NSMenu();
-            }
+		public IMenuWrapper GetSubMenu ()
+		{
+			var shared = NSApplication.SharedApplication;
+			if (shared.Menu == null) {
+				shared.Menu = new NSMenu ();
+			}
 
-            NSMenuItem item;
-            if (shared.Menu.Count == 0)
-            {
-                item = new NSMenuItem("Inspector");
-                shared.Menu.AddItem(item);
-            }
-            else
-            {
-                item = shared.Menu.ItemAt(0);
-            }
+			NSMenuItem item;
+			if (shared.Menu.Count == 0) {
+				item = new NSMenuItem ("Inspector");
+				shared.Menu.AddItem (item);
+			} else {
+				item = shared.Menu.ItemAt (0);
+			}
 
-            if (item.Submenu == null)
-            {
-                item.Submenu = new NSMenu();
-            }
+			if (item.Submenu == null) {
+				item.Submenu = new NSMenu ();
+			}
 
-            var submenu = item.Submenu;
-            submenu.AutoEnablesItems = false;
+			var submenu = item.Submenu;
+			submenu.AutoEnablesItems = false;
 
-            return new MacMenuWrapper(submenu);
-        }
+			return new MacMenuWrapper (submenu);
+		}
 
-        void LoadModule (string path, InspectorContext context)
-        {
+		void LoadModule (string path, InspectorContext context)
+		{
 
 			Dictionary<Assembly, string> instanciableTypes = new Dictionary<Assembly, string> ();
 
-			Console.WriteLine("Loading {0}...", path);
-            foreach (var file in Directory.EnumerateFiles(path, "*.dll"))
-            {
-                var fileName = Path.GetFileName(file);
-                Console.WriteLine("[{0}] Found.", fileName);
-                try
-                {
-                    var assembly = Assembly.LoadFile(file);
-                    instanciableTypes.Add(assembly, file);
-                   
-                }
-                catch (Exception ex)
-                {
+			Console.WriteLine ("Loading {0}...", path);
+			foreach (var file in Directory.EnumerateFiles (path, "*.dll")) {
+				var fileName = Path.GetFileName (file);
+				Console.WriteLine ("[{0}] Found.", fileName);
+				try {
+					var assembly = Assembly.LoadFile (file);
+					instanciableTypes.Add (assembly, file);
+
+				} catch (Exception ex) {
 					Console.WriteLine ("[{0}] Error loading.", fileName);
 					//Console.WriteLine(ex);
 				}
-            }
+			}
 
-            foreach (var assemblyTypes in instanciableTypes)
-            {
-                try
-                {
-                    var interfaceType = typeof(IInspectorTabModule);
-                    var types = assemblyTypes.Key.GetTypes()
-                        .Where(interfaceType.IsAssignableFrom);
+			foreach (var assemblyTypes in instanciableTypes) {
+				try {
+					var interfaceType = typeof (IInspectorTabModule);
+					var types = assemblyTypes.Key.GetTypes ()
+						.Where (interfaceType.IsAssignableFrom);
 
-                    Console.WriteLine("[{0}] Loaded.", assemblyTypes.Value);
-                    foreach (var type in types)
-                    {
-                        Console.WriteLine("[{0}] Creating instance {1}", assemblyTypes.Key, type);
-                        try
-                        {
-                            if (Activator.CreateInstance(type) is IInspectorTabModule element)
-                                context.Modules.Add(element);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-                        }
-                        Console.WriteLine("[{0}] Loaded", type);
-                    }
-                }
-                catch (Exception ex)
-                {
+					Console.WriteLine ("[{0}] Loaded.", assemblyTypes.Value);
+					foreach (var type in types) {
+						Console.WriteLine ("[{0}] Creating instance {1}", assemblyTypes.Key, type);
+						try {
+							if (Activator.CreateInstance (type) is IInspectorTabModule element)
+								context.Modules.Add (element);
+						} catch (Exception ex) {
+							Console.WriteLine (ex);
+						}
+						Console.WriteLine ("[{0}] Loaded", type);
+					}
+				} catch (Exception ex) {
 
-                }
-            }
+				}
+			}
 		}
 
-        public void LoadModules (InspectorContext context)
-        {
-            var modules = InspectorContext.Current.ModulesDirectoryPath;
-            Console.WriteLine("Loading modules from: {0}", modules);
-            if (!Directory.Exists (modules))
-            {
-                Console.WriteLine("Error: folder not found.");
-                return;
-            }
+		public void LoadModules (InspectorContext context)
+		{
+			var modules = InspectorContext.Current.ModulesDirectoryPath;
+			Console.WriteLine ("Loading modules from: {0}", modules);
+			if (!Directory.Exists (modules)) {
+				Console.WriteLine ("Error: folder not found.");
+				return;
+			}
 
-            var modulesDirectories = Directory.EnumerateDirectories(modules);
-            Console.WriteLine("{0} module/s found.", modulesDirectories.Count ());
-            foreach (var module in modulesDirectories)
-            {
-                LoadModule(module, context);
-            }
-        }
+			var modulesDirectories = Directory.EnumerateDirectories (modules);
+			Console.WriteLine ("{0} module/s found.", modulesDirectories.Count ());
+			foreach (var module in modulesDirectories) {
+				LoadModule (module, context);
+			}
+		}
 
-        public void InitializeManager (InspectorContext context, ToolbarService service)
-        {
-            LoadModules(context);
-          
-            var over = new MacBorderedWindow(CGRect.Empty, NSColor.FromRgb (red: 0.19f, green: 0.76f, blue: 1.00f));
-            var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
-            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
-            var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
-            var ins = new InspectorWindow(this, new CGRect(10, 10, 600, 700)); ;
-            var tool = new MacToolbarWindow(this, new CGRect(10, 10, 100, 700));
-            tool.ShowToolkit(false);
-            var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
-            context.Initialize(manager, false);
-            service.SetDelegate(this);
-        }
+		public void InitializeManager (InspectorContext context, ToolbarService service)
+		{
+			LoadModules (context);
 
-        public void SetCultureInfo(CultureInfo e)
-        {
-            Thread.CurrentThread.CurrentCulture = e;
-            Thread.CurrentThread.CurrentUICulture = e;
-        }
+			var over = new MacBorderedWindow (CGRect.Empty, NSColor.FromRgb (red: 0.19f, green: 0.76f, blue: 1.00f));
+			var next = new MacBorderedWindow (CGRect.Empty, NSColor.Red);
+			var previous = new MacBorderedWindow (CGRect.Empty, NSColor.Green);
+			var acc = new MacAccessibilityWindow (new CGRect (10, 10, 600, 700));
+			var ins = new InspectorWindow (this, new CGRect (10, 10, 600, 700)); ;
+			var tool = new MacToolbarWindow (this, new CGRect (10, 10, 100, 700));
+			tool.ShowToolkit (false);
+			var manager = new InspectorManager (this, over, next, previous, acc, ins, tool);
+			context.Initialize (manager, false);
+			service.SetDelegate (this);
+		}
 
-        public IButtonWrapper GetImageButton(IImageWrapper imageWrapper)
-        {
-            var invokeButton = new ImageButton();
+		public void SetCultureInfo (CultureInfo e)
+		{
+			Thread.CurrentThread.CurrentCulture = e;
+			Thread.CurrentThread.CurrentUICulture = e;
+		}
+
+		public IButtonWrapper GetImageButton (IImageWrapper imageWrapper)
+		{
+			var invokeButton = new ImageButton ();
 			invokeButton.Image = (NSImage)imageWrapper.NativeObject;
-			return new MacButtonWrapper(invokeButton);
-        }
+			return new MacButtonWrapper (invokeButton);
+		}
 
-        class MacConstrainContainerWrapper : IConstrainContainerWrapper
-        {
-            IViewWrapper wrapper;
-            NSView view;
-            public MacConstrainContainerWrapper(IViewWrapper previous)
-            {
-                this.wrapper = previous;
-                view = previous.NativeObject as NSView;
-            }
+		class MacConstrainContainerWrapper : IConstrainContainerWrapper
+		{
+			IViewWrapper wrapper;
+			NSView view;
+			public MacConstrainContainerWrapper (IViewWrapper previous)
+			{
+				this.wrapper = previous;
+				view = previous.NativeObject as NSView;
+			}
 
-            public string NodeName => "Constraints";
+			public string NodeName => "Constraints";
 
-            public IViewWrapper PreviousValidKeyView => wrapper;
+			public IViewWrapper PreviousValidKeyView => wrapper;
 
-            public object NativeObject => null;
+			public object NativeObject => null;
 
-            public void RemoveFromSuperview()
-            {
-                if (view != null ) {
-                    var constraints = view.Constraints;
-                    view.RemoveConstraints(constraints);
-                }
-            }
-        }
+			public void RemoveFromSuperview ()
+			{
+				if (view != null) {
+					var constraints = view.Constraints;
+					view.RemoveConstraints (constraints);
+				}
+			}
+		}
 
-        public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
-        {
-            var current = new NodeView(customView);
-            var nodeWrapper = new MacNodeWrapper(current);
-            node.AddChild(nodeWrapper);
+		public void ConvertToNodes (IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
+		{
+			var current = new NodeView (customView);
+			var nodeWrapper = new MacNodeWrapper (current);
+			node.AddChild (nodeWrapper);
 
-            //if (customView.HasConstraints) {
-            //    var contraintContainer = new MacConstrainContainerWrapper(customView);
-            //    var constraintsContainerNodeView = new NodeView(contraintContainer);
-            //    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
-            //    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
+			//if (customView.HasConstraints) {
+			//    var contraintContainer = new MacConstrainContainerWrapper(customView);
+			//    var constraintsContainerNodeView = new NodeView(contraintContainer);
+			//    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
+			//    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
 
-            //    foreach (var item in customView.Constraints)
-            //    {
-            //        var constraintNodeView = new NodeView(item);
-            //        var constraintWrapper = new MacNodeWrapper(constraintNodeView);
-            //        constraintsContainerNodeWrapper.AddChild(constraintWrapper);
-            //    }
-            //}
-            //if (customView.NativeObject is NSScrollView scrollView)
-            //{
-            //    var documentView = new MacViewWrapper(scrollView.DocumentView as NSView);
-            //    var contraintContainer = new MacConstrainContainerWrapper(documentView);
-            //    var constraintsContainerNodeView = new NodeView(contraintContainer);
-            //    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
-            //    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
-            //}
-
-
-            if (customView.Subviews == null)
-            {
-                return;
-            }
-
-            foreach (var item in customView.Subviews)
-            {
-                try
-                {
-                    ConvertToNodes(item, nodeWrapper, viewMode);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-
-        public void RemoveAllErrorWindows(IWindowWrapper windowWrapper)
-        {
-            var window = windowWrapper.NativeObject as NSWindow;
-            var childWindro = window.ChildWindows.OfType<MacBorderedWindow>();
-            foreach (var item in childWindro)
-            {
-                item.Close();
-            }
-        }
-
-        public FontData GetFont(IViewWrapper view)
-        {
-            return NativeViewHelper.GetFont(view.NativeObject as NSView);
-        }
-
-        object GetNativePropertyPanelWrapper(IViewWrapper viewSelected)
-        {
-            NSView view = viewSelected.NativeObject as NSView;
-            if (view is NSComboBox comboBox)
-            {
-                return new ComboBoxWrapper(comboBox);
-            }
-
-            if (view is NSTextField textfield)
-            {
-                return new TextFieldViewWrapper(textfield);
-            }
-
-            if (view is NSTextView text)
-            {
-                return new TextViewWrapper(text);
-            }
-
-            if (view is NSButton btn)
-            {
-                return new ButtonViewWrapper(btn);
-            }
-
-            if (view is NSImageView img)
-            {
-                return new ImageViewWrapper(img);
-            }
-
-            if (view is NSBox box)
-            {
-                return new BoxViewWrapper(box);
-            }
-
-            return new ViewWrapper(view);
-        }
-
-        public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)
-        {
-            if (viewSelected is IViewWrapper view) {
-                if (viewMode == InspectorViewMode.Xwt)
-                {
-                    return view.View;
-                }
-                return GetNativePropertyPanelWrapper(view);
-            }
-            if (viewSelected is IConstrainWrapper constrain)
-                return constrain;
-            return viewSelected?.NativeObject;
-        }
-
-        public void SetFont(IViewWrapper view, IFontWrapper font)
-        {
-            NativeViewHelper.SetFont(view.NativeObject as NSView, font.NativeObject as NSFont);
-        }
+			//    foreach (var item in customView.Constraints)
+			//    {
+			//        var constraintNodeView = new NodeView(item);
+			//        var constraintWrapper = new MacNodeWrapper(constraintNodeView);
+			//        constraintsContainerNodeWrapper.AddChild(constraintWrapper);
+			//    }
+			//}
+			//if (customView.NativeObject is NSScrollView scrollView)
+			//{
+			//    var documentView = new MacViewWrapper(scrollView.DocumentView as NSView);
+			//    var contraintContainer = new MacConstrainContainerWrapper(documentView);
+			//    var constraintsContainerNodeView = new NodeView(contraintContainer);
+			//    var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
+			//    nodeWrapper.AddChild(constraintsContainerNodeWrapper);
+			//}
 
 
-        ColorResult BackColorSearch(IViewWrapper view)
-        {
-            var properties = view.GetType().GetProperties().Where(s => s.Name.StartsWith("BackgroundColor")).ToArray();
+			if (customView.Subviews == null) {
+				return;
+			}
 
-            var property = view.GetProperty("BackgroundColor");
-            if (property != null)
-            {
-                var colorFound = property.GetValue(view.Superview) as NSColor;
-                return new ColorResult() { View = view, Color = new MacColorWrapper(colorFound) };
-            }
+			foreach (var item in customView.Subviews) {
+				try {
+					ConvertToNodes (item, nodeWrapper, viewMode);
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+				}
+			}
+		}
 
-            if (view.Superview is IViewWrapper superView && superView != null)
-            {
-                var result = BackColorSearch(superView);
-                if (result != null)
-                {
-                    return result;
-                }
-            }
-            return null;
-        }
+		public void RemoveAllErrorWindows (IWindowWrapper windowWrapper)
+		{
+			var window = windowWrapper.NativeObject as NSWindow;
+			var childWindro = window.ChildWindows.OfType<MacBorderedWindow> ();
+			foreach (var item in childWindro) {
+				item.Close ();
+			}
+		}
 
-        bool IsSelectableView(IViewWrapper customView)
-        {
-            return customView.CanBecomeKeyView && !customView.Hidden;
-        }
+		public FontData GetFont (IViewWrapper view)
+		{
+			return NativeViewHelper.GetFont (view.NativeObject as NSView);
+		}
 
-        public void Recursively(IViewWrapper customView, List<DetectedError> detectedErrors, InspectorViewMode viewMode)
-        {
-            if (detectedErrors.Count >= AccessibilityService.MaxIssues)
-            {
-                return;
-            }
+		object GetNativePropertyPanelWrapper (IViewWrapper viewSelected)
+		{
+			NSView view = viewSelected.NativeObject as NSView;
+			if (view is NSComboBox comboBox) {
+				return new ComboBoxWrapper (comboBox);
+			}
 
-            var errorType = DetectedErrorType.None;
+			if (view is NSTextField textfield) {
+				return new TextFieldViewWrapper (textfield);
+			}
 
-            ContrastAnalysis contrastAnalisys = null;
-            if (customView is ITextBoxWrapper textField)
-            {
-                var parentColor = textField.BackgroundColor;
-                if (parentColor == null && textField.Superview != null)
-                {
-                    var result = BackColorSearch(textField.Superview);
-                    if (result != null)
-                    {
-                        contrastAnalisys = new ContrastAnalysis((NSColor)textField.TextColor.NativeObject, (NSColor)result.Color.NativeObject, (NSFont)textField.Font.NativeObject);
-                        contrastAnalisys.View1 = customView;
-                        contrastAnalisys.View2 = textField.Superview;
-                        if (!contrastAnalisys.IsPassed)
-                        {
-                            errorType |= DetectedErrorType.Contrast;
-                        }
-                    }
-                }
-            }
+			if (view is NSTextView text) {
+				return new TextViewWrapper (text);
+			}
 
-            if (IsSelectableView(customView))
-            {
-                if (string.IsNullOrEmpty(customView.AccessibilityTitle))
-                {
-                    errorType |= DetectedErrorType.AccessibilityTitle;
-                }
-                //if (string.IsNullOrEmpty(customView.AccessibilityHelp))
-                //{
-                //    errorType |= DetectedErrorType.AccessibilityHelp;
-                //}
-                if (customView.AccessibilityParent == null)
-                {
-                    errorType |= DetectedErrorType.AccessibilityParent;
-                }
-            }
+			if (view is NSButton btn) {
+				return new ButtonViewWrapper (btn);
+			}
 
-            if (errorType != DetectedErrorType.None)
-            {
-                var detectedError = new DetectedError() { View = customView, ErrorType = errorType };
-                if (contrastAnalisys != null)
-                {
-                    detectedError.Color1 = contrastAnalisys.Color1.ToHex();
-                    detectedError.Color2 = contrastAnalisys.Color2.ToHex();
-                    detectedError.ContrastRatio = (float)contrastAnalisys.Contrast;
-                    detectedError.View2 = contrastAnalisys.View2;
-                }
+			if (view is NSImageView img) {
+				return new ImageViewWrapper (img);
+			}
 
-                detectedErrors.Add(detectedError);
-            }
+			if (view is NSBox box) {
+				return new BoxViewWrapper (box);
+			}
 
-            if (customView.Subviews == null || customView.IsBlockedType())
-            {
-                return;
-            }
+			return new ViewWrapper (view);
+		}
 
-            foreach (var item in customView.Subviews)
-            {
-                Recursively(item, detectedErrors, viewMode);
-            }
-        }
+		public object GetWrapper (INativeObject viewSelected, InspectorViewMode viewMode)
+		{
+			if (viewSelected is IViewWrapper view) {
+				if (viewMode == InspectorViewMode.Xwt) {
+					return view.View;
+				}
+				return GetNativePropertyPanelWrapper (view);
+			}
+			if (viewSelected is IConstrainWrapper constrain)
+				return constrain;
+			return viewSelected?.NativeObject;
+		}
 
-        public void SetButton(IButtonWrapper button, IImageWrapper image)
-        {
-            var btn = button.NativeObject as NSButton;
-            btn.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap ());
-        }
+		public void SetFont (IViewWrapper view, IFontWrapper font)
+		{
+			NativeViewHelper.SetFont (view.NativeObject as NSView, font.NativeObject as NSFont);
+		}
 
-        public void SetButton(IImageViewWrapper imageview, IImageWrapper image)
-        {
-            var imgView = imageview.NativeObject as NSImageView;
-            imgView.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap());
-        }
 
-        //public NSImage ToNSImage(BitmapImage img)
-        //{
-        //	System.IO.MemoryStream s = new System.IO.MemoryStream();
-        //	img.Save(s, ImageFileType.Png);
-        //	byte[] b = s.ToArray();
-        //	CGDataProvider dp = new CGDataProvider(b, 0, (int)s.Length);
-        //	s.Flush();
-        //	s.Close();
-        //	CGImage img2 = CGImage.FromPNG(dp, null, false, CGColorRenderingIntent.Default);
-        //	return new NSImage(img2, new CGSize (img2.Width, img2.Height));
-        //}
+		ColorResult BackColorSearch (IViewWrapper view)
+		{
+			var properties = view.GetType ().GetProperties ().Where (s => s.Name.StartsWith ("BackgroundColor")).ToArray ();
 
-        public async Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow)
-        {
-            var panel = new NSOpenPanel();
-            panel.AllowedFileTypes = new[] { "png" };
-            panel.Prompt = "Select a image";
-            IImageWrapper rtrn = null;
-            processingCompletion = new TaskCompletionSource<object>();
+			var property = view.GetProperty ("BackgroundColor");
+			if (property != null) {
+				var colorFound = property.GetValue (view.Superview) as NSColor;
+				return new ColorResult () { View = view, Color = new MacColorWrapper (colorFound) };
+			}
 
-            panel.BeginSheet(selectedWindow.NativeObject as NSWindow, result =>
-            {
-                if (result == 1 && panel.Url != null)
-                {
-                    rtrn = new MacImageWrapper(new NSImage(panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
+			if (view.Superview is IViewWrapper superView && superView != null) {
+				var result = BackColorSearch (superView);
+				if (result != null) {
+					return result;
+				}
+			}
+			return null;
+		}
 
-                }
-                processingCompletion.TrySetResult(null);
-            });
-            await processingCompletion.Task;
-            return rtrn;
-        }
+		bool IsSelectableView (IViewWrapper customView)
+		{
+			return customView.CanBecomeKeyView && !customView.Hidden;
+		}
 
-        public async Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow)
-        {
-            if (view.NativeObject is NSImageView imageView)
-            {
-                var image = await OpenDialogSelectImage(selectedWindow);
-                if (image != null)
-                {
-                    SetButton(new MacImageViewWrapper(imageView), image);
-                }
-            }
-            else if (view.NativeObject is NSButton btn)
-            {
-                var image = await OpenDialogSelectImage(selectedWindow);
-                if (image != null)
-                {
-                    SetButton(new MacButtonWrapper(btn), image);
-                }
-            }
-        }
+		public void Recursively (IViewWrapper customView, List<DetectedError> detectedErrors, InspectorViewMode viewMode)
+		{
+			if (detectedErrors.Count >= AccessibilityService.MaxIssues) {
+				return;
+			}
 
-        public IBorderedWindow CreateErrorWindow(IViewWrapper view)
-        {
-            return new MacBorderedWindow(view, NSColor.Red);
-        }
+			var errorType = DetectedErrorType.None;
 
-        public IFontWrapper GetFromName(string selected, int fontSize)
-        {
-            return new MacFont(NSFont.FromFontName(selected, fontSize));
-        }
+			ContrastAnalysis contrastAnalisys = null;
+			if (customView is ITextBoxWrapper textField) {
+				var parentColor = textField.BackgroundColor;
+				if (parentColor == null && textField.Superview != null) {
+					var result = BackColorSearch (textField.Superview);
+					if (result != null) {
+						contrastAnalisys = new ContrastAnalysis ((NSColor)textField.TextColor.NativeObject, (NSColor)result.Color.NativeObject, (NSFont)textField.Font.NativeObject);
+						contrastAnalisys.View1 = customView;
+						contrastAnalisys.View2 = textField.Superview;
+						if (!contrastAnalisys.IsPassed) {
+							errorType |= DetectedErrorType.Contrast;
+						}
+					}
+				}
+			}
 
-        public void ClearSubmenuItems(List<IMenuItemWrapper> menuItems, IMenuWrapper submenu)
-        {
-            var menu = (NSMenu)submenu.NativeObject;
-            foreach (var item in menuItems) {
-                menu.RemoveItem((NSMenuItem)item.NativeObject);
-            }
-        }
+			if (IsSelectableView (customView)) {
+				if (string.IsNullOrEmpty (customView.AccessibilityTitle)) {
+					errorType |= DetectedErrorType.AccessibilityTitle;
+				}
+				//if (string.IsNullOrEmpty(customView.AccessibilityHelp))
+				//{
+				//    errorType |= DetectedErrorType.AccessibilityHelp;
+				//}
+				if (customView.AccessibilityParent == null) {
+					errorType |= DetectedErrorType.AccessibilityParent;
+				}
+			}
 
-        public IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler)
-        {
-            var menuItem = new NSMenuItem(title, menuItemOpenHandler) { Enabled = false };
-            return new MacMenuItemWrapper(menuItem);
-        }
+			if (errorType != DetectedErrorType.None) {
+				var detectedError = new DetectedError () { View = customView, ErrorType = errorType };
+				if (contrastAnalisys != null) {
+					detectedError.Color1 = contrastAnalisys.Color1.ToHex ();
+					detectedError.Color2 = contrastAnalisys.Color2.ToHex ();
+					detectedError.ContrastRatio = (float)contrastAnalisys.Contrast;
+					detectedError.View2 = contrastAnalisys.View2;
+				}
 
-        public IMenuItemWrapper GetShowInspectorWindowMenuItem(EventHandler menuOpenHandler)
-        {
-            var inspectorMenuItem = new NSMenuItem($"Show Inspector Window", menuOpenHandler);
-            inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
-            inspectorMenuItem.KeyEquivalent = "2";
-            return new MacMenuItemWrapper(inspectorMenuItem);
-        }
+				detectedErrors.Add (detectedError);
+			}
 
-        public IMenuItemWrapper GetShowAccessibilityWindowMenuItem(EventHandler menuOpenHandler)
-        {
-            var inspectorMenuItem = new NSMenuItem($"Show Accessibility Window", menuOpenHandler);
-            inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
-            inspectorMenuItem.KeyEquivalent = "1";
-            return new MacMenuItemWrapper(inspectorMenuItem);
-        }
+			if (customView.Subviews == null || customView.IsBlockedType ()) {
+				return;
+			}
 
-        public IMenuItemWrapper GetSeparatorMenuItem()
-        {
-            return new MacMenuItemWrapper(NSMenuItem.SeparatorItem);
-        }
+			foreach (var item in customView.Subviews) {
+				Recursively (item, detectedErrors, viewMode);
+			}
+		}
 
-        public void SetAppearance(bool isDark, params IWindowWrapper[] inspectorWindow)
-        {
-            PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
-            foreach (var item in inspectorWindow) {
-                item.SetAppareance(isDark);
-            }
-        }
+		public void SetButton (IButtonWrapper button, IImageWrapper image)
+		{
+			var btn = button.NativeObject as NSButton;
+			btn.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap ());
+		}
 
-        public void CreateItem(IViewWrapper view, ToolbarView e)
-        {
-            var nativeView = view.NativeObject;
+		public void SetButton (IImageViewWrapper imageview, IImageWrapper image)
+		{
+			var imgView = imageview.NativeObject as NSImageView;
+			imgView.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap());
+		}
 
-            var createdObject = Getview(e);
-            if (createdObject is NSView createdView)
-            {
-                if (nativeView is NSStackView stack)
-                    stack.AddArrangedSubview(createdView);
-                else if (nativeView is NSScrollView scrollView)
-                    scrollView.DocumentView = createdView;
-                else if (nativeView is NSView customView)
-                    customView.AddSubview(createdView);
-            }
-            else
-            {
+		//public NSImage ToNSImage(BitmapImage img)
+		//{
+		//	System.IO.MemoryStream s = new System.IO.MemoryStream();
+		//	img.Save(s, ImageFileType.Png);
+		//	byte[] b = s.ToArray();
+		//	CGDataProvider dp = new CGDataProvider(b, 0, (int)s.Length);
+		//	s.Flush();
+		//	s.Close();
+		//	CGImage img2 = CGImage.FromPNG(dp, null, false, CGColorRenderingIntent.Default);
+		//	return new NSImage(img2, new CGSize (img2.Width, img2.Height));
+		//}
+
+		public async Task<IImageWrapper> OpenDialogSelectImage (IWindowWrapper selectedWindow)
+		{
+			var panel = new NSOpenPanel ();
+			panel.AllowedFileTypes = new[] { "png" };
+			panel.Prompt = "Select a image";
+			IImageWrapper rtrn = null;
+			processingCompletion = new TaskCompletionSource<object> ();
+
+			panel.BeginSheet (selectedWindow.NativeObject as NSWindow, result => {
+				if (result == 1 && panel.Url != null) {
+					rtrn = new MacImageWrapper (new NSImage (panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
+
+				}
+				processingCompletion.TrySetResult (null);
+			});
+			await processingCompletion.Task;
+			return rtrn;
+		}
+
+		public async Task InvokeImageChanged (IViewWrapper view, IWindowWrapper selectedWindow)
+		{
+			if (view.NativeObject is NSImageView imageView) {
+				var image = await OpenDialogSelectImage (selectedWindow);
+				if (image != null) {
+					SetButton (new MacImageViewWrapper (imageView), image);
+				}
+			} else if (view.NativeObject is NSButton btn) {
+				var image = await OpenDialogSelectImage (selectedWindow);
+				if (image != null) {
+					SetButton (new MacButtonWrapper (btn), image);
+				}
+			}
+		}
+
+		public IBorderedWindow CreateErrorWindow (IViewWrapper view)
+		{
+			return new MacBorderedWindow (view, NSColor.Red);
+		}
+
+		public IFontWrapper GetFromName (string selected, int fontSize)
+		{
+			return new MacFont (NSFont.FromFontName (selected, fontSize));
+		}
+
+		public void ClearSubmenuItems (List<IMenuItemWrapper> menuItems, IMenuWrapper submenu)
+		{
+			var menu = (NSMenu)submenu.NativeObject;
+			foreach (var item in menuItems) {
+				menu.RemoveItem ((NSMenuItem)item.NativeObject);
+			}
+		}
+
+		public IMenuItemWrapper CreateMenuItem (string title, EventHandler menuItemOpenHandler)
+		{
+			var menuItem = new NSMenuItem (title, menuItemOpenHandler) { Enabled = false };
+			return new MacMenuItemWrapper (menuItem);
+		}
+
+		public IMenuItemWrapper GetShowInspectorWindowMenuItem (EventHandler menuOpenHandler)
+		{
+			var inspectorMenuItem = new NSMenuItem ($"Show Inspector Window", menuOpenHandler);
+			inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
+			inspectorMenuItem.KeyEquivalent = "2";
+			return new MacMenuItemWrapper (inspectorMenuItem);
+		}
+
+		public IMenuItemWrapper GetShowAccessibilityWindowMenuItem (EventHandler menuOpenHandler)
+		{
+			var inspectorMenuItem = new NSMenuItem ($"Show Accessibility Window", menuOpenHandler);
+			inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
+			inspectorMenuItem.KeyEquivalent = "1";
+			return new MacMenuItemWrapper (inspectorMenuItem);
+		}
+
+		public IMenuItemWrapper GetSeparatorMenuItem ()
+		{
+			return new MacMenuItemWrapper (NSMenuItem.SeparatorItem);
+		}
+
+		public void SetAppearance (bool isDark, params IWindowWrapper[] inspectorWindow)
+		{
+			PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+			foreach (var item in inspectorWindow) {
+				item.SetAppareance (isDark);
+			}
+		}
+
+		public void CreateItem (IViewWrapper view, ToolbarView e)
+		{
+			var nativeView = view.NativeObject;
+
+			var createdObject = Getview (e);
+			if (createdObject is NSView createdView) {
+				if (nativeView is NSStackView stack)
+					stack.AddArrangedSubview (createdView);
+				else if (nativeView is NSScrollView scrollView)
+					scrollView.DocumentView = createdView;
+				else if (nativeView is NSView customView)
+					customView.AddSubview (createdView);
+			} else {
 				if (e == ToolbarView.ComboBoxItem && nativeView is NSComboBox comboBox) {
 					comboBox.Insert (new NSString ("Item"), comboBox.Count);
-				} else if (createdObject is NSTabViewItem tabViewItem && nativeView is NSTabView tabView)
-                {
-                    tabView.Add(tabViewItem);
-                }
-            }
-        }
+				} else if (createdObject is NSTabViewItem tabViewItem && nativeView is NSTabView tabView) {
+					tabView.Add (tabViewItem);
+				}
+			}
+		}
 
-        NSObject Getview(ToolbarView e)
-        {
-            switch (e)
-            {
-                case ToolbarView.ComboBox:
-                    return new NSComboBox();
-                case ToolbarView.DatePicker:
-                    return new NSDatePicker();
-                case ToolbarView.ImageBox:
-                    return new NSImageView() { Frame = new CGRect(0, 0, 200, 20) };
+		NSObject Getview (ToolbarView e)
+		{
+			switch (e) {
+				case ToolbarView.ComboBox:
+					return new NSComboBox ();
+				case ToolbarView.DatePicker:
+					return new NSDatePicker ();
+				case ToolbarView.ImageBox:
+					return new NSImageView () { Frame = new CGRect (0, 0, 200, 20) };
 				case ToolbarView.TextField:
 					return new NSTextField ();
 				case ToolbarView.Label:
-                    return NativeViewHelper.CreateLabel("Label");
-                case ToolbarView.WrappingLabel:
-                    var label = NativeViewHelper.CreateLabel("Label");
-                    label.SetContentCompressionResistancePriority(250, NSLayoutConstraintOrientation.Horizontal);
-                    label.UsesSingleLineMode = false;
-                    label.LineBreakMode = NSLineBreakMode.ByWordWrapping;
-                    return label;
-                case ToolbarView.PushButton:
-                    return new NSButton() { Title = "Button" };
-                case ToolbarView.Search:
-                    return new NSSearchField();
-                case ToolbarView.CustomView:
-                    return new NSView();
-                case ToolbarView.TabView:
-                    var tabView = new NSTabView();
-                    var content = new NSTabViewItem() { Label = "Page 1" };
-                    tabView.Add(content);
-                    return tabView;
-                case ToolbarView.Box:
-                    return new NSBox() { BorderColor = NSColor.Black, BorderWidth = 1, FillColor = NSColor.Red, Frame = new CGRect(0, 0, 200, 20) };
-                case ToolbarView.SegmentedControl:
-                    var segmented = new NSSegmentedControl() ;
-                    segmented.SegmentCount = 2;
-                    segmented.SetLabel("Item 1", 0);
-                    segmented.SetLabel("Item 2", 1);
-                    return segmented;
-                case ToolbarView.TabViewItem:
-                    return new NSTabViewItem() { Label = "Item" };
+					return NativeViewHelper.CreateLabel ("Label");
+				case ToolbarView.WrappingLabel:
+					var label = NativeViewHelper.CreateLabel ("Label");
+					label.SetContentCompressionResistancePriority (250, NSLayoutConstraintOrientation.Horizontal);
+					label.UsesSingleLineMode = false;
+					label.LineBreakMode = NSLineBreakMode.ByWordWrapping;
+					return label;
+				case ToolbarView.PushButton:
+					return new NSButton () { Title = "Button" };
+				case ToolbarView.Search:
+					return new NSSearchField ();
+				case ToolbarView.CustomView:
+					return new NSView ();
+				case ToolbarView.TabView:
+					var tabView = new NSTabView ();
+					var content = new NSTabViewItem () { Label = "Page 1" };
+					tabView.Add (content);
+					return tabView;
+				case ToolbarView.Box:
+					return new NSBox () { BorderColor = NSColor.Black, BorderWidth = 1, FillColor = NSColor.Red, Frame = new CGRect (0, 0, 200, 20) };
+				case ToolbarView.SegmentedControl:
+					var segmented = new NSSegmentedControl ();
+					segmented.SegmentCount = 2;
+					segmented.SetLabel ("Item 1", 0);
+					segmented.SetLabel ("Item 2", 1);
+					return segmented;
+				case ToolbarView.TabViewItem:
+					return new NSTabViewItem () { Label = "Item" };
 				case ToolbarView.ComboBoxItem:
 					return null;
 				case ToolbarView.ScrollView:
-                    var scrollView = new NSScrollView() { Frame = new CGRect (0,0,300,300), HasVerticalScroller = true, HasHorizontalScroller = true };
+					var scrollView = new NSScrollView () { Frame = new CGRect (0, 0, 300, 300), HasVerticalScroller = true, HasHorizontalScroller = true };
 					scrollView.ScrollerStyle = NSScrollerStyle.Legacy;
 					scrollView.DocumentView = new NSView ();
 					return scrollView;
-            }
-            return new NSView();
-        }
+			}
+			return new NSView ();
+		}
 
-        public virtual IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)
-        {
-            if (element is NSView)
-            {
-                return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate());
-            }
-            return null;
-        }
+		public virtual IToolbarWrapperDelegateWrapper GetTouchBarDelegate (object element)
+		{
+			if (element is NSView) {
+				return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate ());
+			}
+			return null;
+		}
 
-        public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
-        {
+		public void SetCultureInfo (IWindowWrapper selectedWindow, CultureInfo e)
+		{
 
-        }
+		}
 
-        #region Hover selection
+		#region Hover selection
 
-        public void StartHoverSelection (IWindowWrapper currentWindow)
-        {
-            StopHoverSelection();
+		public void StartHoverSelection (IWindowWrapper currentWindow)
+		{
+			StopHoverSelection ();
 
-            var nativeWindow = currentWindow.NativeObject as NSWindow;
-          
-            endSelection = false;
+			var nativeWindow = currentWindow.NativeObject as NSWindow;
 
-            clickMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, (NSEvent theEvent) =>
-            {
+			endSelection = false;
+
+			clickMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask (NSEventMask.LeftMouseDown, (NSEvent theEvent) => {
 				StopHoverSelection ();
 				var selected = GetHoverSelectedView ();
-                if (selected != null) {
-					HoverSelectionEnded?.Invoke(this, new MacViewWrapper(selected));
-                } else {
+				if (selected != null) {
+					HoverSelectionEnded?.Invoke (this, new MacViewWrapper (selected));
+				} else {
 					HoverSelectionEnded?.Invoke (this, null);
 				}
 
 				return null;
-            });
+			});
 
-            moveMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask(NSEventMask.MouseMoved, (NSEvent theEvent) =>
-            {
-                if (endSelection)
-                {
-                    return null;
-                }
-                var point = nativeWindow.ConvertBaseToScreen(theEvent.LocationInWindow);
-                if (!nativeWindow.AccessibilityFrame.Contains(point))
-                {
-                    return null;
-                }
-                containerViews.Clear();
-                AddContainerViews(nativeWindow.ContentView, point, containerViews);
+			moveMonitor = NSEvent.AddLocalMonitorForEventsMatchingMask (NSEventMask.MouseMoved, (NSEvent theEvent) => {
+				if (endSelection) {
+					return null;
+				}
+				var point = nativeWindow.ConvertBaseToScreen (theEvent.LocationInWindow);
+				if (!nativeWindow.AccessibilityFrame.Contains (point)) {
+					return null;
+				}
+				containerViews.Clear ();
+				AddContainerViews (nativeWindow.ContentView, point, containerViews);
 
-                if (containerViews.Count > 0)
-                {
-                    index = containerViews.Count - 1;
-                }
-                else
-                {
-                    index = -1;
-                }
+				if (containerViews.Count > 0) {
+					index = containerViews.Count - 1;
+				} else {
+					index = -1;
+				}
 
-                var selectedView = GetHoverSelectedView();
-                if (selectedView != null)
-                {
-                    HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
-                }
-                return null;
-            });
-        }
+				var selectedView = GetHoverSelectedView ();
+				if (selectedView != null) {
+					HoverSelecting?.Invoke (this, new MacViewWrapper (selectedView));
+				}
+				return null;
+			});
+		}
 
-        public void DeepHoverSelection ()
-        {
-            if (endSelection)
-            {
-                return;
-            }
-            if (index == 0)
-            {
-                return;
-            }
-            index--;
-            var selectedView = GetHoverSelectedView();
-            if (selectedView != null)
-            {
-                HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
-            }
-        }
+		public void DeepHoverSelection ()
+		{
+			if (endSelection) {
+				return;
+			}
+			if (index == 0) {
+				return;
+			}
+			index--;
+			var selectedView = GetHoverSelectedView ();
+			if (selectedView != null) {
+				HoverSelecting?.Invoke (this, new MacViewWrapper (selectedView));
+			}
+		}
 
-        public void PreviousHoverSelection()
-        {
-            if (endSelection)
-            {
-                return;
-            }
-            if (index >= containerViews.Count - 2)
-            {
-                return;
-            }
-            index++;
-            var selectedView = GetHoverSelectedView();
-            if (selectedView != null)
-            {
-                HoverSelecting?.Invoke(this, new MacViewWrapper(selectedView));
-            }
-           
-        }
+		public void PreviousHoverSelection ()
+		{
+			if (endSelection) {
+				return;
+			}
+			if (index >= containerViews.Count - 2) {
+				return;
+			}
+			index++;
+			var selectedView = GetHoverSelectedView ();
+			if (selectedView != null) {
+				HoverSelecting?.Invoke (this, new MacViewWrapper (selectedView));
+			}
 
-        public void StopHoverSelection ()
-        {
-            endSelection = true;
-            if (clickMonitor != null)
-            {
-                NSEvent.RemoveMonitor(clickMonitor);
+		}
+
+		public void StopHoverSelection ()
+		{
+			endSelection = true;
+			if (clickMonitor != null) {
+				NSEvent.RemoveMonitor (clickMonitor);
 				clickMonitor = null;
 			}
 
-            if (moveMonitor != null)
-            {
-                NSEvent.RemoveMonitor(moveMonitor);
+			if (moveMonitor != null) {
+				NSEvent.RemoveMonitor (moveMonitor);
 				moveMonitor = null;
 			}
-        }
+		}
 
-        int index;
-        bool endSelection;
-        NSObject clickMonitor, moveMonitor;
-        List<NSView> containerViews = new List<NSView>();
+		int index;
+		bool endSelection;
+		NSObject clickMonitor, moveMonitor;
+		List<NSView> containerViews = new List<NSView> ();
 
-        NSView GetHoverSelectedView () => index == -1 || index >= containerViews.Count ? null : containerViews[index];
+		NSView GetHoverSelectedView () => index == -1 || index >= containerViews.Count ? null : containerViews[index];
 
-        static void AddContainerViews(NSView view, CGPoint point, List<NSView> containerViews)
-        {
-            if (view.AccessibilityFrame.Contains(point))
-            {
-                containerViews.Add(view);
-            }
-            else
-            {
-                return;
-            }
+		static void AddContainerViews (NSView view, CGPoint point, List<NSView> containerViews)
+		{
+			if (view.AccessibilityFrame.Contains (point)) {
+				containerViews.Add (view);
+			} else {
+				return;
+			}
 
-            if (view.Subviews == null)
-            {
-                return;
-            }
+			if (view.Subviews == null) {
+				return;
+			}
 
-            foreach (var item in view.Subviews)
-            {
-                try
-                {
-                    AddContainerViews(item, point, containerViews);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
+			foreach (var item in view.Subviews) {
+				try {
+					AddContainerViews (item, point, containerViews);
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+				}
+			}
+		}
 
-        public event EventHandler<IViewWrapper> HoverSelecting;
+		public event EventHandler<IViewWrapper> HoverSelecting;
 		public event EventHandler<IViewWrapper> HoverSelectionEnded;
 
 		#endregion

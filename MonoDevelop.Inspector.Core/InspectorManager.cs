@@ -25,12 +25,11 @@ namespace MonoDevelop.Inspector
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
 
-        public IViewWrapper SelectedView => nativeObject as IViewWrapper;
-        INativeObject nativeObject;
-        IViewWrapper nextKeyView, previousKeyView;
+		public IViewWrapper SelectedView => nativeObject as IViewWrapper;
+		INativeObject nativeObject;
+		IViewWrapper nextKeyView, previousKeyView;
 		IMainWindowWrapper selectedWindow;
-		InspectorViewMode ViewMode
-        {
+		InspectorViewMode ViewMode {
 			get => selectedWindow.ViewMode;
 			set => selectedWindow.ViewMode = value;
 		}
@@ -44,12 +43,12 @@ namespace MonoDevelop.Inspector
 
 		public List<IInspectorManagerWindow> Windows { get; private set; } = new List<IInspectorManagerWindow> ();
 
-	 	readonly List<IMenuItemWrapper> menuItems = new List<IMenuItemWrapper>();
+		readonly List<IMenuItemWrapper> menuItems = new List<IMenuItemWrapper> ();
 
 		IToolbarWindow toolbarWindow;
 
 		IMenuItemWrapper inspectorMenuItem, accessibilityMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
-        readonly AccessibilityService accessibilityService;
+		readonly AccessibilityService accessibilityService;
 		List<IBorderedWindow> detectedErrors = new List<IBorderedWindow> ();
 
 		#region Properties
@@ -106,9 +105,9 @@ namespace MonoDevelop.Inspector
 			}
 		}
 
-        IMenuWrapper Submenu {
+		IMenuWrapper Submenu {
 			get {
-                return Delegate.GetSubMenu(); ;
+				return Delegate.GetSubMenu (); ;
 			}
 		}
 
@@ -117,25 +116,21 @@ namespace MonoDevelop.Inspector
 		#region Error Detector
 
 		bool showDetectedErrors;
-		internal bool ShowDetectedErrors 
-		{
+		internal bool ShowDetectedErrors {
 			get => showDetectedErrors;
-			set
-			{
-				if (showDetectedErrors == value)
-				{
+			set {
+				if (showDetectedErrors == value) {
 					return;
 				}
-				ShowErrors(value);
+				ShowErrors (value);
 			}
 		}
 
 		void ShowErrors (bool value)
 		{
 			showDetectedErrors = value;
-			foreach (var item in detectedErrors)
-			{
-				item.AlignWindowWithContentView();
+			foreach (var item in detectedErrors) {
+				item.AlignWindowWithContentView ();
 				item.Visible = value;
 			}
 		}
@@ -144,9 +139,9 @@ namespace MonoDevelop.Inspector
 
 		public void SetWindow (IMainWindowWrapper selectedWindow)
 		{
-            if (this.selectedWindow?.NativeObject == selectedWindow?.NativeObject) {
-                return;
-            }
+			if (this.selectedWindow?.NativeObject == selectedWindow?.NativeObject) {
+				return;
+			}
 
 			var needsReattach = selectedWindow != this.selectedWindow;
 
@@ -154,13 +149,12 @@ namespace MonoDevelop.Inspector
 				Delegate.RemoveAllErrorWindows (this.selectedWindow);
 			}
 
-			if (this.selectedWindow != null)
-			{
+			if (this.selectedWindow != null) {
 				this.selectedWindow.ResizeRequested -= OnRespositionViews;
 				this.selectedWindow.MovedRequested -= OnRespositionViews;
 			}
 
-			PopulateSubmenu();
+			PopulateSubmenu ();
 
 			this.selectedWindow = selectedWindow;
 			if (this.selectedWindow == null) {
@@ -169,14 +163,14 @@ namespace MonoDevelop.Inspector
 
 			RefreshOverlaysVisibility ();
 
-            RefreshNeeded();
+			RefreshNeeded ();
 
-            this.selectedWindow.ResizeRequested += OnRespositionViews;
+			this.selectedWindow.ResizeRequested += OnRespositionViews;
 			this.selectedWindow.MovedRequested += OnRespositionViews;
 			this.selectedWindow.LostFocus += OnRespositionViews;
-        }
+		}
 
-        void RefreshOverlaysVisibility ()
+		void RefreshOverlaysVisibility ()
 		{
 			IsPreviousResponderOverlayVisible = IsPreviousResponderOverlayVisible;
 			IsNextResponderOverlayVisible = IsNextResponderOverlayVisible;
@@ -185,101 +179,96 @@ namespace MonoDevelop.Inspector
 
 		internal IInspectDelegate Delegate;
 
-		public InspectorManager (IInspectDelegate inspectorDelegate, 
-        IBorderedWindow overlay, 
-        IBorderedWindow next, 
-        IBorderedWindow previous, IAccessibilityWindow accWindow, IInspectorWindow inWindow, IToolbarWindow toolWindow)
+		public InspectorManager (IInspectDelegate inspectorDelegate,
+		IBorderedWindow overlay,
+		IBorderedWindow next,
+		IBorderedWindow previous, IAccessibilityWindow accWindow, IInspectorWindow inWindow, IToolbarWindow toolWindow)
 		{
 			Delegate = inspectorDelegate;
 			accessibilityService = AccessibilityService.Current;
 			accessibilityService.ScanFinished += (s, e) => {
 
 				Delegate.RemoveAllErrorWindows (selectedWindow);
-				detectedErrors.Clear();
+				detectedErrors.Clear ();
 
 				foreach (var error in accessibilityService.DetectedErrors) {
-					var borderer = Delegate.CreateErrorWindow(error.View);
-					detectedErrors.Add(borderer);
+					var borderer = Delegate.CreateErrorWindow (error.View);
+					detectedErrors.Add (borderer);
 					selectedWindow.AddChildWindow (borderer);
 				}
 
 				if (showDetectedErrors)
-					ShowErrors(true);
+					ShowErrors (true);
 
-				inspectorWindow.GenerateTree(selectedWindow, ViewMode);
-				selectedWindow.RecalculateKeyViewLoop();
+				inspectorWindow.GenerateTree (selectedWindow, ViewMode);
+				selectedWindow.RecalculateKeyViewLoop ();
 			};
 
-            debugOverlayWindow = overlay; //new MacBorderedWindow (CGRect.Empty, NSColor.Green);
-            debugNextOverlayWindow = next; // new MacBorderedWindow (CGRect.Empty, NSColor.Red);
-            debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
+			debugOverlayWindow = overlay; //new MacBorderedWindow (CGRect.Empty, NSColor.Green);
+			debugNextOverlayWindow = next; // new MacBorderedWindow (CGRect.Empty, NSColor.Red);
+			debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
 
-            accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+			accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
 			Windows.Add (accessibilityWindow);
 			accessibilityWindow.SetTitle ("Accessibility Panel");
 			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
 				ShowDetectedErrors = !ShowDetectedErrors;
 			};
 
-			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
+			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors (inspectorDelegate, selectedWindow, ViewMode);
 
-            inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
+			inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
 			Windows.Add (inspectorWindow);
 
 			inspectorWindow.SetTitle ("Inspector Panel");
 			inspectorWindow.RaiseFirstResponder += (s, e) => {
 				if (selectedWindow.ContainsChildWindow (debugOverlayWindow))
 					debugOverlayWindow.Close ();
-				selectedWindow.AddChildWindow(debugOverlayWindow);
+				selectedWindow.AddChildWindow (debugOverlayWindow);
 
 				//IsFirstResponderOverlayVisible = true;
-				ChangeFocusedView(e as INativeObject);
+				ChangeFocusedView (e as INativeObject);
 			};
-			inspectorWindow.RaiseDeleteItem += (s, e) =>
-			{
-				  RemoveView(e);
+			inspectorWindow.RaiseDeleteItem += (s, e) => {
+				RemoveView (e);
 			};
 
 			inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
 
-            toolbarWindow = toolWindow; //new MacToolbarWindow (this);
+			toolbarWindow = toolWindow; //new MacToolbarWindow (this);
 			Windows.Add (toolbarWindow);
-			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
-		
+			toolbarWindow.SetContentSize (ToolbarWindowWidth, ToolbarWindowHeight);
+
 			toolbarWindow.ThemeChanged += (sender, isDark) => {
-                inspectorWindow.SetAppareance(isDark);
-                Delegate.SetAppearance(isDark, 
-                inspectorWindow, 
-                accessibilityWindow,
-                toolbarWindow, 
-                selectedWindow
-                );
-            };
-
-            toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
-				ViewMode = e;
-                RefreshNeeded();
-            };
-
-			toolbarWindow.ItemDeleted += (sender, e) =>
-			{
-				RemoveView(SelectedView);
+				inspectorWindow.SetAppareance (isDark);
+				Delegate.SetAppearance (isDark,
+				inspectorWindow,
+				accessibilityWindow,
+				toolbarWindow,
+				selectedWindow
+				);
 			};
 
-			toolbarWindow.FontChanged += (sender, e) =>
-			{
-				Delegate.SetFont(SelectedView, e.Font);
+			toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
+				ViewMode = e;
+				RefreshNeeded ();
+			};
+
+			toolbarWindow.ItemDeleted += (sender, e) => {
+				RemoveView (SelectedView);
+			};
+
+			toolbarWindow.FontChanged += (sender, e) => {
+				Delegate.SetFont (SelectedView, e.Font);
 				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
-            toolbarWindow.CultureChanged += (sender, e) =>
-            {
-                Delegate.SetCultureInfo (e);
-            };
+			toolbarWindow.CultureChanged += (sender, e) => {
+				Delegate.SetCultureInfo (e);
+			};
 
-            toolbarWindow.ItemImageChanged += async (sender, e) =>
-			{
-				await Delegate.InvokeImageChanged(SelectedView, selectedWindow);
+			toolbarWindow.ItemImageChanged += async (sender, e) => {
+				await Delegate.InvokeImageChanged (SelectedView, selectedWindow);
 			};
 
 			toolbarWindow.KeyViewLoop += (sender, e) => {
@@ -287,14 +276,13 @@ namespace MonoDevelop.Inspector
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
-            toolbarWindow.HoverSelectionStarted += (sender, e) =>
-            {
+			toolbarWindow.HoverSelectionStarted += (sender, e) => {
 				toolbarWindow.InspectButtonEnabled = false;
-				Delegate.StartHoverSelection(selectedWindow);
-                selectedWindow.Focus();
-            };
+				Delegate.StartHoverSelection (selectedWindow);
+				selectedWindow.Focus ();
+			};
 
-            toolbarWindow.NextKeyViewLoop += (sender, e) => {
+			toolbarWindow.NextKeyViewLoop += (sender, e) => {
 				IsNextResponderOverlayVisible = e;
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
@@ -304,13 +292,12 @@ namespace MonoDevelop.Inspector
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
 
-			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
-			{
+			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) => {
 				if (e == null) {
 					return;
 				}
 				IsFirstResponderOverlayVisible = true;
-				ChangeFocusedView(e);
+				ChangeFocusedView (e);
 			};
 
 			Delegate.HoverSelectionEnded += (sender, e) => {
@@ -337,90 +324,82 @@ namespace MonoDevelop.Inspector
 			accessibilityService.ScanErrors (Delegate, selectedWindow, ViewMode);
 		}
 
-        void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
-        {
-            if (SelectedView == null) {
-                return;
-            }
-            Delegate.CreateItem(SelectedView, e);
-            RefreshNeeded();
-        }
+		void InspectorWindow_RaiseInsertItem (object sender, ToolbarView e)
+		{
+			if (SelectedView == null) {
+				return;
+			}
+			Delegate.CreateItem (SelectedView, e);
+			RefreshNeeded ();
+		}
 
 		void RemoveView (INativeObject toRemove)
 		{
-            IViewWrapper parent = null;
-            if (toRemove is IViewWrapper viewWrapper) {
-                parent = viewWrapper?.PreviousValidKeyView;
-                viewWrapper.RemoveFromSuperview();
-            } else if (toRemove is IConstrainWrapper constrainWrapper)
-            {
-                parent = constrainWrapper?.PreviousValidKeyView;
-                constrainWrapper.RemoveFromSuperview();
-            }
-            else if (toRemove is IConstrainContainerWrapper constrainContainerWrapper)
-            {
-                parent = constrainContainerWrapper?.PreviousValidKeyView;
-                constrainContainerWrapper.RemoveFromSuperview();
-            }
+			IViewWrapper parent = null;
+			if (toRemove is IViewWrapper viewWrapper) {
+				parent = viewWrapper?.PreviousValidKeyView;
+				viewWrapper.RemoveFromSuperview ();
+			} else if (toRemove is IConstrainWrapper constrainWrapper) {
+				parent = constrainWrapper?.PreviousValidKeyView;
+				constrainWrapper.RemoveFromSuperview ();
+			} else if (toRemove is IConstrainContainerWrapper constrainContainerWrapper) {
+				parent = constrainContainerWrapper?.PreviousValidKeyView;
+				constrainContainerWrapper.RemoveFromSuperview ();
+			}
 
 			if (parent != null) {
 				ChangeFocusedView (parent);
 				parent.MakeFirstResponder ();
 			}
-            RefreshNeeded();
-        }
+			RefreshNeeded ();
+		}
 
-        void RefreshNeeded ()
-        {
-            AccessibilityService.Current.ScanErrors(Delegate, selectedWindow, ViewMode);
-        }
+		void RefreshNeeded ()
+		{
+			AccessibilityService.Current.ScanErrors (Delegate, selectedWindow, ViewMode);
+		}
 
 		void OnRespositionViews (object sender, EventArgs e)
 		{
-            var currentWidth = selectedWindow.FrameWidth;
-            toolbarWindow.SetContentSize( ToolbarWindowWidth, ToolbarWindowHeight);
+			var currentWidth = selectedWindow.FrameWidth;
+			toolbarWindow.SetContentSize (ToolbarWindowWidth, ToolbarWindowHeight);
 
-            inspectorWindow.AlignRight (selectedWindow, WindowMargin);
-			accessibilityWindow.AlignLeft(selectedWindow, WindowMargin);
+			inspectorWindow.AlignRight (selectedWindow, WindowMargin);
+			accessibilityWindow.AlignLeft (selectedWindow, WindowMargin);
 			toolbarWindow.AlignTop (selectedWindow, WindowMargin);
 			RefreshOverlaysVisibility ();
 		}
 
-        void ShowHideInspectorWindow (bool value)
+		void ShowHideInspectorWindow (bool value)
 		{
 			if (value) {
 				if (!inspectorWindow.HasParentWindow) {
 					selectedWindow.AddChildWindow (inspectorWindow);
-					selectedWindow.AddChildWindow(toolbarWindow);
+					selectedWindow.AddChildWindow (toolbarWindow);
 					RefreshWindows ();
 				}
-			}
-			else {
-				toolbarWindow?.Close();
+			} else {
+				toolbarWindow?.Close ();
 				inspectorWindow?.Close ();
 			}
 		}
 
-        void ShowHideAccessibilityWindow(bool value)
-        {
-            if (value)
-            {
-                if (!accessibilityWindow.HasParentWindow)
-                {
-                    selectedWindow.AddChildWindow(accessibilityWindow);
-                    RefreshWindows();
-                }
-            }
-            else
-            {
-                accessibilityWindow?.Close();
-            }
-        }
-
-        void RefreshWindows ()
+		void ShowHideAccessibilityWindow (bool value)
 		{
-			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
-			inspectorWindow.AlignRight(selectedWindow, WindowMargin);
+			if (value) {
+				if (!accessibilityWindow.HasParentWindow) {
+					selectedWindow.AddChildWindow (accessibilityWindow);
+					RefreshWindows ();
+				}
+			} else {
+				accessibilityWindow?.Close ();
+			}
+		}
+
+		void RefreshWindows ()
+		{
+			toolbarWindow.AlignTop (selectedWindow, WindowMargin);
+			inspectorWindow.AlignRight (selectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft (selectedWindow, WindowMargin);
 			inspectorWindow.GenerateStatusView (SelectedView, Delegate, ViewMode);
 		}
@@ -429,28 +408,27 @@ namespace MonoDevelop.Inspector
 		{
 			var submenu = Submenu;
 			if (submenu == null) {
-				using (EventLog eventLog = new EventLog("Application"))
-				{
+				using (EventLog eventLog = new EventLog ("Application")) {
 					eventLog.Source = "Application";
-					eventLog.WriteEntry("Submenu is null in Accessibility Inspector", EventLogEntryType.Error, 101, 1);
+					eventLog.WriteEntry ("Submenu is null in Accessibility Inspector", EventLogEntryType.Error, 101, 1);
 				}
 				return;
 			}
 
-			Delegate.ClearSubmenuItems(menuItems, submenu);
-			menuItems.Clear();
+			Delegate.ClearSubmenuItems (menuItems, submenu);
+			menuItems.Clear ();
 
-            int menuCount = 0;
+			int menuCount = 0;
 
-            var menuItem = Delegate.CreateMenuItem(string.Format("{0} v{1}", Name, GetAssemblyVersion()), null);
-            menuItems.Add(menuItem);
+			var menuItem = Delegate.CreateMenuItem (string.Format ("{0} v{1}", Name, GetAssemblyVersion ()), null);
+			menuItems.Add (menuItem);
 
-            inspectorMenuItem = Delegate.GetShowInspectorWindowMenuItem (ShowHideInspectorWindow);
-            accessibilityMenuItem = Delegate.GetShowAccessibilityWindowMenuItem(ShowHideAccessibilityWindow);
+			inspectorMenuItem = Delegate.GetShowInspectorWindowMenuItem (ShowHideInspectorWindow);
+			accessibilityMenuItem = Delegate.GetShowAccessibilityWindowMenuItem (ShowHideAccessibilityWindow);
 
-            menuItems.Add(accessibilityMenuItem);
-            menuItems.Add(inspectorMenuItem);
-            menuItems.Add(Delegate.GetSeparatorMenuItem());
+			menuItems.Add (accessibilityMenuItem);
+			menuItems.Add (inspectorMenuItem);
+			menuItems.Add (Delegate.GetSeparatorMenuItem ());
 
 			foreach (var item in menuItems) {
 				submenu.InsertItem (item, menuCount++);
@@ -459,18 +437,18 @@ namespace MonoDevelop.Inspector
 
 		void ShowHideInspectorWindow (object sender, EventArgs e)
 		{
-            inspectorMenuItem.SetTitle(string.Format("{0} Inspector Window", ToMenuAction(inspectorWindow.HasParentWindow)));
-            ShowHideInspectorWindow(!inspectorWindow.HasParentWindow);
-			
+			inspectorMenuItem.SetTitle (string.Format ("{0} Inspector Window", ToMenuAction (inspectorWindow.HasParentWindow)));
+			ShowHideInspectorWindow (!inspectorWindow.HasParentWindow);
+
 		}
 
-        void ShowHideAccessibilityWindow(object sender, EventArgs e)
-        {
-            accessibilityMenuItem.SetTitle(string.Format("{0} Accessibility Window", ToMenuAction(accessibilityWindow.HasParentWindow)));
-            ShowHideAccessibilityWindow(!accessibilityWindow.HasParentWindow);
-        }
+		void ShowHideAccessibilityWindow (object sender, EventArgs e)
+		{
+			accessibilityMenuItem.SetTitle (string.Format ("{0} Accessibility Window", ToMenuAction (accessibilityWindow.HasParentWindow)));
+			ShowHideAccessibilityWindow (!accessibilityWindow.HasParentWindow);
+		}
 
-        string ToMenuAction (bool value) => value ? "Show" : "Hide";
+		string ToMenuAction (bool value) => value ? "Show" : "Hide";
 
 		public event EventHandler<IViewWrapper> FocusedViewChanged;
 
@@ -481,17 +459,16 @@ namespace MonoDevelop.Inspector
 				return;
 			}
 
-            nativeObject = nextView;
-            nextKeyView = SelectedView?.NextValidKeyView;
-            previousKeyView = SelectedView?.PreviousValidKeyView;
+			nativeObject = nextView;
+			nextKeyView = SelectedView?.NextValidKeyView;
+			previousKeyView = SelectedView?.PreviousValidKeyView;
 
 			RefreshWindows ();
-            RefreshOverlaysVisibility();
+			RefreshOverlaysVisibility ();
 
-            if (SelectedView != null)
-            {
-                toolbarWindow.ChangeView(this, SelectedView);
-                FocusedViewChanged?.Invoke(this, SelectedView);
+			if (SelectedView != null) {
+				toolbarWindow.ChangeView (this, SelectedView);
+				FocusedViewChanged?.Invoke (this, SelectedView);
 
 			}
 		}
@@ -510,7 +487,7 @@ namespace MonoDevelop.Inspector
 			debugNextOverlayWindow?.Close ();
 			debugPreviousOverlayWindow?.Close ();
 			inspectorWindow?.Close ();
-			accessibilityWindow?.Close();
+			accessibilityWindow?.Close ();
 		}
 	}
 }

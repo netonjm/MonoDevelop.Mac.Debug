@@ -46,51 +46,51 @@ namespace MonoDevelop.Inspector.Mac
 	{
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
-        public event EventHandler HoverSelectionStarted;
-        public event EventHandler<bool> PreviousKeyViewLoop;
+		public event EventHandler HoverSelectionStarted;
+		public event EventHandler<bool> PreviousKeyViewLoop;
 		public event EventHandler<bool> ThemeChanged;
 
-        public event EventHandler ItemDeleted;
+		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
 		public event EventHandler<FontData> FontChanged;
-        public event EventHandler<CultureInfo> CultureChanged;
+		public event EventHandler<CultureInfo> CultureChanged;
 
-        public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
+		public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 
-        const int MenuItemSeparation = 3;
+		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
 		readonly NSStackView stackView;
-        readonly NSStackView secondStackView;
-        readonly IInspectDelegate inspectDelegate;
+		readonly NSStackView secondStackView;
+		readonly IInspectDelegate inspectDelegate;
 
-        readonly ToggleButton toolkitButton;
+		readonly ToggleButton toolkitButton;
 
 		NSButton inspectViewButton;
 
-        NSView rescanSeparator;
-      
-        public void ShowToolkit (bool value)
-        {
-            if (!value) {
-                toolkitButton.RemoveFromSuperview();
-                rescanSeparator.RemoveFromSuperview();
-            } else {
-                if (!stackView.Subviews.Contains (toolkitButton)){
-                    stackView.AddArrangedSubview(toolkitButton);
-                    stackView.AddArrangedSubview(rescanSeparator);
-                } 
-            } 
-        }
+		NSView rescanSeparator;
+
+		public void ShowToolkit (bool value)
+		{
+			if (!value) {
+				toolkitButton.RemoveFromSuperview ();
+				rescanSeparator.RemoveFromSuperview ();
+			} else {
+				if (!stackView.Subviews.Contains (toolkitButton)) {
+					stackView.AddArrangedSubview (toolkitButton);
+					stackView.AddArrangedSubview (rescanSeparator);
+				}
+			}
+		}
 
 		public bool InspectButtonEnabled {
 			get => inspectViewButton.Enabled;
 			set => inspectViewButton.Enabled = value;
 		}
 
-		public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
-        {
-            this.inspectDelegate = inspectDelegate;
+		public MacToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base (frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
+		{
+			this.inspectDelegate = inspectDelegate;
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
 			TitlebarAppearsTransparent = true;
@@ -98,258 +98,236 @@ namespace MonoDevelop.Inspector.Mac
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-            NSStackView verticalStackView;
-            ContentView = verticalStackView = NativeViewHelper.CreateVerticalStackView (MenuItemSeparation);
+			NSStackView verticalStackView;
+			ContentView = verticalStackView = NativeViewHelper.CreateVerticalStackView (MenuItemSeparation);
 
-            stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
-            verticalStackView.AddArrangedSubview (stackView);
+			stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
+			verticalStackView.AddArrangedSubview (stackView);
 
-            stackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
-            stackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
+			stackView.LeftAnchor.ConstraintEqualToAnchor (verticalStackView.LeftAnchor, 10).Active = true;
+			stackView.RightAnchor.ConstraintEqualToAnchor (verticalStackView.RightAnchor, 10).Active = true;
 
-            secondStackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
-            verticalStackView.AddArrangedSubview(secondStackView);
+			secondStackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
+			verticalStackView.AddArrangedSubview (secondStackView);
 
-            secondStackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
-            secondStackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
+			secondStackView.LeftAnchor.ConstraintEqualToAnchor (verticalStackView.LeftAnchor, 10).Active = true;
+			secondStackView.RightAnchor.ConstraintEqualToAnchor (verticalStackView.RightAnchor, 10).Active = true;
 
-            //Visual issues view
-            var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-previous.png").NativeObject;
-            var keyViewLoopButton = new ToggleButton() { Image = actualImage };
+			//Visual issues view
+			var actualImage = (NSImage)inspectDelegate.GetImageResource ("overlay-previous.png").NativeObject;
+			var keyViewLoopButton = new ToggleButton () { Image = actualImage };
 			keyViewLoopButton.ToolTip = "Shows current focused item";
 			AddButton (keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
-				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
+				KeyViewLoop?.Invoke (this, keyViewLoopButton.IsToggled);
 			};
 
-            var previousImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
-            var prevKeyViewLoopButton = new ToggleButton() { Image = previousImage }; 
+			var previousImage = (NSImage)inspectDelegate.GetImageResource ("overlay-actual.png").NativeObject;
+			var prevKeyViewLoopButton = new ToggleButton () { Image = previousImage };
 			prevKeyViewLoopButton.ToolTip = "Shows previous view item";
 			AddButton (prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
-				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
+				PreviousKeyViewLoop?.Invoke (this, prevKeyViewLoopButton.IsToggled);
 			};
 
-            var nextImage = (NSImage)inspectDelegate.GetImageResource("overlay-next.png").NativeObject;
-            var nextKeyViewLoopButton = new ToggleButton() { Image = nextImage };
+			var nextImage = (NSImage)inspectDelegate.GetImageResource ("overlay-next.png").NativeObject;
+			var nextKeyViewLoopButton = new ToggleButton () { Image = nextImage };
 			nextKeyViewLoopButton.ToolTip = "Shows next view item";
 			AddButton (nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
-				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
+				NextKeyViewLoop?.Invoke (this, nextKeyViewLoopButton.IsToggled);
 			};
 
-            AddSeparator();
+			AddSeparator ();
 
-            inspectViewButton = new NSButton { Image = (NSImage)inspectDelegate.GetImageResource ("pad-breakpoints-16.png").NativeObject };
+			inspectViewButton = new NSButton { Image = (NSImage)inspectDelegate.GetImageResource ("pad-breakpoints-16.png").NativeObject };
 			inspectViewButton.BezelStyle = NSBezelStyle.Rounded;
 			inspectViewButton.ToolTip = "Inspect a view";
-            AddButton(inspectViewButton);
-            inspectViewButton.Activated += (s, e) => {
-                HoverSelectionStarted?.Invoke(this, EventArgs.Empty);
-            };
-            AddSeparator();
+			AddButton (inspectViewButton);
+			inspectViewButton.Activated += (s, e) => {
+				HoverSelectionStarted?.Invoke (this, EventArgs.Empty);
+			};
+			AddSeparator ();
 
-            var rescanImage = (NSImage)inspectDelegate.GetImageResource("rescan-16.png").NativeObject;
-            toolkitButton = new ToggleButton { Image = rescanImage };
+			var rescanImage = (NSImage)inspectDelegate.GetImageResource ("rescan-16.png").NativeObject;
+			toolkitButton = new ToggleButton { Image = rescanImage };
 			toolkitButton.ToolTip = "Change beetween Toolkits";
 			AddButton (toolkitButton);
-			toolkitButton.Activated += ToolkitButton_Activated;;
+			toolkitButton.Activated += ToolkitButton_Activated; ;
 
-            rescanSeparator = AddSeparator ();
+			rescanSeparator = AddSeparator ();
 
-            var themeImage = (NSImage)inspectDelegate.GetImageResource("style-16.png").NativeObject;
-            var themeButton = new ToggleButton { Image = themeImage }; 
+			var themeImage = (NSImage)inspectDelegate.GetImageResource ("style-16.png").NativeObject;
+			var themeButton = new ToggleButton { Image = themeImage };
 			themeButton.ToolTip = "Change Style Theme";
 			AddButton (themeButton);
 			themeButton.Activated += ThemeButton_Activated;
 
 			AddSeparator ();
 
-            var deleteImage = (NSImage)inspectDelegate.GetImageResource("delete-16.png").NativeObject;
-            deleteButton = new ImageButton();
+			var deleteImage = (NSImage)inspectDelegate.GetImageResource ("delete-16.png").NativeObject;
+			deleteButton = new ImageButton ();
 			deleteButton.Image = deleteImage;
 			deleteButton.ToolTip = "Delete selected item";
 			AddButton (deleteButton);
-			deleteButton.Activated += (s,e) =>
-			{
-				ItemDeleted?.Invoke(this, EventArgs.Empty);
+			deleteButton.Activated += (s, e) => {
+				ItemDeleted?.Invoke (this, EventArgs.Empty);
 			};
 
-            var changeImg = (NSImage)inspectDelegate.GetImageResource("image-16.png").NativeObject;
-			changeImage = new ImageButton();
+			var changeImg = (NSImage)inspectDelegate.GetImageResource ("image-16.png").NativeObject;
+			changeImage = new ImageButton ();
 			changeImage.Image = changeImg;
 			changeImage.ToolTip = "Change image from selected item";
 			AddButton (changeImage);
 
-			changeImage.Activated += (s, e) =>
-			{
-				ItemImageChanged?.Invoke(this, EventArgs.Empty);
+			changeImage.Activated += (s, e) => {
+				ItemImageChanged?.Invoke (this, EventArgs.Empty);
 			};
 
-            AddSeparator();
+			AddSeparator ();
 
-            languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
-            languagesComboBox.ToolTip = "Change font from selected item";
-       
-            cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            var culturesStr = new NSString[cultureInfos.Length];
+			languagesComboBox = new NSComboBox () { TranslatesAutoresizingMaskIntoConstraints = false };
+			languagesComboBox.ToolTip = "Change font from selected item";
 
-            NSString selected = null;
-            for (int i = 0; i < cultureInfos.Length; i++)
-            {
-                culturesStr[i] = new NSString(cultureInfos[i].DisplayName);
-                if (i == 0 || cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
-                {
-                    selected = culturesStr[i];
-                }
-            }
+			cultureInfos = CultureInfo.GetCultures (CultureTypes.AllCultures);
+			var culturesStr = new NSString[cultureInfos.Length];
 
-            languagesComboBox.Add(culturesStr);
-            stackView.AddArrangedSubview(languagesComboBox);
+			NSString selected = null;
+			for (int i = 0; i < cultureInfos.Length; i++) {
+				culturesStr[i] = new NSString (cultureInfos[i].DisplayName);
+				if (i == 0 || cultureInfos[i] == Thread.CurrentThread.CurrentUICulture) {
+					selected = culturesStr[i];
+				}
+			}
 
-            languagesComboBox.Select(selected);
+			languagesComboBox.Add (culturesStr);
+			stackView.AddArrangedSubview (languagesComboBox);
 
-            languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
-            languagesComboBox.SelectionChanged  += LanguagesComboBox_SelectionChanged;
-            languagesComboBox.WidthAnchor.ConstraintLessThanOrEqualToConstant(220).Active = true;
+			languagesComboBox.Select (selected);
 
-            //FONTS 
+			languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
+			languagesComboBox.SelectionChanged += LanguagesComboBox_SelectionChanged;
+			languagesComboBox.WidthAnchor.ConstraintLessThanOrEqualToConstant (220).Active = true;
 
-            fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+			//FONTS 
+
+			fontsCombobox = new NSComboBox () { TranslatesAutoresizingMaskIntoConstraints = false };
 			fontsCombobox.ToolTip = "Change font from selected item";
 			fonts = NSFontManager.SharedFontManager.AvailableFonts
-				.Select (s => new NSString(s))
+				.Select (s => new NSString (s))
 				.ToArray ();
 
-			fontsCombobox.Add(fonts);
-            fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualToConstant(220).Active = true;
-		
-			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fontsCombobox.Add (fonts);
+			fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualToConstant (220).Active = true;
+
+			fontSizeTextView = new NSTextField () { TranslatesAutoresizingMaskIntoConstraints = false };
 			fontSizeTextView.ToolTip = "Change font size from selected item";
-            fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
+			fontSizeTextView.WidthAnchor.ConstraintEqualToConstant (40).Active = true;
 
 			fontsCombobox.SelectionChanged += (s, e) => {
-				OnFontChanged();
+				OnFontChanged ();
 			};
 
 			fontSizeTextView.Activated += (s, e) => {
-				OnFontChanged();
+				OnFontChanged ();
 			};
 
-            endSpace = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
+			endSpace = new NSView () { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            //stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
-        }
+			//stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+		}
 
-        NSView endSpace;
+		NSView endSpace;
 
-        int GetSelectedLanguage ()
-        {
-            for (int i = 0; i < cultureInfos.Length; i++)
-            {
-                if (cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
+		int GetSelectedLanguage ()
+		{
+			for (int i = 0; i < cultureInfos.Length; i++) {
+				if (cultureInfos[i] == Thread.CurrentThread.CurrentUICulture) {
+					return i;
+				}
+			}
+			return 0;
+		}
 
-        CultureInfo[] cultureInfos;
-        NSComboBox languagesComboBox;
-        void LanguagesComboBox_SelectionChanged(object sender, EventArgs e)
-        {
-            var currentIndex = (int)languagesComboBox.SelectedIndex;
-            if (currentIndex > -1)
-            {
-                var selected = cultureInfos[currentIndex];
-                CultureChanged?.Invoke(this, selected);
-            }
-        }
+		CultureInfo[] cultureInfos;
+		NSComboBox languagesComboBox;
+		void LanguagesComboBox_SelectionChanged (object sender, EventArgs e)
+		{
+			var currentIndex = (int)languagesComboBox.SelectedIndex;
+			if (currentIndex > -1) {
+				var selected = cultureInfos[currentIndex];
+				CultureChanged?.Invoke (this, selected);
+			}
+		}
 
 		bool handleChange;
 
-        public void ChangeView (InspectorManager manager, IViewWrapper viewWrapper)
-        {
+		public void ChangeView (InspectorManager manager, IViewWrapper viewWrapper)
+		{
 			handleChange = true;
 
 			bool showImage = false;
-            bool showFont = false;
-            //NSPopUpButton
-            var fontData = manager.Delegate.GetFont(viewWrapper);
-            if (fontData?.Font != null)
-            {
-                var currentFontName = ((NSFont)fontData.Font.NativeObject).FontName;
-                if (currentFontName == ".AppleSystemUIFont")
-                {
-                    currentFontName = "HelveticaNeue";
-                }
-                var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
-                fontsCombobox.Select(name);
+			bool showFont = false;
+			//NSPopUpButton
+			var fontData = manager.Delegate.GetFont (viewWrapper);
+			if (fontData?.Font != null) {
+				var currentFontName = ((NSFont)fontData.Font.NativeObject).FontName;
+				if (currentFontName == ".AppleSystemUIFont") {
+					currentFontName = "HelveticaNeue";
+				}
+				var name = fonts.FirstOrDefault (s => s.ToString () == currentFontName);
+				fontsCombobox.Select (name);
 
-                fontSizeTextView.IntValue = (int)fontData.Size;
-                showFont = true;
-            }
+				fontSizeTextView.IntValue = (int)fontData.Size;
+				showFont = true;
+			}
 
-            if (viewWrapper.NativeObject is NSImageView || viewWrapper.NativeObject is NSButton)
-            {
-                showImage = true;
-            }
+			if (viewWrapper.NativeObject is NSImageView || viewWrapper.NativeObject is NSButton) {
+				showImage = true;
+			}
 
-            imageButtonVisible = showImage;
-            fontButtonsVisible = showFont;
+			imageButtonVisible = showImage;
+			fontButtonsVisible = showFont;
 
 			handleChange = false;
 
 		}
 
-        void ToolkitButton_Activated (object sender, EventArgs e)
+		void ToolkitButton_Activated (object sender, EventArgs e)
 		{
 			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
 		}
 
-		bool fontButtonsVisible
-		{
-			get => stackView.Subviews.Contains(fontsCombobox);
-			set
-			{
-				if (fontButtonsVisible == value)
-				{
+		bool fontButtonsVisible {
+			get => stackView.Subviews.Contains (fontsCombobox);
+			set {
+				if (fontButtonsVisible == value) {
 					return;
 				}
 
-				if (value)
-				{
-					secondStackView.AddArrangedSubview(fontsCombobox);
-                    secondStackView.AddArrangedSubview(fontSizeTextView);
-                    secondStackView.AddArrangedSubview(endSpace);
+				if (value) {
+					secondStackView.AddArrangedSubview (fontsCombobox);
+					secondStackView.AddArrangedSubview (fontSizeTextView);
+					secondStackView.AddArrangedSubview (endSpace);
+				} else {
+					fontSizeTextView.RemoveFromSuperview ();
+					fontsCombobox.RemoveFromSuperview ();
+					endSpace.RemoveFromSuperview ();
 				}
-				else
-				{
-					fontSizeTextView.RemoveFromSuperview();
-					fontsCombobox.RemoveFromSuperview();
-                    endSpace.RemoveFromSuperview();
-                }
 			}
 		}
 
-		bool imageButtonVisible
-		{
-			get => stackView.Subviews.Contains(changeImage);
-			set
-			{
-				if (imageButtonVisible == value)
-				{
+		bool imageButtonVisible {
+			get => stackView.Subviews.Contains (changeImage);
+			set {
+				if (imageButtonVisible == value) {
 					return;
 				}
 
-				if (value)
-				{
-					stackView.AddArrangedSubview(changeImage);
-				}
-				else
-				{
-					changeImage.RemoveFromSuperview();
+				if (value) {
+					stackView.AddArrangedSubview (changeImage);
+				} else {
+					changeImage.RemoveFromSuperview ();
 				}
 			}
 		}
@@ -360,12 +338,11 @@ namespace MonoDevelop.Inspector.Mac
 				return;
 			}
 			var currentIndex = (int)fontsCombobox.SelectedIndex;
-			if (currentIndex >= -1)
-			{
-				var selected = fonts[currentIndex].ToString();
+			if (currentIndex >= -1) {
+				var selected = fonts[currentIndex].ToString ();
 				var fontSize = fontSizeTextView.IntValue;
-                IFontWrapper font = inspectDelegate.GetFromName(selected, fontSize);
-                FontChanged?.Invoke(this, new FontData (font, fontSize));
+				IFontWrapper font = inspectDelegate.GetFromName (selected, fontSize);
+				FontChanged?.Invoke (this, new FontData (font, fontSize));
 			}
 		}
 
@@ -377,8 +354,7 @@ namespace MonoDevelop.Inspector.Mac
 
 		ImageButton deleteButton, changeImage;
 
-		public bool ImageChangedEnabled
-		{
+		public bool ImageChangedEnabled {
 			get => changeImage.Enabled;
 			set => changeImage.Enabled = value;
 		}
@@ -390,12 +366,12 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
-        NSView AddSeparator ()
-        {
-            var separator = new VerticalSeparator();
-            stackView.AddArrangedSubview(separator);
-            return separator;
-        }  
+		NSView AddSeparator ()
+		{
+			var separator = new VerticalSeparator ();
+			stackView.AddArrangedSubview (separator);
+			return separator;
+		}
 
 		void AddButton (NSButton view)
 		{
