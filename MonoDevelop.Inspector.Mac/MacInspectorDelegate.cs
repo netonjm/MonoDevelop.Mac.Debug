@@ -568,7 +568,9 @@ namespace MonoDevelop.Inspector.Mac
             }
             else
             {
-                if (createdObject is NSTabViewItem tabViewItem && nativeView is NSTabView tabView)
+				if (e == ToolbarView.ComboBoxItem && nativeView is NSComboBox comboBox) {
+					comboBox.Insert (new NSString ("Item"), comboBox.Count);
+				} else if (createdObject is NSTabViewItem tabViewItem && nativeView is NSTabView tabView)
                 {
                     tabView.Add(tabViewItem);
                 }
@@ -585,7 +587,9 @@ namespace MonoDevelop.Inspector.Mac
                     return new NSDatePicker();
                 case ToolbarView.ImageBox:
                     return new NSImageView() { Frame = new CGRect(0, 0, 200, 20) };
-                case ToolbarView.Label:
+				case ToolbarView.TextField:
+					return new NSTextField ();
+				case ToolbarView.Label:
                     return NativeViewHelper.CreateLabel("Label");
                 case ToolbarView.WrappingLabel:
                     var label = NativeViewHelper.CreateLabel("Label");
@@ -614,7 +618,9 @@ namespace MonoDevelop.Inspector.Mac
                     return segmented;
                 case ToolbarView.TabViewItem:
                     return new NSTabViewItem() { Label = "Item" };
-                case ToolbarView.ScrollView:
+				case ToolbarView.ComboBoxItem:
+					return null;
+				case ToolbarView.ScrollView:
                     var scrollView = new NSScrollView() { Frame = new CGRect (0,0,300,300), HasVerticalScroller = true, HasHorizontalScroller = true };
 					scrollView.ScrollerStyle = NSScrollerStyle.Legacy;
 					scrollView.DocumentView = new NSView ();

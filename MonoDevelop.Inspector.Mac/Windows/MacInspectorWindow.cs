@@ -239,31 +239,29 @@ namespace MonoDevelop.Inspector.Mac
             toolbarView.RegisterClassForItem(typeof(MacInspectorToolbarImageCollectionViewItem), MacInspectorToolbarImageCollectionViewItem.Name);
 
             var toolbarItem = new CollectionHeaderItem() { Label = "Main" };
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.DatePicker, Image = inspectorDelegate.GetImageResource("view_dateView.png"), Label = "Date Picker", Description = "Provides for visually display and editing an NSDate instance." });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.WrappingLabel, Image = inspectorDelegate.GetImageResource("view_multiline.png"), Label = "Wrapping Label", Description = "Display static text that line wraps as needed." });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ScrollableTextView, Image = inspectorDelegate.GetImageResource("view_scrollable.png"), Label = "Scrollable Text View", Description = "A text view enclosed in a scroll view. This configuration is suitable for UI elements typically used in inspectors." });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.TextField, Image = inspectorDelegate.GetImageResource("view_textView.png"), Label = "Text Field", Description = "Displays editable text" });
 
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.PushButton, Image = inspectorDelegate.GetImageResource("view_button.png"), Label = "Push Button", Description = "For use un window content areas. Use text, not images." });
+			const string defaultImage = "view_image.png";
 
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.Label, Image = inspectorDelegate.GetImageResource("view_label.png"), Label = "Label", Description = "Display a static text" });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.Search, Image = inspectorDelegate.GetImageResource("view_search.png"), Label = "Search Field", Description = "A text field that is optimized for performing text-based searches" });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ComboBox, Image = inspectorDelegate.GetImageResource("view_combo.png"), Label = "Combo Box", Description = "Allows you to either enter text directly (as you would with NSTextField) or click the attached arrow at the right of the combo box to select from a displayed pop-up" });
+			AddToolbarItem (toolbarItem, ToolbarView.DatePicker, "view_dateView.png", "Date Picker", "Provides for visually display and editing an NSDate instance.");
+			AddToolbarItem (toolbarItem, ToolbarView.WrappingLabel, "view_multiline.png", "Wrapping Label", "Display static text that line wraps as needed.");
+			AddToolbarItem (toolbarItem, ToolbarView.ScrollableTextView, "view_scrollable.png", "Scrollable Text View", "A text view enclosed in a scroll view. This configuration is suitable for UI elements typically used in inspectors.");
+			AddToolbarItem (toolbarItem, ToolbarView.TextField, "view_textView.png", "Text Field", "Displays editable text");
+			AddToolbarItem (toolbarItem, ToolbarView.PushButton, "view_button.png", "Push Button", "For use un window content areas. Use text, not images.");
+			AddToolbarItem (toolbarItem, ToolbarView.Label, "view_label.png", "Label", "Display a static text.");
+			AddToolbarItem (toolbarItem, ToolbarView.Search, "view_search.png", "Search Field", "A text field that is optimized for performing text-based searches");
+			AddToolbarItem (toolbarItem, ToolbarView.ComboBox, "view_combo.png", "Combo Box", "Allows you to either enter text directly (as you would with NSTextField) or click the attached arrow at the right of the combo box to select from a displayed pop-up");
+			AddToolbarItem (toolbarItem, ToolbarView.ImageBox, "view_image.png", "Image Box Control", "For use in window content areas or toolbar");
 
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ImageBox, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Image Button", Description = "For use in window content areas or toolbar" });
-
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.ScrollView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "ScrollView", Description = "Scroll view container" });
-
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.CustomView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Custom View", Description = "Custom view container" });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.SegmentedControl, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Segmented Control", Description = "Segmented control view" });
-
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.Box, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Box Control", Description = "Box control view" });
-
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.TabView, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Tab View Control", Description = "TabView control" });
-            toolbarItem.Items.Add(new CollectionItem() { TypeOfView = ToolbarView.TabViewItem, Image = inspectorDelegate.GetImageResource("view_image.png"), Label = "Tab View Item Control", Description = "Tab View Item control" });
+			AddToolbarItem (toolbarItem, ToolbarView.ComboBoxItem, defaultImage, "Combo Box Item", "Adds a sample item to a ComboBox view");
+			AddToolbarItem (toolbarItem, ToolbarView.ScrollView, defaultImage, "Scroll View Control");
+			AddToolbarItem (toolbarItem, ToolbarView.CustomView, defaultImage, "CustomView Control");
+			AddToolbarItem (toolbarItem, ToolbarView.SegmentedControl, defaultImage, "Segmented Control");
+			AddToolbarItem (toolbarItem, ToolbarView.Box, defaultImage, "Box Control");
+			AddToolbarItem (toolbarItem, ToolbarView.TabView, defaultImage, "Tab View Control");
+			AddToolbarItem (toolbarItem, ToolbarView.TabViewItem, defaultImage, "Tab View Item Control");
 
 
-            toolbarData.Add(toolbarItem);
+			toolbarData.Add(toolbarItem);
 
             Search();
 
@@ -273,6 +271,11 @@ namespace MonoDevelop.Inspector.Mac
 				}
 				mod.Load (toolbarTabViewWrapper);
 			}
+		}
+
+		void AddToolbarItem (CollectionHeaderItem item, ToolbarView type, string image, string label, string description = null)
+		{
+			item.Items.Add (new CollectionItem () { TypeOfView = type, Image = inspectorDelegate.GetImageResource (image), Label = label, Description = description ?? label});
 		}
 
 		NSSearchField toolbarSearchTextField;
@@ -316,11 +319,10 @@ namespace MonoDevelop.Inspector.Mac
 			data = new NodeView(window.ContentView);
             inspectorDelegate.ConvertToNodes(window.ContentView, new MacNodeWrapper(data), viewMode);
             outlineView.SetData(data);
-
-			outlineView.SelectedNode = selected;
+			//outlineView.SelectedNode = selected;
 		}
 
-        NSTextField resultMessage;
+		NSTextField resultMessage;
 
         void InvokeSelectedView()
         {

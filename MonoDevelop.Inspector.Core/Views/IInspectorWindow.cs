@@ -12,13 +12,14 @@ namespace MonoDevelop.Inspector
         Label,
         Search,
         ComboBox,
+		ComboBoxItem,
         ImageBox,
         ScrollView,
         CustomView,
         SegmentedControl,
         Box,
         TabView,
-        TabViewItem
+        TabViewItem,
     }
 
 	public interface IInspectorManagerWindow : IWindowWrapper
