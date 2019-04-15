@@ -4,12 +4,39 @@ using AppKit;
 using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
-using Xamarin.PropertyEditing.Themes;
 using Foundation;
 using System.Linq;
 
 namespace MonoDevelop.Inspector.Mac
 {
+	internal class MonoDevelopHostResourceProvider : IHostResourceProvider
+	{
+		public MonoDevelopHostResourceProvider ()
+		{
+			//CurrentAppearance = NSAppearance.CurrentAppearance;
+		}
+
+		public NSColor GetNamedColor (string name)
+		{
+			return NSColor.Red;
+		}
+
+		public NSFont GetNamedFont (string name, nfloat fontSize)
+		{
+			return NSFont.BoldSystemFontOfSize (12);
+		}
+
+		public NSImage GetNamedImage (string name)
+		{
+			return new NSImage ();
+		}
+
+		public NSAppearance GetVibrantAppearance (NSAppearance appearance)
+		{
+			return NSAppearance.CurrentAppearance;
+		}
+	}
+
 	class InspectorWindow : MacInspectorManagerWindow, IInspectorWindow
 	{
 		const ushort DeleteKey = 51;
@@ -43,8 +70,7 @@ namespace MonoDevelop.Inspector.Mac
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			propertyEditorPanel = new PropertyEditorPanel ();
-
+			propertyEditorPanel = new PropertyEditorPanel (new MonoDevelopHostResourceProvider ());
 			editorProvider = new PropertyEditorProvider ();
 
 			propertyEditorPanel.TargetPlatform = new TargetPlatform (editorProvider) {
@@ -53,7 +79,7 @@ namespace MonoDevelop.Inspector.Mac
 			};
 
 			var currentThemeStyle = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle") ?? "Light";
-			PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+			//PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
 
 			contentView = ContentView;
 
