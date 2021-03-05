@@ -6,4 +6,4 @@
 	url = https://github.com/mono/xwt
 [submodule "external/FigmaSharp"]
 	path = external/FigmaSharp
-	url = https://github.com/netonjm/FigmaSharp
+url=https://github.com/microsoft/FigmaSharp

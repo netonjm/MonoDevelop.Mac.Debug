@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>MonoDevelop.Inspector.Figma.Mac</RootNamespace>
     <AssemblyName>MonoDevelop.Inspector.Figma.Mac</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\FigmaSharp\FigmaSharp\FigmaSharp.csproj">
-      <Project>{AD306162-8DAD-4DBD-B264-BDA8765CC107}</Project>
+      <Project>{AFC86139-5F3E-4F9B-8524-5FA2DC78F4E3}</Project>
       <Name>FigmaSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Cocoa\FigmaSharp.Cocoa.csproj">

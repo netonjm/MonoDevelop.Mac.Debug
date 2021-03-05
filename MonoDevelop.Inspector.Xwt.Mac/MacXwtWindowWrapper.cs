@@ -5,6 +5,7 @@ using System.Linq;
 using CoreGraphics;
 using System.Collections.Generic;
 using System.Globalization;
+using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -54,26 +55,61 @@ namespace MonoDevelop.Inspector.Mac
 		public event EventHandler<CultureInfo> CultureChanged;
 		public event EventHandler BecomeMainWindow;
 
+		class WindowDelegate : NSWindowDelegate
+		{
+			public event EventHandler ResizeRequested;
+			public event EventHandler MovedRequested;
+			public event EventHandler BecomeMainWindow;
+			public event EventHandler BecomeKeyWindow;
+			public event EventHandler LostFocus;
+
+			public override void DidResize(NSNotification notification)
+			{
+				ResizeRequested?.Invoke(this, EventArgs.Empty);
+			}
+			public override void DidMove(NSNotification notification)
+			{
+				MovedRequested?.Invoke(this, EventArgs.Empty);
+			}
+
+			public override void DidBecomeMain(NSNotification notification)
+			{
+				BecomeMainWindow?.Invoke(this, EventArgs.Empty);
+			}
+
+			public override void DidBecomeKey(NSNotification notification)
+			{
+				BecomeKeyWindow?.Invoke(this, EventArgs.Empty);
+			}
+
+			public override void DidResignKey(NSNotification notification)
+			{
+				LostFocus?.Invoke(this, EventArgs.Empty);
+			}
+		}
 		protected override void OnShown ()
 		{
-			Window.DidResize += (s, e) => {
+			var lol = new WindowDelegate();
+			Window.Delegate = lol;
+
+			lol.ResizeRequested += (s, e) => {
 				ResizeRequested?.Invoke (this, EventArgs.Empty);
 			};
 
-			Window.DidMove += (s, e) => {
+			lol.MovedRequested += (s, e) => {
 				MovedRequested?.Invoke (this, EventArgs.Empty);
 			};
 
-			Window.DidResignKey += (s, e) => {
+			lol.LostFocus += (s, e) => {
 				LostFocus?.Invoke (this, EventArgs.Empty);
 			};
 
-			Window.DidBecomeMain += (s, e) => {
+			lol.BecomeMainWindow += (s, e) => {
 				OnBecomeMainWindow (this, EventArgs.Empty);
 			};
 
-			Window.DidBecomeKey += (sender, e) => {
-
+			lol.BecomeKeyWindow += (sender, e) => {
+				GotFocus?.Invoke(this, EventArgs.Empty);
 			};
 
 			base.OnShown ();

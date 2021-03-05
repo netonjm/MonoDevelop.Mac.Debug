@@ -69,9 +69,9 @@ namespace MonoDevelop.Inspector.Mac
         protected override void OnBecomeMainWindow (object sender, EventArgs args)
 		{
             context.Attach (this);
-		}
+        }
 
-		public override void OnFocusChanged (object focused)
+        public override void OnFocusChanged (object focused)
 		{
 			if (focused is NSView focusedView) {
                

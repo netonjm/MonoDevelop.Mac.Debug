@@ -10,7 +10,7 @@
     <RootNamespace>MonoDevelop.Inspector.XwtMac</RootNamespace>
     <AssemblyName>MonoDevelop.Inspector.XwtMac</AssemblyName>
    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-        <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

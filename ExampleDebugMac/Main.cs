@@ -57,7 +57,7 @@ namespace ExampleDebugMac
             button2.Activated += (sender, e) => {
                 var window = new NSWindow() { StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable };
                 var stack = NativeViewHelper.CreateHorizontalStackView();
-                var label = NativeViewHelper.CreateLabel(Strings.HelloText);
+                var label = NativeViewHelper.CreateLabel("hello");
                 stack.AddArrangedSubview(label);
                 window.ContentView = stack;
                 window.WillClose += (sender1, e1) =>
