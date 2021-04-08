@@ -12,7 +12,7 @@ namespace MonoDevelop.Inspector.Mac
 	class MacAccessibilityWindow : MacWindowWrapper, IAccessibilityWindow
 	{
 		const int margin = 10;
-		readonly NSStackView contentView;
+		readonly NSStackView container;
 
 		public event EventHandler<IViewWrapper> RaiseAccessibilityIssueSelected;
 		public event EventHandler AuditRequested;
@@ -23,13 +23,19 @@ namespace MonoDevelop.Inspector.Mac
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			contentView = NativeViewHelper.CreateVerticalStackView(margin);
-			ContentView = contentView;
-	
+			container = NativeViewHelper.CreateVerticalStackView(margin);
+			container.TranslatesAutoresizingMaskIntoConstraints = false;
+			ContentView.AddSubview (container);
+			container.TopAnchor.ConstraintEqualToAnchor(ContentView.TopAnchor).Active = true;
+			container.LeftAnchor.ConstraintEqualToAnchor(ContentView.LeftAnchor).Active = true;
+			container.RightAnchor.ConstraintEqualToAnchor(ContentView.RightAnchor).Active = true;
+			container.BottomAnchor.ConstraintEqualToAnchor(ContentView.BottomAnchor).Active = true;
+
 			outlineAccessibilityView = new OutlineView();
 		
 			var outlineViewScrollView = new ScrollContainerView(outlineAccessibilityView);
-			contentView.AddArrangedSubview(outlineViewScrollView);
+			outlineViewScrollView.TranslatesAutoresizingMaskIntoConstraints = false;
+			container.AddArrangedSubview(outlineViewScrollView);
 
 			outlineAccessibilityView.SelectionNodeChanged += (s, e) => {
 				if (outlineAccessibilityView.SelectedNode is NodeIssue nodeView) {
@@ -52,14 +58,11 @@ namespace MonoDevelop.Inspector.Mac
 				outlineAccessibilityView.SetData(nodeBase);
 			};
 
-			outlineViewScrollView.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 0).Active = true;
-            outlineViewScrollView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, 0).Active = true;
-            //outlineViewScrollView.HeightAnchor.ConstraintGreaterThanOrEqualToConstant (200).Active = true;
-
             var buttonContainer = NativeViewHelper.CreateHorizontalStackView ();
+			buttonContainer.TranslatesAutoresizingMaskIntoConstraints = false;
 			buttonContainer.Alignment = NSLayoutAttribute.CenterY;
 			buttonContainer.Distribution = NSStackViewDistribution.Fill;
-			contentView.AddArrangedSubview (buttonContainer);
+			container.AddArrangedSubview (buttonContainer);
 		
 			var runAuditButton = NativeViewHelper.CreateButton ("Run Audit");
 			buttonContainer.AddArrangedSubview (runAuditButton);
@@ -71,7 +74,7 @@ namespace MonoDevelop.Inspector.Mac
             var showHideErrorsButton = NativeViewHelper.CreateButton ("Show/Hide Errors");
 			buttonContainer.AddArrangedSubview (showHideErrorsButton);
 
-			contentView.AddArrangedSubview (new NSView () { TranslatesAutoresizingMaskIntoConstraints = false });
+			container.AddArrangedSubview (new NSView () { TranslatesAutoresizingMaskIntoConstraints = false });
 			showHideErrorsButton.Activated += (sender, e) => ShowErrorsRequested?.Invoke (this, EventArgs.Empty);
 			showHideErrorsButton.WidthAnchor.ConstraintEqualToConstant (150).Active = true;
             showHideErrorsButton.HeightAnchor.ConstraintEqualToConstant(40).Active = true;
@@ -84,8 +87,6 @@ namespace MonoDevelop.Inspector.Mac
 				errorLabel.StringValue = string.Format ("{0} errors found.", accessibilityService.IssuesFound);
 			};
 
-			buttonContainer.LeftAnchor.ConstraintEqualToAnchor (contentView.LeftAnchor, 10).Active = true;
-			buttonContainer.RightAnchor.ConstraintEqualToAnchor (contentView.RightAnchor, 10).Active = true;
 			buttonContainer.HeightAnchor.ConstraintEqualToConstant (40).Active = true;
 		}
 

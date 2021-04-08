@@ -47,6 +47,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FigmaSharp.Views.Cocoa", "e
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FigmaSharp", "FigmaSharp", "{03393165-2598-47C7-9B94-B9E1BE340741}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A5949344-A476-4D83-86EB-557CE9F17587}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet\AccessibilityInspectorXwtMac.nuspec = NuGet\AccessibilityInspectorXwtMac.nuspec
+		NuGet\AccessibilityInspectorMac.nuspec = NuGet\AccessibilityInspectorMac.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

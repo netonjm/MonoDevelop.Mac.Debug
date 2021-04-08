@@ -17,6 +17,11 @@ namespace MonoDevelop.Inspector.Mac
 
         public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
 
+        public MacAccInspectorWindow() : base()
+        {
+            Initialize();
+        }
+
         public MacAccInspectorWindow(NSCoder coder) : base(coder)
         {
             Initialize();

@@ -36,7 +36,6 @@ namespace MonoDevelop.Inspector.Mac
 
 		public OutlineView ()
 		{
-			TranslatesAutoresizingMaskIntoConstraints = false;
 			AllowsExpansionToolTips = true;
 			AllowsMultipleSelection = false;
 			AutosaveTableColumns = false;

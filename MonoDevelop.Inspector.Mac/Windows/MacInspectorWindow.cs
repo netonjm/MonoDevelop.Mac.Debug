@@ -23,9 +23,8 @@ namespace MonoDevelop.Inspector.Mac
         readonly PropertyEditorProvider editorProvider;
 
         PropertyEditorPanel propertyEditorPanel;
-        NSLayoutConstraint constraint;
+        //NSLayoutConstraint constraint;
 
-        readonly NSView contentView;
         MethodListView methodListView;
         public OutlineView outlineView { get; private set; }
 
@@ -36,6 +35,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public event EventHandler<ToolbarView> RaiseInsertItem;
         public event EventHandler<Tuple<string, string, string, string>> LoadFigma;
+        NSSplitView splitView => (NSSplitView)ContentView;
 
         public InspectorWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
         {
@@ -43,6 +43,7 @@ namespace MonoDevelop.Inspector.Mac
             ShowsToolbarButton = false;
             MovableByWindowBackground = false;
 
+            ContentView = new NSSplitView();
             propertyEditorPanel = new PropertyEditorPanel();
 
             editorProvider = new PropertyEditorProvider();
@@ -56,17 +57,15 @@ namespace MonoDevelop.Inspector.Mac
             var currentThemeStyle = NSUserDefaults.StandardUserDefaults.StringForKey("AppleInterfaceStyle") ?? "Light";
             PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
 
-            contentView = ContentView;
+            //var stackView = NativeViewHelper.CreateVerticalStackView(margin);
+            //splitView.AddSubview(stackView);
 
-            var stackView = NativeViewHelper.CreateVerticalStackView(margin);
-            contentView.AddSubview(stackView);
+            //stackView.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
+            //stackView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
+            //stackView.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
 
-            stackView.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
-            stackView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
-            stackView.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
-
-            constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height - margin * 2);
-            constraint.Active = true;
+            //constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height - margin * 2);
+            //constraint.Active = true;
             outlineView = new OutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
 
@@ -96,12 +95,11 @@ namespace MonoDevelop.Inspector.Mac
             toolbarTab.WantsLayer = true;
             toolbarTab.Layer.BackgroundColor = NSColor.Red.CGColor;
 
-            stackView.AddArrangedSubview(toolbarTab);
+            splitView.AddArrangedSubview(toolbarTab);
 
-            toolbarTab.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
-            toolbarTab.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
-            toolbarTab.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
-            toolbarTab.HeightAnchor.ConstraintEqualToConstant(ScrollViewSize).Active = true;
+            //toolbarTab.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
+            //toolbarTab.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
+            //toolbarTab.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
 
             /////////////////
 
@@ -109,9 +107,7 @@ namespace MonoDevelop.Inspector.Mac
             toolbarTabItem.Label = "Toolbar";
          
             var toolbarStackView = NativeViewHelper.CreateVerticalStackView();
-            toolbarStackView.TranslatesAutoresizingMaskIntoConstraints = true;
             var toolbarHorizontalStackView = NativeViewHelper.CreateHorizontalStackView();
-            toolbarHorizontalStackView.TranslatesAutoresizingMaskIntoConstraints = true;
 
             toolbarSearchTextField = new NSSearchField();
             toolbarSearchTextField.Changed += (object sender, EventArgs e) =>
@@ -122,8 +118,7 @@ namespace MonoDevelop.Inspector.Mac
             toolbarHorizontalStackView.AddArrangedSubview(toolbarSearchTextField);
 
             var compactModeToggleButton = new ToggleButton();
-            compactModeToggleButton.TranslatesAutoresizingMaskIntoConstraints = true;
-            compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
+            //compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
             compactModeToggleButton.ToolTip = "Use compact display";
             toolbarHorizontalStackView.AddArrangedSubview(compactModeToggleButton);
 
@@ -163,6 +158,7 @@ namespace MonoDevelop.Inspector.Mac
             methodListView.DoubleClick += MethodListView_DoubleClick;
 
             scrollView = new ScrollContainerView(methodListView);
+            scrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
             //titleContainter.WantsLayer = true;
@@ -188,6 +184,7 @@ namespace MonoDevelop.Inspector.Mac
             titleContainter.AddArrangedSubview(resultMessage);
 
             var methodStackPanel = NativeViewHelper.CreateVerticalStackView();
+            methodStackPanel.TranslatesAutoresizingMaskIntoConstraints = false;
             methodStackPanel.AddArrangedSubview(titleContainter);
             titleContainter.LeftAnchor.ConstraintEqualToAnchor(methodStackPanel.LeftAnchor, 0).Active = true;
             titleContainter.RightAnchor.ConstraintEqualToAnchor(methodStackPanel.RightAnchor, 0).Active = true;
@@ -212,10 +209,10 @@ namespace MonoDevelop.Inspector.Mac
             tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
             tabView.Add(tabPropertyPanel);
             tabView.Add(tabMethod);
-            stackView.AddArrangedSubview(tabView as NSView);
+            splitView.AddArrangedSubview(tabView);
 
-            tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
-            tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;
+            //tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
+            //tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;
 
             methodSearchView.Activated += (sender, e) =>
             {
@@ -229,6 +226,9 @@ namespace MonoDevelop.Inspector.Mac
             {
                 toolbarView.ShowOnlyImages(!toolbarView.IsImageMode);
             };
+
+            toolbarView.ShowOnlyImages(true);
+            splitView.SetPositionOfDivider(300,0);
         }
 
         NSSearchField methodSearchView;
