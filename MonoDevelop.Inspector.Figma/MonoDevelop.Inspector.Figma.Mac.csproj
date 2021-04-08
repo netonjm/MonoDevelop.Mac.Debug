@@ -39,17 +39,25 @@
     <Compile Include="NativeViewHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp\FigmaSharp.csproj">
-      <Project>{AFC86139-5F3E-4F9B-8524-5FA2DC78F4E3}</Project>
-      <Name>FigmaSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Cocoa\FigmaSharp.Cocoa.csproj">
-      <Project>{C16867FC-93FC-4E4C-B4DF-6F40D9615E01}</Project>
-      <Name>FigmaSharp.Cocoa</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj">
       <Project>{565D8019-7355-4331-86D3-E72D8E17D7B5}</Project>
       <Name>MonoDevelop.Inspector.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp\FigmaSharp\FigmaSharp.csproj">
+      <Project>{AFC86139-5F3E-4F9B-8524-5FA2DC78F4E3}</Project>
+      <Name>FigmaSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp\FigmaSharp.Cocoa\FigmaSharp.Cocoa.csproj">
+      <Project>{C16867FC-93FC-4E4C-B4DF-6F40D9615E01}</Project>
+      <Name>FigmaSharp.Cocoa</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Views\FigmaSharp.Views\FigmaSharp.Views.csproj">
+      <Project>{DA49F4C1-23DA-40FC-A4ED-B8E2B2A8AC05}</Project>
+      <Name>FigmaSharp.Views</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\external\FigmaSharp\FigmaSharp.Views\FigmaSharp.Views.Cocoa\FigmaSharp.Views.Cocoa.csproj">
+      <Project>{3E0633F6-BD50-4D09-8601-A143F6CFDD44}</Project>
+      <Name>FigmaSharp.Views.Cocoa</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

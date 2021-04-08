@@ -6,8 +6,9 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	class OutlineView : NSOutlineView
+	public class OutlineView : NSOutlineView
 	{
+		public event EventHandler<Node> StartDrag;
 		public event EventHandler<ushort> KeyPress;
 
 		public override void KeyDown(NSEvent theEvent)
@@ -48,7 +49,13 @@ namespace MonoDevelop.Inspector.Mac
 			OutlineTableColumn = column;
 
 			Delegate = new OutlineViewDelegate ();
-			DataSource = new OutlineViewDataSource (Data);
+
+			var outlineViewDataSource = new OutlineViewDataSource(Data);
+			DataSource = outlineViewDataSource;
+			outlineViewDataSource.StartDrag += (sender, e) =>
+			{
+				StartDrag?.Invoke(this, e as Node);
+			};
 		}
 
 		public void SetData (Node data)
@@ -175,10 +182,18 @@ namespace MonoDevelop.Inspector.Mac
 
 	class OutlineViewDataSource : NSOutlineViewDataSource
 	{
+		public event EventHandler<NSObject> StartDrag;
+
 		MainNode mainNode;
 		public OutlineViewDataSource (MainNode mainNode)
 		{
 			this.mainNode = mainNode; 
+		}
+
+		public override INSPasteboardWriting PasteboardWriterForItem(NSOutlineView outlineView, NSObject item)
+		{
+			StartDrag?.Invoke(this, item);
+			return null;
 		}
 
 		public override nint GetChildrenCount (NSOutlineView outlineView, NSObject item)

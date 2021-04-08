@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionModel>
+	<Runtime>
+	</Runtime>
+       <Extension path = "/MonoDevelop/DesignerSupport/PropertyProviders">
+            <Class class = "VisualStudio.ViewInspector.PropertyProvider"/>
+    </Extension>
+   
+	<Extension path = "/MonoDevelop/Ide/MainMenu/Tools">
+        <SeparatorItem id="myFocusSection" _label="Accessibility" insertbefore="CustomToolsSection" />
+         <CommandItem id = "VisualStudio.ViewInspector.PadViewCommandHandler" />
+        <SeparatorItem id="myFocusSectionSeparator"/>
+    </Extension>
+
+     <Extension path = "/MonoDevelop/Ide/Pads">
+     <Pad id = "VisualStudio.ViewInspector.OutlinePad"
+            class = "VisualStudio.ViewInspector.OutlinePad"
+            _label="Gtk View Inspector"
+            icon = "md-toolbox-pad"
+            group = "Designer"
+               macShortcut="Control|Meta|P"
+            defaultLayout="*"
+            defaultPlacement="Right"
+            defaultStatus="AutoHide"
+            />
+
+        <Pad id = "VisualStudio.ViewInspector.ViewMonitor"
+            class = "VisualStudio.ViewInspector.ViewMonitor"
+            _label="Gtk View Monitor"
+            icon = "md-toolbox-pad"
+            group = "Designer"
+               macShortcut="Control|Meta|V"
+            defaultLayout="*"
+            defaultPlacement="Right"
+            defaultStatus="AutoHide"
+            />
+        
+        <Pad id = "VisualStudio.ViewInspector.InspectorPropertyPad"
+            class = "VisualStudio.ViewInspector.InspectorPropertyPad"
+            _label="Gtk View Properties"
+            icon = "md-properties-pad"
+            group = "Designer"
+            defaultLayout="*"
+            defaultPlacement="MonoDevelop.DesignerSupport.ToolboxPad/bottom; right"
+            defaultStatus="AutoHide"
+            />
+     </Extension>
+	 <Extension path = "/MonoDevelop/Ide/Commands/Tools">
+            <Command id = "VisualStudio.ViewInspector.SearchSelectedView"
+                defaultHandler = "VisualStudio.ViewInspector.SearchSelectedViewCommandHandler"
+                _label = "Where Is My Focus!"
+                macShortcut="Control|Meta|M"
+                _displayName = "Where Is My Focus!" />
+        
+                <Command id = "VisualStudio.ViewInspector.SearchChildenViewCommandHandler"
+                defaultHandler = "VisualStudio.ViewInspector.SearchChildenViewCommandHandler"
+                _label = "Children of my Focused View!"
+                macShortcut="Control|Meta|N"
+                _displayName = "Where Is My Focus!" />
+        
+            <Command id = "VisualStudio.ViewInspector.PadViewCommandHandler"
+                defaultHandler = "VisualStudio.ViewInspector.PadViewCommandHandler"
+                _label = "Inspect Focused View"
+                macShortcut="Control|Meta|I"
+                _displayName = "Inspect Focused View" />
+        
+     </Extension>
+</ExtensionModel>

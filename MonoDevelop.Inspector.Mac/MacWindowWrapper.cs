@@ -54,7 +54,7 @@ namespace MonoDevelop.Inspector.Mac
 				MovedRequested?.Invoke (this, EventArgs.Empty);
 			};
 
-			base.DidResignKey += (s, e) => {
+			DidResignKey += (s, e) => {
 				LostFocus?.Invoke (this, EventArgs.Empty);
 			};
 		}

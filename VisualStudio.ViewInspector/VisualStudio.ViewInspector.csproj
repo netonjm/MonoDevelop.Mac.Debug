@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoDevelop.Addins" Version="0.4.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <AddinReference Include="MonoDevelop.DesignerSupport" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj" />
+    <ProjectReference Include="..\MonoDevelop.Inspector.Figma\MonoDevelop.Inspector.Figma.Mac.csproj" />
+    <ProjectReference Include="..\MonoDevelop.Inspector.Mac\MonoDevelop.Inspector.Mac.csproj" />
+    <ProjectReference Include="..\MonoDevelop.Inspector.Xwt.Mac\MonoDevelop.Inspector.XwtMac.csproj" />
+  </ItemGroup>
+</Project>

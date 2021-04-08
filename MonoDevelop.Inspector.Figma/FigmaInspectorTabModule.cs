@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using FigmaSharp.Views.Cocoa;
 
 namespace MonoDevelop.Inspector.Figma
 {
@@ -142,7 +143,7 @@ namespace MonoDevelop.Inspector.Figma
 
         void FigmaCompute_Activated(object sender, EventArgs e)
         {
-            FigmaEnvirontment.SetAccessToken(tokenTextField.StringValue);
+            FigmaSharp.AppContext.Current.SetAccessToken(tokenTextField.StringValue);
 
             if (InspectorContext.Current.Manager.SelectedView?.NativeObject is NSView currentView)
             {
@@ -152,9 +153,12 @@ namespace MonoDevelop.Inspector.Figma
                     item.RemoveFromSuperview();
                 }
 
-				var list = new List<FigmaImageView> ();
-                currentView.LoadFigmaFromUrlFile(fileTextField.StringValue, out list, viewTextField.StringValue, nodeTextField.StringValue);
-				list.Load (fileTextField.StringValue);
+				var list = new List<ImageView> ();
+
+    //            var service = 
+
+    //            currentView.LoadFigmaFromUrlFile(fileTextField.StringValue, out list, viewTextField.StringValue, nodeTextField.StringValue);
+				//list.Load (fileTextField.StringValue);
 			}
         }
 
