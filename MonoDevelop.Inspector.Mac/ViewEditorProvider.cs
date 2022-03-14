@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xamarin.PropertyEditing;
-using Xamarin.PropertyEditing.Common;
-using Xamarin.PropertyEditing.Reflection;
 using System.Linq;
+using Xamarin.PropertyEditing;
+using Xamarin.PropertyEditing.Reflection;
+using Xamarin.PropertyEditing.Common;
 
 namespace MonoDevelop.Inspector.Mac
 {

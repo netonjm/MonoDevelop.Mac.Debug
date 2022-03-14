@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using AppKit;
-using Gtk;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Components.PropertyGrid;
 using MonoDevelop.Core;
@@ -23,17 +22,6 @@ namespace VisualStudio.ViewInspector
             return obj;
         }
     }
-
-	public static class WidgetExtensions
-	{
-		public static Gtk.Widget GetTopParent (this Gtk.Widget widget)
-		{
-			while (widget.Parent != null) {
-				widget = widget.Parent;
-			}
-			return widget;
-		}
-	}
 
 	class PadViewCommandHandler : CommandHandler
     {

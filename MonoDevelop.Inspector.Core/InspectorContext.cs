@@ -44,6 +44,12 @@ namespace MonoDevelop.Inspector
 			windows.Remove(window);
 			Manager.SetWindow(null);
 		}
+
+        protected virtual InspectorManager GetInitializationContext()
+        {
+            return Manager;
+        }
+
         public static InspectorContext Current { get; set; } = new InspectorContext();
     }
 }

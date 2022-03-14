@@ -4,7 +4,6 @@ using AppKit;
 using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
-using Xamarin.PropertyEditing.Themes;
 using Foundation;
 using System.Linq;
 
@@ -55,7 +54,7 @@ namespace MonoDevelop.Inspector.Mac
             };
 
             var currentThemeStyle = NSUserDefaults.StandardUserDefaults.StringForKey("AppleInterfaceStyle") ?? "Light";
-            PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+            //PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
 
             //var stackView = NativeViewHelper.CreateVerticalStackView(margin);
             //splitView.AddSubview(stackView);
@@ -166,7 +165,7 @@ namespace MonoDevelop.Inspector.Mac
 
             methodSearchView = new NSSearchField() { TranslatesAutoresizingMaskIntoConstraints = false };
             titleContainter.AddArrangedSubview(methodSearchView);
-            methodSearchView.WidthAnchor.ConstraintEqualToConstant(180).Active = true;
+            methodSearchView.WidthAnchor.ConstraintEqualTo(180).Active = true;
 
             IImageWrapper invokeImage = inspectorDelegate.GetImageResource("execute-16.png");
             IButtonWrapper invokeButton = inspectorDelegate.GetImageButton(invokeImage);
@@ -186,8 +185,8 @@ namespace MonoDevelop.Inspector.Mac
             var methodStackPanel = NativeViewHelper.CreateVerticalStackView();
             methodStackPanel.TranslatesAutoresizingMaskIntoConstraints = false;
             methodStackPanel.AddArrangedSubview(titleContainter);
-            titleContainter.LeftAnchor.ConstraintEqualToAnchor(methodStackPanel.LeftAnchor, 0).Active = true;
-            titleContainter.RightAnchor.ConstraintEqualToAnchor(methodStackPanel.RightAnchor, 0).Active = true;
+            titleContainter.LeftAnchor.ConstraintEqualTo(methodStackPanel.LeftAnchor, 0).Active = true;
+            titleContainter.RightAnchor.ConstraintEqualTo(methodStackPanel.RightAnchor, 0).Active = true;
 
             methodStackPanel.AddArrangedSubview(scrollView);
             /////
@@ -199,10 +198,10 @@ namespace MonoDevelop.Inspector.Mac
             var tabMethod = new NSTabViewItem();
 
             tabMethod.View.AddSubview(methodStackPanel);
-            methodStackPanel.LeftAnchor.ConstraintEqualToAnchor(tabMethod.View.LeftAnchor, 0).Active = true;
-            methodStackPanel.RightAnchor.ConstraintEqualToAnchor(tabMethod.View.RightAnchor, 0).Active = true;
-            methodStackPanel.TopAnchor.ConstraintEqualToAnchor(tabMethod.View.TopAnchor, 0).Active = true;
-            methodStackPanel.BottomAnchor.ConstraintEqualToAnchor(tabMethod.View.BottomAnchor, 0).Active = true;
+            methodStackPanel.LeftAnchor.ConstraintEqualTo(tabMethod.View.LeftAnchor, 0).Active = true;
+            methodStackPanel.RightAnchor.ConstraintEqualTo(tabMethod.View.RightAnchor, 0).Active = true;
+            methodStackPanel.TopAnchor.ConstraintEqualTo(tabMethod.View.TopAnchor, 0).Active = true;
+            methodStackPanel.BottomAnchor.ConstraintEqualTo(tabMethod.View.BottomAnchor, 0).Active = true;
 
             tabMethod.Label = "Methods";
 

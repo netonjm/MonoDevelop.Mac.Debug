@@ -40,8 +40,8 @@ namespace MonoDevelop.Inspector.Mac
             contentCollectionView.BackgroundColor = CellBackgroundColor;
             var stackView = NativeViewHelper.CreateHorizontalStackView();
             View.AddSubview(stackView);
-            stackView.LeftAnchor.ConstraintEqualToAnchor(View.LeftAnchor, 5).Active = true;
-            stackView.CenterYAnchor.ConstraintEqualToAnchor(View.CenterYAnchor, 0).Active = true; ;
+            stackView.LeftAnchor.ConstraintEqualTo(View.LeftAnchor, 5).Active = true;
+            stackView.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor, 0).Active = true; ;
 
             ImageView = new NSImageView { TranslatesAutoresizingMaskIntoConstraints = false };
             ImageView.ImageScaling = NSImageScale.None;
@@ -55,14 +55,14 @@ namespace MonoDevelop.Inspector.Mac
           
             stackView.AddArrangedSubview(container);
 
-            ImageView.CenterXAnchor.ConstraintEqualToAnchor(container.CenterXAnchor, 0).Active = true;
-            ImageView.CenterYAnchor.ConstraintEqualToAnchor(container.CenterYAnchor, 0).Active = true;
-            container.WidthAnchor.ConstraintEqualToConstant (ItemHeight).Active = true;
-            container.HeightAnchor.ConstraintEqualToConstant(ItemHeight).Active = true;
+            ImageView.CenterXAnchor.ConstraintEqualTo(container.CenterXAnchor, 0).Active = true;
+            ImageView.CenterYAnchor.ConstraintEqualTo(container.CenterYAnchor, 0).Active = true;
+            container.WidthAnchor.ConstraintEqualTo(ItemHeight).Active = true;
+            container.HeightAnchor.ConstraintEqualTo(ItemHeight).Active = true;
 
            
-            ImageView.HeightAnchor.ConstraintEqualToConstant(ItemHeight - 10).Active = true;
-            ImageView.WidthAnchor.ConstraintEqualToConstant(ItemHeight - 10).Active = true;
+            ImageView.HeightAnchor.ConstraintEqualTo(ItemHeight - 10).Active = true;
+            ImageView.WidthAnchor.ConstraintEqualTo(ItemHeight - 10).Active = true;
 
             TextField = NativeViewHelper.CreateLabel("", NativeViewHelper.GetSystemFont(false, (int)NSFont.SmallSystemFontSize));
             stackView.AddArrangedSubview(TextField);
@@ -123,9 +123,9 @@ namespace MonoDevelop.Inspector.Mac
 
             var stackView = NativeViewHelper.CreateHorizontalStackView();
             View.AddSubview(stackView);
-            stackView.LeftAnchor.ConstraintEqualToAnchor(View.LeftAnchor, 10).Active = true; ;
-            stackView.CenterYAnchor.ConstraintEqualToAnchor(View.CenterYAnchor, 0).Active = true; ;
-            stackView.RightAnchor.ConstraintEqualToAnchor(View.RightAnchor, -7).Active = true; ;
+            stackView.LeftAnchor.ConstraintEqualTo(View.LeftAnchor, 10).Active = true; ;
+            stackView.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor, 0).Active = true; ;
+            stackView.RightAnchor.ConstraintEqualTo(View.RightAnchor, -7).Active = true; ;
             TextField = NativeViewHelper.CreateLabel("", NativeViewHelper.GetSystemFont(false, (int)NSFont.SmallSystemFontSize));
             stackView.AddArrangedSubview(TextField);
 
@@ -143,8 +143,8 @@ namespace MonoDevelop.Inspector.Mac
             ExpandButton.SetButtonType(NSButtonType.OnOff);
 
 
-            ExpandButton.HeightAnchor.ConstraintEqualToConstant(ExpandButtonSize).Active = true;
-            ExpandButton.WidthAnchor.ConstraintEqualToConstant(ExpandButtonSize).Active = true;
+            ExpandButton.HeightAnchor.ConstraintEqualTo(ExpandButtonSize).Active = true;
+            ExpandButton.WidthAnchor.ConstraintEqualTo(ExpandButtonSize).Active = true;
 
             stackView.AddArrangedSubview(ExpandButton);
 
@@ -210,10 +210,10 @@ namespace MonoDevelop.Inspector.Mac
             ImageView = new NSImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
             View.AddSubview(ImageView);
 
-            ImageView.TopAnchor.ConstraintEqualToAnchor(View.TopAnchor, margin).Active = true;
-            ImageView.LeftAnchor.ConstraintEqualToAnchor(View.LeftAnchor, margin).Active = true;
-            ImageView.RightAnchor.ConstraintEqualToAnchor(View.RightAnchor, -margin).Active = true;
-            ImageView.BottomAnchor.ConstraintEqualToAnchor(View.BottomAnchor, -margin).Active = true;
+            ImageView.TopAnchor.ConstraintEqualTo(View.TopAnchor, margin).Active = true;
+            ImageView.LeftAnchor.ConstraintEqualTo(View.LeftAnchor, margin).Active = true;
+            ImageView.RightAnchor.ConstraintEqualTo(View.RightAnchor, -margin).Active = true;
+            ImageView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -margin).Active = true;
         }
 
         public MacInspectorToolbarImageCollectionViewItem(IntPtr handle) : base(handle)

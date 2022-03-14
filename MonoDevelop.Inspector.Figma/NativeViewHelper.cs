@@ -2,6 +2,7 @@
 using AppKit;
 using CoreGraphics;
 using Foundation;
+using ObjCRuntime;
 
 namespace MonoDevelop.Inspector.Mac
 {

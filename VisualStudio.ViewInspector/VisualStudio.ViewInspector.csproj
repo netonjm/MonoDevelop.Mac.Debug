@@ -1,17 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\</OutputPath>
+ <TargetFramework>net6.0-macos</TargetFramework>
+    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
+       <ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>10.0</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="MonoDevelop.Addins" Version="0.4.7" />
-  </ItemGroup>
   <ItemGroup>
     <AddinReference Include="MonoDevelop.DesignerSupport" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj" />
     <ProjectReference Include="..\MonoDevelop.Inspector.Figma\MonoDevelop.Inspector.Figma.Mac.csproj" />
     <ProjectReference Include="..\MonoDevelop.Inspector.Mac\MonoDevelop.Inspector.Mac.csproj" />
-    <ProjectReference Include="..\MonoDevelop.Inspector.Xwt.Mac\MonoDevelop.Inspector.XwtMac.csproj" />
+    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing.Mac\Xamarin.PropertyEditing.Mac.csproj" />
+    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj" />
   </ItemGroup>
+   <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0-preview.7955" />
+      </ItemGroup>
 </Project>

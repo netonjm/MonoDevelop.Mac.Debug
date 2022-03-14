@@ -64,14 +64,14 @@ namespace MonoDevelop.Inspector.Mac
             stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
             verticalStackView.AddArrangedSubview (stackView);
 
-            stackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
-            stackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
+            stackView.LeftAnchor.ConstraintEqualTo(verticalStackView.LeftAnchor, 10).Active = true;
+            stackView.RightAnchor.ConstraintEqualTo(verticalStackView.RightAnchor, 10).Active = true;
 
             secondStackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
             verticalStackView.AddArrangedSubview(secondStackView);
 
-            secondStackView.LeftAnchor.ConstraintEqualToAnchor(verticalStackView.LeftAnchor, 10).Active = true;
-            secondStackView.RightAnchor.ConstraintEqualToAnchor(verticalStackView.RightAnchor, 10).Active = true;
+            secondStackView.LeftAnchor.ConstraintEqualTo(verticalStackView.LeftAnchor, 10).Active = true;
+            secondStackView.RightAnchor.ConstraintEqualTo(verticalStackView.RightAnchor, 10).Active = true;
 
             //Visual issues view
             var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
@@ -162,7 +162,7 @@ namespace MonoDevelop.Inspector.Mac
 
             languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
             languagesComboBox.SelectionChanged  += LanguagesComboBox_SelectionChanged;
-            languagesComboBox.WidthAnchor.ConstraintLessThanOrEqualToConstant(220).Active = true;
+            languagesComboBox.WidthAnchor.ConstraintEqualTo(220).Active = true;
 
             //FONTS 
 
@@ -173,11 +173,11 @@ namespace MonoDevelop.Inspector.Mac
 				.ToArray ();
 
 			fontsCombobox.Add(fonts);
-            fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualToConstant(220).Active = true;
+            fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualTo(220).Active = true;
 		
 			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
 			fontSizeTextView.ToolTip = "Change font size from selected item";
-            fontSizeTextView.WidthAnchor.ConstraintEqualToConstant(40).Active = true;
+            fontSizeTextView.WidthAnchor.ConstraintEqualTo(40).Active = true;
 
 			fontsCombobox.SelectionChanged += (s, e) => {
 				OnFontChanged();
@@ -351,7 +351,7 @@ namespace MonoDevelop.Inspector.Mac
 		void AddButton (NSButton view)
 		{
 			stackView.AddArrangedSubview (view);
-			view.WidthAnchor.ConstraintEqualToConstant (InspectorWindow.ButtonWidth).Active = true;
+			view.WidthAnchor.ConstraintEqualTo(InspectorWindow.ButtonWidth).Active = true;
 		}
 	}
 }

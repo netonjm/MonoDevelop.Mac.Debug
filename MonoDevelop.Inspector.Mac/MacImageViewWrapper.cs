@@ -42,7 +42,7 @@ namespace MonoDevelop.Inspector.Mac
         public void SetWidth(int width)
         {
             //TODO: This is wrong 2 time
-            button.WidthAnchor.ConstraintEqualToConstant(width).Active = true;
+            button.WidthAnchor.ConstraintEqualTo(width).Active = true;
         }
 
         public void Dispose()

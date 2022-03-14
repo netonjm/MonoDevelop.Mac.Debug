@@ -1,118 +1,17 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+ <Import Project="..\Accessibility.Inspector.props" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A232143E-EB29-45EF-97C8-E88E3F4CB327}</ProjectGuid>
-    <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputType>Library</OutputType>
-    <RootNamespace>MonoDevelop.Inspector.Mac</RootNamespace>
-    <AssemblyName>MonoDevelop.Mac.Debug</AssemblyName>
-    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <UseSGen>false</UseSGen>
-    <HttpClientHandler></HttpClientHandler>
-    <LinkMode></LinkMode>
-    <XamMacArch></XamMacArch>
-    <AOTMode>None</AOTMode>
-    <AssemblyName>MonoDevelop.Inspector.Mac</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <DefineConstants></DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <UseSGen>false</UseSGen>
-    <HttpClientHandler></HttpClientHandler>
-    <LinkMode></LinkMode>
-    <XamMacArch></XamMacArch>
-    <AOTMode>None</AOTMode>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\</OutputPath>
+ <TargetFramework>net6.0-macos</TargetFramework>
+    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Xamarin.Mac" />
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MacBorderedWindow.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="NSFirstResponderWatcher.cs" />
-    <Compile Include="ViewEditorProvider.cs" />
-    <Compile Include="ViewWrapper.cs" />
-    <Compile Include="TableView.cs" />
-    <Compile Include="MethodListView.cs" />
-    <Compile Include="Controls\ImageButton.cs" />
-    <Compile Include="VerticalSeparator.cs" />
-    <Compile Include="OutlineView.cs" />
-    <Compile Include="Windows\MacInspectorWindow.cs" />
-    <Compile Include="Windows\MacToolbarWindow.cs" />
-    <Compile Include="Windows\MacAccessibilityWindow.cs" />
-    <Compile Include="Helpers\NativeViewHelper.cs" />
-    <Compile Include="Helpers\ContrastHelper.cs" />
-    <Compile Include="MacInspectorDelegate.cs" />
-    <Compile Include="MacWindowWrapper.cs" />
-    <Compile Include="MacViewWrapper.cs" />
-    <Compile Include="MacAccInspectorWindow.cs" />
-    <Compile Include="MacNodeWrapper.cs" />
-    <Compile Include="MacImageViewWrapper.cs" />
-    <Compile Include="MacMenuWrapper.cs" />
-    <Compile Include="MacMenuItemWrapper.cs" />
-    <Compile Include="Windows\MacTabView.cs" />
-    <Compile Include="Windows\ITabView.cs" />
-    <Compile Include="MacToolbarWrapper.cs" />
-    <Compile Include="MacToolbarDataSource.cs" />
-    <Compile Include="MacToolbarViewItem.cs" />
-    <Compile Include="MacToolbarFlowLayout.cs" />
-    <Compile Include="Controls\ToggleButton.cs" />
-    <Compile Include="Touchbar\ColorPickerDelegate.cs" />
-    <Compile Include="ToolbarService.cs" />
-    <Compile Include="TouchBarBaseDelegate.cs" />
-    <Compile Include="Windows\MacTabWrapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PropertyPanel\" />
-    <Folder Include="Controls\" />
-    <Folder Include="Resources\" />
-    <Folder Include="Windows\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Resources\toolbar\" />
-    <Folder Include="Touchbar\" />
-  </ItemGroup>
-  <ItemGroup>
-
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">
-      <Project>{A0B6FE73-D046-4E1C-BA9D-F20683889C5A}</Project>
-      <Name>Xamarin.PropertyEditing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing.Mac\Xamarin.PropertyEditing.Mac.csproj">
-      <Project>{E8F4F0EB-C2B1-4116-8459-E076E0E0E485}</Project>
-      <Name>Xamarin.PropertyEditing.Mac</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MonoDevelop.Inspector.Core\MonoDevelop.Inspector.Core.csproj">
-      <Project>{565D8019-7355-4331-86D3-E72D8E17D7B5}</Project>
-      <Name>MonoDevelop.Inspector.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing.Mac\Xamarin.PropertyEditing.Mac.csproj" />
+    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\error-16~dark~error.png">
@@ -218,5 +117,4 @@
             <LogicalName>compact-display-16~dark@2x.png</LogicalName>
           </EmbeddedResource>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

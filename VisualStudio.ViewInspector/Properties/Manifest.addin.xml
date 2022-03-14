@@ -65,4 +65,11 @@
                 _displayName = "Inspect Focused View" />
         
      </Extension>
+
+     <Dependencies>
+		<Addin id="Core" version="17.0"/>
+		<Addin id="Ide" version="17.0"/>
+		<Addin id="PackageManagement" version="17.0"/>
+		<Addin id="DotNetCore" version="17.0" />
+	</Dependencies>
 </ExtensionModel>

@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MonoDevelop.Inspector.Services;
-using Xamarin.PropertyEditing.Mac;
-using Xamarin.PropertyEditing.Themes;
 using MonoDevelop.Inspector.Mac.Touchbar;
 using System.Globalization;
 using System.Threading;
 using System.IO;
 using System.Reflection;
+using Xamarin.PropertyEditing.Mac;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -537,7 +536,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public void SetAppearance(bool isDark, params IWindowWrapper[] inspectorWindow)
         {
-            PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
+            //PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
             foreach (var item in inspectorWindow) {
                 item.SetAppareance(isDark);
             }
