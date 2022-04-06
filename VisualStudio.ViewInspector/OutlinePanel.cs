@@ -20,31 +20,35 @@ namespace VisualStudio.ViewInspector
 
             View.SelectionNodeChanged += (s, e) =>
             {
-                if (View.SelectedNode is WidgetNodeView nodeView)
-                {
-                    RaiseFirstResponder?.Invoke(this, nodeView.Wrapper);
-                }
+                 Console.WriteLine("");
+                //if (View.SelectedNode is WidgetNodeView nodeView)
+                //{
+                //    RaiseFirstResponder?.Invoke(this, nodeView.Wrapper);
+                //}
             };
 
             View.KeyPress += (sender, e) =>
             {
-                if (e == DeleteKey)
-                {
-                    if (View.SelectedNode is WidgetNodeView nodeView)
-                    {
-                        RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
-                    }
-                }
+                Console.WriteLine("");
+                //if (e == DeleteKey)
+                //{
+                //    if (View.SelectedNode is WidgetNodeView nodeView)
+                //    {
+                //        RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
+                //    }
+                //}
             };
 
             View.DoubleClick += (sender, e) =>
             {
-                DoubleClick?.Invoke(this, (View.SelectedNode as WidgetNodeView)?.Wrapper);
+                 Console.WriteLine("");
+               // DoubleClick?.Invoke(this, (View.SelectedNode as WidgetNodeView)?.Wrapper);
             };
 
             View.StartDrag += (sender, e) =>
             {
-                StartDrag?.Invoke(this, (e as WidgetNodeView)?.Wrapper);
+                 Console.WriteLine("");
+               // StartDrag?.Invoke(this, (e as WidgetNodeView)?.Wrapper);
             };
         }
 

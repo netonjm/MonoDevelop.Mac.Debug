@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
- <Import Project="..\Accessibility.Inspector.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\MonoDevelop.Inspector.props" />
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>bin\</OutputPath>
-  <TargetFramework>net6.0-macos</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>

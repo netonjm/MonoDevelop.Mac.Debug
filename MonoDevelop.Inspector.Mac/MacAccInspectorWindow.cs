@@ -22,31 +22,6 @@ namespace MonoDevelop.Inspector.Mac
             Initialize();
         }
 
-        public MacAccInspectorWindow(NSCoder coder) : base(coder)
-        {
-            Initialize();
-        }
-
-        public MacAccInspectorWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation) : base(contentRect, aStyle, bufferingType, deferCreation)
-        {
-            Initialize();
-        }
-
-        public MacAccInspectorWindow(CGRect contentRect, NSWindowStyle aStyle, NSBackingStore bufferingType, bool deferCreation, NSScreen screen) : base(contentRect, aStyle, bufferingType, deferCreation, screen)
-        {
-            Initialize();
-        }
-
-        protected MacAccInspectorWindow(NSObjectFlag t) : base(t)
-        {
-            Initialize();
-        }
-
-        protected MacAccInspectorWindow(IntPtr handle) : base(handle)
-        {
-            Initialize();
-        }
-
         void Initialize()
 		{
             NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);

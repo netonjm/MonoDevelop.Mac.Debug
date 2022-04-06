@@ -28,7 +28,9 @@ namespace ExampleDebugMac
 
             var xPos = NSScreen.MainScreen.Frame.Width / 2;// NSWidth([[window screen] frame])/ 2 - NSWidth([window frame])/ 2;
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
-            var mainWindow = new MacAccInspectorWindow(new CGRect(xPos, yPos, 300, 368), NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable, NSBackingStore.Buffered, false);
+            var mainWindow = new MacAccInspectorWindow();
+
+
 
 			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;
@@ -67,7 +69,7 @@ namespace ExampleDebugMac
                 window.MakeKeyAndOrderFront(mainWindow);
             };
             stackView.AddArrangedSubview(button2);
-            button2.HeightAnchor.ConstraintEqualToConstant(100).Active = true; ;
+            button2.HeightAnchor.ConstraintEqualTo(100).Active = true; ;
 
             mainWindow.Title = "Example Debug Xamarin.Mac";
 

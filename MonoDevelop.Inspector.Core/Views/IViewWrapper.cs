@@ -50,5 +50,6 @@ namespace MonoDevelop.Inspector
         List<IConstrainWrapper> Constraints { get; }
 
         void RemoveFromSuperview ();
-	}
+        void Focus();
+    }
 }

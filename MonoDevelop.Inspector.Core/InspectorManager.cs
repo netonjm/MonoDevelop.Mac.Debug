@@ -289,7 +289,7 @@ namespace MonoDevelop.Inspector
 					return;
 				}
 				IsFirstResponderOverlayVisible = true;
-				ChangeFocusedView(e);
+				e.Focus();
 			};
 		}
 
@@ -445,7 +445,7 @@ namespace MonoDevelop.Inspector
             if (SelectedView != null)
             {
                 toolbarWindow.ChangeView(this, SelectedView);
-                FocusedViewChanged?.Invoke(this, SelectedView);
+				FocusedViewChanged?.Invoke(this, SelectedView);
             }
 		}
 

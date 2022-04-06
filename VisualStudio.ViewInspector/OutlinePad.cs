@@ -12,17 +12,15 @@ namespace VisualStudio.ViewInspector
 		protected override void Initialize(IPadWindow container)
 		{
 			widget = OutlineContentPad.Instance;
-			widget.CanFocus = true;
-			widget.Sensitive = true;
+			//widget.CanFocus = true;
+			//widget.Sensitive = true;
 			widget.RaiseFirstResponder += Widget_RaiseFirstResponder;
 			widget.DoubleClick += Widget_DoubleClick;
-
-			widget.ShowAll();
 		}
 
 		void Widget_DoubleClick(object sender, NSView e)
 		{
-			e.BecomeFirstResponder();
+			//e.BecomeFirstResponder();
 			//if (e.CanFocus && e.HasFocus)
 			//{
 			//	e.HasFocus = true;
@@ -36,7 +34,7 @@ namespace VisualStudio.ViewInspector
 
 		public override Control Control
 		{
-			get { return widget; }
+			get { return null; }
 		}
 	}
 }

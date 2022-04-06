@@ -7,6 +7,7 @@ using MonoDevelop.Components.PropertyGrid;
 using MonoDevelop.Core;
 using MonoDevelop.Core.Serialization;
 using MonoDevelop.DesignerSupport;
+using MonoDevelop.Ide;
 
 namespace VisualStudio.ViewInspector
 {
@@ -32,7 +33,7 @@ namespace VisualStudio.ViewInspector
 
         protected override void Run()
         {
-            var rootWindow = MonoDevelop.Ide.IdeApp.Workbench.RootWindow;
+            var rootWindow = IdeApp.Workbench.Window;
             var widget = rootWindow.Focus;
 
             if (widget == null)
@@ -41,18 +42,20 @@ namespace VisualStudio.ViewInspector
                 return;
             }
 
-   //         var pad = OutlineContentPad.Instance;
-   //         if (pad == null)
-   //         {
-   //             MonoDevelop.Ide.MessageService.ShowError("You need open the Inspector OutlinePad");
-   //             return;
-   //         }
+            var test = IdeApp.Workbench.Pads.DocumentOutlinePad;
 
-			////InspectorPropertyPad.Instance.Control.CurrentObject = widget;
+            //var pad = OutlineContentPad.Instance;
+            //if (pad == null)
+            //{
+            //    MonoDevelop.Ide.MessageService.ShowError("You need open the Inspector OutlinePad");
+            //    return;
+            //}
 
-			//var topParent = widget.GetTopParent ();
-   //         pad.GenerateTree(topParent);
-   //         pad.Focus(widget);
+            //InspectorPropertyPad.Instance.Control.CurrentObject = widget;
+
+            //var topParent = widget.GetTopParent();
+            //pad.GenerateTree(topParent);
+            //pad.Focus(widget);
         }
     }
 
@@ -65,20 +68,22 @@ namespace VisualStudio.ViewInspector
 
         protected override void Run()
         {
-            var rootWindow = MonoDevelop.Ide.IdeApp.Workbench.RootWindow;
+            var rootWindow = IdeApp.Workbench.Window;
             var widget = rootWindow.Focus;
             var builder = new System.Text.StringBuilder();
             builder.AppendLine("Current Gtk Brothers states: ({widget} {IsFocus}|{HasFocus}|{Sensitive})");
             builder.AppendLine("==================================================================");
 
-            if (widget == null)
+            var nWidget = widget.GetNativeWidget<NSView>();
+
+            if (nWidget == null)
             {
 				builder.AppendLine ("No selected widget");
 				LoggingService.LogInfo (builder.ToString ());
 				MonoDevelop.Ide.MessageService.ShowError ("No selected widget");
 				return;
             }
-            if (widget.Parent == null || ! (widget.Parent is Gtk.Container parentContainer))
+            if (nWidget.Superview == null)
             {
 				builder.AppendLine ("Widget has no parent");
 				LoggingService.LogInfo (builder.ToString ());
@@ -86,8 +91,8 @@ namespace VisualStudio.ViewInspector
 				return;
             }
 
-            SearchSelectedViewCommandHandler.AppendChildStatus(builder, widget.Parent, 2);
-            foreach (var item in parentContainer.Children)
+            SearchSelectedViewCommandHandler.AppendChildStatus(builder, nWidget.Superview, 2);
+            foreach (var item in nWidget.Superview.Subviews)
             {
                 SearchSelectedViewCommandHandler.AppendChildStatus(builder, item, 2);
             }
@@ -102,16 +107,16 @@ namespace VisualStudio.ViewInspector
             info.Visible = info.Enabled = true;
         }
 
-        public static void AppendChildStatus (System.Text.StringBuilder builder, Gtk.Widget current, int level)
+        public static void AppendChildStatus (System.Text.StringBuilder builder, NSView current, int level)
         {
             var line = new string('-', level);
-            var spaces = $"{line}> {current} ({current.IsFocus}|{current.HasFocus}|{current.Sensitive})";
+            var spaces = $"{line}> {current} ({current.Window.FirstResponder == current}";//|{current.HasFocus}|{current.Sensitive})";
             builder.AppendLine(spaces);
         }
 
         protected override void Run()
         {
-            var rootWindow = MonoDevelop.Ide.IdeApp.Workbench.RootWindow;
+            var rootWindow = IdeApp.Workbench.Window;
             var widget = rootWindow.Focus;
             var builder = new System.Text.StringBuilder();
             builder.AppendLine("Current Gtk Hierarchy states: ({widget} {IsFocus}|{HasFocus}|{Sensitive})");
@@ -124,7 +129,7 @@ namespace VisualStudio.ViewInspector
 				return;
             }
 
-            var hierarchy = new List<Gtk.Widget>();
+            var hierarchy = new List<NSView>();
             GoParent(widget, hierarchy);
 
             for (int i = hierarchy.Count - 1; i >= 0; i--)
@@ -135,13 +140,13 @@ namespace VisualStudio.ViewInspector
 			LoggingService.LogInfo (builder.ToString ());
 		}
 
-        void GoParent(Gtk.Widget widget, List<Gtk.Widget> widgets)
+        void GoParent(AppKit.NSView widget, List<NSView> widgets)
         {
             widgets.Add(widget);
 
-            if (widget.Parent != null)
+            if (widget.Superview != null)
             {
-                GoParent(widget.Parent, widgets);
+                GoParent(widget.Superview, widgets);
             }
         }
     }
