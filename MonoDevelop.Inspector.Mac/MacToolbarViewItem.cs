@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AppKit;
 using CoreGraphics;
 using Foundation;
+using ObjCRuntime;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -82,15 +83,17 @@ namespace MonoDevelop.Inspector.Mac
             set;
         }
 
-        public MacInspectorToolbarCollectionViewItem(IntPtr handle) : base(handle)
+        public MacInspectorToolbarCollectionViewItem(NativeHandle handle) : base(handle)
         {
 
         }
     }
-
-    [Register("MacInspectorToolbarHeaderCollectionViewItem")]
+    
+    [Register(RegisterIdentifier)]
     class MacInspectorToolbarHeaderCollectionViewItem : NSCollectionViewItem
     {
+        internal const string RegisterIdentifier = "MacInspectorToolbarHeaderCollectionViewItem";
+
         public static NSColor HeaderCellBackgroundSelectedColor = NSColor.FromRgb(0.29f, green: 0.29f, blue: 0.29f);// NSColor.ControlBackground;
         public static NSColor HeaderCellBackgroundColor = HeaderCellBackgroundSelectedColor;
 
@@ -114,7 +117,6 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        ContentCollectionViewItem contentCollectionView;
         public override void LoadView()
         {
             View = contentCollectionView = new ContentCollectionViewItem(Name);
@@ -151,7 +153,8 @@ namespace MonoDevelop.Inspector.Mac
             View.WantsLayer = true;
         }
 
-        public MacInspectorToolbarHeaderCollectionViewItem(IntPtr handle) : base(handle)
+        ContentCollectionViewItem contentCollectionView;
+        public MacInspectorToolbarHeaderCollectionViewItem(NativeHandle handle) : base(handle)
         {
 
         }
@@ -199,6 +202,7 @@ namespace MonoDevelop.Inspector.Mac
         }
 
         ContentCollectionViewItem contentCollectionView;
+
         public override void LoadView()
         {
             View = contentCollectionView = new ContentCollectionViewItem(Name);
@@ -215,8 +219,7 @@ namespace MonoDevelop.Inspector.Mac
             ImageView.RightAnchor.ConstraintEqualTo(View.RightAnchor, -margin).Active = true;
             ImageView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -margin).Active = true;
         }
-
-        public MacInspectorToolbarImageCollectionViewItem(IntPtr handle) : base(handle)
+        public MacInspectorToolbarImageCollectionViewItem(NativeHandle handle) : base(handle)
         {
 
         }
