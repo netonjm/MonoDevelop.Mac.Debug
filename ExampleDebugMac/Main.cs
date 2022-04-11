@@ -30,8 +30,6 @@ namespace ExampleDebugMac
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
             var mainWindow = new MacAccInspectorWindow();
 
-
-
 			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
 			mainWindow.ContentView = stackView;
 			stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });

@@ -1,11 +1,11 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>Accessibility.Inspector.Mac</id>
-    <version>0.2.2</version>
+    <version>0.3.10</version>
     <title>Accessibility Inspector for Xamarin.Mac</title>
     <authors>Jose Medrano</authors>
-    <owners>Jose Medrano</owners>
+    <owners>Microsoft</owners>
     <licenseUrl>https://github.com/netonjm/MonoDevelop.Mac.Debug/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/netonjm/MonoDevelop.Mac.Debug</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/netonjm/MonoDevelop.Mac.Debug/master/icon/cocoa.png</iconUrl>
@@ -15,7 +15,6 @@
     <tags>accessibility inspector xamarin mac</tags>
   </metadata>
   <files>
-    <file src="..\MonoDevelop.Inspector.Mac\bin\Debug\*.dll" target="lib/net40" />
+    <file src="..\MonoDevelop.Inspector.Mac\bin\Release\*.dll" target="lib\net6.0" />
   </files>
-
 </package>

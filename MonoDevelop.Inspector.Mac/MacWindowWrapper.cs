@@ -7,6 +7,7 @@ using Foundation;
 using System.Linq;
 using System.Globalization;
 using System.Threading;
+using ObjCRuntime;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -39,9 +40,8 @@ namespace MonoDevelop.Inspector.Mac
 			Initialize ();
 		}
 
-		protected internal MacWindowWrapper (IntPtr handle) : base (handle)
+		public MacWindowWrapper(NativeHandle handle) : base(handle)
 		{
-			Initialize ();
 		}
 
 		void Initialize ()

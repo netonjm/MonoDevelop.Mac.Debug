@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using AppKit;
 using CoreGraphics;
 using Foundation;
+using ObjCRuntime;
 
 namespace MonoDevelop.Inspector.Mac
 {
@@ -16,6 +17,14 @@ namespace MonoDevelop.Inspector.Mac
         InspectorContext context;
 
         public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
+
+        public MacAccInspectorWindow(NativeHandle handle) : base(handle)
+        {
+        }
+
+        public MacAccInspectorWindow(NSCoder coder) : base(coder)
+        {
+        }
 
         public MacAccInspectorWindow() : base()
         {
@@ -46,12 +55,6 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public override void BecomeMainWindow ()
-		{
-            context.Attach(this);
-			base.BecomeMainWindow ();
-		}
-
         protected override void Dispose(bool disposing)
         {
             context.FocusedViewChanged -= Context_FocusedViewChanged;
@@ -73,6 +76,12 @@ namespace MonoDevelop.Inspector.Mac
                 touchbar.DefaultItemIdentifiers = touchBarDelegate.Identifiers;
                 view.SetTouchBar(touchbar);
             }
+        }
+
+        public override void BecomeKeyWindow()
+        {
+            context.Attach(this);
+            base.BecomeKeyWindow();
         }
 
         public override bool MakeFirstResponder (NSResponder aResponder)

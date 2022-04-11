@@ -31,13 +31,13 @@ using Mono.Addins.Description;
 [assembly: Addin(
 	"VisualStudio.ViewInspector",
 	Namespace = "VisualStudio.ViewInspector",
-	Version = "1.0"
+	Version = "1.1"
 )]
 
 [assembly: AddinName("VisualStudio.ViewInspector")]
 [assembly: AddinCategory("IDE extensions")]
 [assembly: AddinDescription("VisualStudio.ViewInspector")]
-[assembly: AddinAuthor("Mikayla Hutchinson")]
+[assembly: AddinAuthor("Jose Medrano")]
 
 // Need to fix CA1416 build warning.
 // This call site is reachable on all platforms. 'NSLayoutConstraint.Active' is only supported on: 'ios' 10.0 and later,
