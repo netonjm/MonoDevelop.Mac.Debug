@@ -17,9 +17,9 @@ namespace MonoDevelop.Inspector
 
     public class DetectedError
 	{
-		public IViewWrapper View { get; set; }
+		public IView View { get; set; }
 
-		public IViewWrapper View2 { get; set; }
+		public IView View2 { get; set; }
 
 		public float ContrastRatio { get; set; }
 

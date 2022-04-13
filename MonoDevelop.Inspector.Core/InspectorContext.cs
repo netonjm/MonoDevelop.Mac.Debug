@@ -7,10 +7,10 @@ namespace MonoDevelop.Inspector
 {
 	internal class InspectorContext
 	{
-        public event EventHandler<IViewWrapper> FocusedViewChanged;
+        public event EventHandler<IView> FocusedViewChanged;
         public readonly List<IInspectorTabModule> Modules = new List<IInspectorTabModule>();
 
-        readonly List<IMainWindowWrapper> windows = new List<IMainWindowWrapper> ();
+        readonly List<IMainWindow> windows = new List<IMainWindow> ();
         internal InspectorManager Manager { get; set; }
 
         readonly public string ModulesDirectoryPath;
@@ -29,7 +29,7 @@ namespace MonoDevelop.Inspector
             Manager.FocusedViewChanged += (s,e) => FocusedViewChanged?.Invoke (s,e);
         }
 
-        public void Attach (IMainWindowWrapper window) 
+        public void Attach (IMainWindow window) 
 		{
 			if (!windows.Contains (window)) {
 				windows.Add(window);
@@ -37,9 +37,9 @@ namespace MonoDevelop.Inspector
 			Manager.SetWindow(window);
 		}
 
-		public void ChangeFocusedView(IViewWrapper nSView) => Manager.ChangeFocusedView(nSView);
+		public void ChangeFocusedView(IView nSView) => Manager.ChangeFocusedView(nSView);
 
-		public void Remove (IMainWindowWrapper window)
+		public void Remove (IMainWindow window)
 		{
 			windows.Remove(window);
 			Manager.SetWindow(null);

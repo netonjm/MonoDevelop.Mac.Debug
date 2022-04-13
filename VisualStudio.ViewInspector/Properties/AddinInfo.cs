@@ -31,7 +31,7 @@ using Mono.Addins.Description;
 [assembly: Addin(
 	"VisualStudio.ViewInspector",
 	Namespace = "VisualStudio.ViewInspector",
-	Version = "1.1"
+	Version = "1.2"
 )]
 
 [assembly: AddinName("VisualStudio.ViewInspector")]

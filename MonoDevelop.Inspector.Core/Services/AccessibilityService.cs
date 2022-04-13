@@ -9,9 +9,9 @@ namespace MonoDevelop.Inspector.Services
 	{
 		public const int MaxIssues = 200000;
 		readonly public List<DetectedError> DetectedErrors = new List<DetectedError> ();
-		public event EventHandler<IWindowWrapper> ScanFinished;
+		public event EventHandler<IWindow> ScanFinished;
 
-		IWindowWrapper window;
+		IWindow window;
 
 		AccessibilityService ()
 		{
@@ -22,7 +22,7 @@ namespace MonoDevelop.Inspector.Services
 			get => DetectedErrors.Count;
 		}
 
-		bool HasError (IViewWrapper customView)
+		bool HasError (IView customView)
 		{
 			if (!customView.CanBecomeKeyView || customView.Hidden) {
 				return false;
@@ -43,7 +43,7 @@ namespace MonoDevelop.Inspector.Services
 			DetectedErrors.Clear();
 		}
 
-		public void ScanErrors (IInspectDelegate inspectDelegate, IWindowWrapper currentWindow, InspectorViewMode viewMode)
+		public void ScanErrors (IInspectDelegate inspectDelegate, IWindow currentWindow, InspectorViewMode viewMode)
 		{
 			window = currentWindow;
 			DetectedErrors.Clear();

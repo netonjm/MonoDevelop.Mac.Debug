@@ -10,7 +10,7 @@ namespace MonoDevelop.Inspector
 
     }
 
-    interface IToolbarWindow : IWindowWrapper
+    interface IToolbarWindow : IWindow
 	{
         void ShowToolkit(bool value);
         event EventHandler<bool> KeyViewLoop;
@@ -23,6 +23,6 @@ namespace MonoDevelop.Inspector
 		event EventHandler<FontData> FontChanged;
 		event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 		bool ImageChangedEnabled { get; set; }
-        void ChangeView(InspectorManager manager, IViewWrapper viewWrapper);
+        void ChangeView(InspectorManager manager, IView viewWrapper);
     }
 }

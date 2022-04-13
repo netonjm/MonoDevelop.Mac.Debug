@@ -29,7 +29,7 @@ namespace VisualStudio.ViewInspector
 
         #region SELECTION
 
-        IViewWrapper SelectedView;
+        IView SelectedView;
 
         readonly IBorderedWindow viewSelectedOverlayWindow;
         bool IsViewSelected;
@@ -68,7 +68,7 @@ namespace VisualStudio.ViewInspector
         OutlinePanel outlinePanel;
         public OutlineContentPad()
         {
-            viewSelectedOverlayWindow = new MacBorderedWindow(CoreGraphics.CGRect.Empty, AppKit.NSColor.Blue);
+            viewSelectedOverlayWindow = new BorderedWindow(CoreGraphics.CGRect.Empty, AppKit.NSColor.Blue);
             outlinePanel = new OutlinePanel();
 
             outlinePanel.RaiseFirstResponder += (s, e) =>

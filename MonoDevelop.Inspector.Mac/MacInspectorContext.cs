@@ -23,15 +23,15 @@ namespace MonoDevelop.Inspector.Mac
 		protected override InspectorManager GetInitializationContext ()
 		{
 			var inspectorDelegate = GetInspectorDelegate ();
-			var over = new MacBorderedWindow (CGRect.Empty, NSColor.Green);
-			var next = new MacBorderedWindow (CGRect.Empty, NSColor.Red);
-			var previous = new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
-			var acc = new MacAccessibilityWindow (new CGRect (10, 10, 600, 700));
-			var ins = new InspectorWindow (inspectorDelegate, new CGRect (10, 10, 600, 700)); ;
-			var tool = new MacToolbarWindow (inspectorDelegate, new CGRect (10, 10, 100, 700));
-			tool.ShowToolkit (hasToolkit);
+			var overlayWindow = new BorderedWindow (CGRect.Empty, NSColor.Green);
+			var nextWindow = new BorderedWindow (CGRect.Empty, NSColor.Red);
+			var previousWindow = new BorderedWindow (CGRect.Empty, NSColor.Blue);
+			var accWindow = new AccessibilityToolWindow (new CGRect (10, 10, 600, 700));
+			var inspectorWindow = new InspectorToolWindow (inspectorDelegate, new CGRect (10, 10, 600, 700)); ;
+			var macToolbar = new ToolbarWindow (inspectorDelegate, new CGRect (10, 10, 100, 700));
+			macToolbar.ShowToolkit (hasToolkit);
 
-			return new InspectorManager (macDelegate, over, next, previous, acc, ins, tool);
+			return new InspectorManager (macDelegate, overlayWindow, nextWindow, previousWindow, accWindow, inspectorWindow, macToolbar);
 		}
 
 		public static MacInspectorContext Current { get; set; } = new MacInspectorContext ();

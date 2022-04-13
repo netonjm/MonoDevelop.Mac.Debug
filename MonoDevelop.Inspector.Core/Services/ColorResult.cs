@@ -4,11 +4,11 @@ namespace MonoDevelop.Inspector
 {
 	public class ColorResult
 	{
-		public IViewWrapper View {
+		public IView View {
 			get;
 			set;
 		}
-		public IColorWrapper Color {
+		public IColor Color {
 			get;
 			set;
 		}

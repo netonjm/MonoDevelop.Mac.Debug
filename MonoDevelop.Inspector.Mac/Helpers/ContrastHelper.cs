@@ -6,8 +6,8 @@ namespace MonoDevelop.Inspector.Mac
 {
 	public class ContrastAnalysis
 	{
-		public IViewWrapper View1 { get; set; }
-		public IViewWrapper View2 { get; set; }
+		public IView View1 { get; set; }
+		public IView View2 { get; set; }
 		public NSColor Color1 { get; private set; }
 		public NSColor Color2 { get; private set; }
 		public NSFont Font { get; private set; }

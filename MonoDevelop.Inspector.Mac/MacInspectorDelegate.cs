@@ -1,42 +1,21 @@
 ﻿using AppKit;
 using CoreGraphics;
-using Foundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MonoDevelop.Inspector.Services;
-using MonoDevelop.Inspector.Mac.Touchbar;
 using System.Globalization;
 using System.Threading;
 using System.IO;
 using System.Reflection;
-using Xamarin.PropertyEditing.Mac;
+using MonoDevelop.Inspector.Mac.Abstractions;
+using MonoDevelop.Inspector.Mac.Services;
+using MonoDevelop.Inspector.Mac.HostWindow;
+using MonoDevelop.Inspector.Mac.TouchBar;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    public class MacColorWrapper : IColorWrapper
-    {
-        NSColor image;
-        public MacColorWrapper(NSColor image)
-        {
-            this.image = image;
-        }
-
-        public object NativeObject => image;
-    }
-
-    public class MacImageWrapper : IImageWrapper
-    {
-        NSImage image;
-        public MacImageWrapper(NSImage image)
-        {
-            this.image = image;
-        }
-
-        public object NativeObject => image;
-    }
-
     class MacInspectorDelegate : IInspectDelegate
     {
         TaskCompletionSource<object> processingCompletion = new TaskCompletionSource<object>();
@@ -45,7 +24,7 @@ namespace MonoDevelop.Inspector.Mac
         {
         }
 
-        public IImageWrapper GetImageResource(string resource)
+        public IImage GetImageResource(string resource)
         {
             try
             {
@@ -53,7 +32,7 @@ namespace MonoDevelop.Inspector.Mac
                 var resources = assembly.GetManifestResourceNames();
                 using (var stream = assembly.GetManifestResourceStream(resource))
                 {
-                    return new MacImageWrapper(NSImage.FromStream(stream));
+                    return new Image(NSImage.FromStream(stream));
                 }
             }
             catch (System.Exception ex)
@@ -62,7 +41,7 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public IMenuWrapper GetSubMenu()
+        public IMenu GetSubMenu()
         {
             var shared = NSApplication.SharedApplication;
             if (shared.Menu == null)
@@ -89,7 +68,7 @@ namespace MonoDevelop.Inspector.Mac
             var submenu = item.Submenu;
             submenu.AutoEnablesItems = false;
 
-            return new MacMenuWrapper(submenu);
+            return new Menu(submenu);
         }
 
         void LoadModule (string path, InspectorContext context)
@@ -168,12 +147,12 @@ namespace MonoDevelop.Inspector.Mac
         {
             LoadModules(context);
           
-            var over = new MacBorderedWindow(CGRect.Empty, NSColor.Green);
-            var next = new MacBorderedWindow(CGRect.Empty, NSColor.Red);
-            var previous = new MacBorderedWindow(CGRect.Empty, NSColor.Blue);
-            var acc = new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
-            var ins = new InspectorWindow(this, new CGRect(10, 10, 600, 700)); ;
-            var tool = new MacToolbarWindow(this, new CGRect(10, 10, 100, 700));
+            var over = new BorderedWindow(CGRect.Empty, NSColor.Green);
+            var next = new BorderedWindow(CGRect.Empty, NSColor.Red);
+            var previous = new BorderedWindow(CGRect.Empty, NSColor.Blue);
+            var acc = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
+            var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
+            var tool = new ToolbarWindow(this, new CGRect(10, 10, 100, 700));
             tool.ShowToolkit(false);
             var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
             context.Initialize(manager, false);
@@ -186,18 +165,18 @@ namespace MonoDevelop.Inspector.Mac
             Thread.CurrentThread.CurrentUICulture = e;
         }
 
-        public IButtonWrapper GetImageButton(IImageWrapper imageWrapper)
+        public IButton GetImageButton(IImage imageWrapper)
         {
             var invokeButton = new ImageButton();
 			invokeButton.Image = (NSImage)imageWrapper.NativeObject;
-			return new MacButtonWrapper(invokeButton);
+			return new Button(invokeButton);
         }
 
-        class MacConstrainContainerWrapper : IConstrainContainerWrapper
+        class MacConstrainContainerWrapper : IConstrainContainer
         {
-            IViewWrapper wrapper;
+            IView wrapper;
             NSView view;
-            public MacConstrainContainerWrapper(IViewWrapper previous)
+            public MacConstrainContainerWrapper(IView previous)
             {
                 this.wrapper = previous;
                 view = previous.NativeObject as NSView;
@@ -205,7 +184,7 @@ namespace MonoDevelop.Inspector.Mac
 
             public string NodeName => "Constraints";
 
-            public IViewWrapper PreviousValidKeyView => wrapper;
+            public IView PreviousValidKeyView => wrapper;
 
             public object NativeObject => null;
 
@@ -218,22 +197,22 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public void ConvertToNodes(IViewWrapper customView, INodeView node, InspectorViewMode viewMode)
+        public void ConvertToNodes(IView customView, INodeView node, InspectorViewMode viewMode)
         {
-            var current = new NodeView(customView);
-            var nodeWrapper = new MacNodeWrapper(current);
+            var current = new TreeNodeView(customView);
+            var nodeWrapper = new NodeView(current);
             node.AddChild(nodeWrapper);
 
             if (customView.HasConstraints) {
                 var contraintContainer = new MacConstrainContainerWrapper(customView);
-                var constraintsContainerNodeView = new NodeView(contraintContainer);
-                var constraintsContainerNodeWrapper = new MacNodeWrapper(constraintsContainerNodeView);
+                var constraintsContainerNodeView = new TreeNodeView(contraintContainer);
+                var constraintsContainerNodeWrapper = new NodeView(constraintsContainerNodeView);
                 nodeWrapper.AddChild(constraintsContainerNodeWrapper);
 
                 foreach (var item in customView.Constraints)
                 {
-                    var constraintNodeView = new NodeView(item);
-                    var constraintWrapper = new MacNodeWrapper(constraintNodeView);
+                    var constraintNodeView = new TreeNodeView(item);
+                    var constraintWrapper = new NodeView(constraintNodeView);
                     constraintsContainerNodeWrapper.AddChild(constraintWrapper);
                 }
             }
@@ -256,22 +235,22 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public void RemoveAllErrorWindows(IWindowWrapper windowWrapper)
+        public void RemoveAllErrorWindows(IWindow windowWrapper)
         {
             var window = windowWrapper.NativeObject as NSWindow;
-            var childWindro = window.ChildWindows.OfType<MacBorderedWindow>();
+            var childWindro = window.ChildWindows.OfType<BorderedWindow>();
             foreach (var item in childWindro)
             {
                 item.Close();
             }
         }
 
-        public FontData GetFont(IViewWrapper view)
+        public FontData GetFont(IView view)
         {
             return NativeViewHelper.GetFont(view.NativeObject as NSView);
         }
 
-        object GetNativePropertyPanelWrapper(IViewWrapper viewSelected)
+        object GetNativePropertyPanelWrapper(IView viewSelected)
         {
             NSView view = viewSelected.NativeObject as NSView;
             if (view is NSComboBox comboBox)
@@ -309,25 +288,25 @@ namespace MonoDevelop.Inspector.Mac
 
         public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)
         {
-            if (viewSelected is IViewWrapper view) {
+            if (viewSelected is IView view) {
                 if (viewMode == InspectorViewMode.Xwt)
                 {
                     return view.View;
                 }
                 return GetNativePropertyPanelWrapper(view);
             }
-            if (viewSelected is IConstrainWrapper constrain)
+            if (viewSelected is IConstrain constrain)
                 return constrain;
             return viewSelected?.NativeObject;
         }
 
-        public void SetFont(IViewWrapper view, IFontWrapper font)
+        public void SetFont(IView view, IFontWrapper font)
         {
             NativeViewHelper.SetFont(view.NativeObject as NSView, font.NativeObject as NSFont);
         }
 
 
-        ColorResult BackColorSearch(IViewWrapper view)
+        ColorResult BackColorSearch(IView view)
         {
             var properties = view.GetType().GetProperties().Where(s => s.Name.StartsWith("BackgroundColor")).ToArray();
 
@@ -335,10 +314,10 @@ namespace MonoDevelop.Inspector.Mac
             if (property != null)
             {
                 var colorFound = property.GetValue(view.Superview) as NSColor;
-                return new ColorResult() { View = view, Color = new MacColorWrapper(colorFound) };
+                return new ColorResult() { View = view, Color = new Color(colorFound) };
             }
 
-            if (view.Superview is IViewWrapper superView && superView != null)
+            if (view.Superview is IView superView && superView != null)
             {
                 var result = BackColorSearch(superView);
                 if (result != null)
@@ -349,12 +328,12 @@ namespace MonoDevelop.Inspector.Mac
             return null;
         }
 
-        bool IsSelectableView(IViewWrapper customView)
+        bool IsSelectableView(IView customView)
         {
             return customView.CanBecomeKeyView && !customView.Hidden;
         }
 
-        public void Recursively(IViewWrapper customView, List<DetectedError> detectedErrors, InspectorViewMode viewMode)
+        public void Recursively(IView customView, List<DetectedError> detectedErrors, InspectorViewMode viewMode)
         {
             if (detectedErrors.Count >= AccessibilityService.MaxIssues)
             {
@@ -424,13 +403,13 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public void SetButton(IButtonWrapper button, IImageWrapper image)
+        public void SetButton(IButton button, IImage image)
         {
             var btn = button.NativeObject as NSButton;
             btn.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap ());
         }
 
-        public void SetButton(IImageViewWrapper imageview, IImageWrapper image)
+        public void SetButton(IImageView imageview, IImage image)
         {
             var imgView = imageview.NativeObject as NSImageView;
             imgView.Image = image.NativeObject as NSImage; // ToNSImage(image.ToBitmap());
@@ -448,19 +427,19 @@ namespace MonoDevelop.Inspector.Mac
         //	return new NSImage(img2, new CGSize (img2.Width, img2.Height));
         //}
 
-        public async Task<IImageWrapper> OpenDialogSelectImage(IWindowWrapper selectedWindow)
+        public async Task<IImage> OpenDialogSelectImage(IWindow selectedWindow)
         {
             var panel = new NSOpenPanel();
             panel.AllowedFileTypes = new[] { "png" };
             panel.Prompt = "Select a image";
-            IImageWrapper rtrn = null;
+            IImage rtrn = null;
             processingCompletion = new TaskCompletionSource<object>();
 
             panel.BeginSheet(selectedWindow.NativeObject as NSWindow, result =>
             {
                 if (result == 1 && panel.Url != null)
                 {
-                    rtrn = new MacImageWrapper(new NSImage(panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
+                    rtrn = new Image(new NSImage(panel.Url.Path));// Xwt.Drawing.Image.FromFile(panel.Url.Path);
 
                 }
                 processingCompletion.TrySetResult(null);
@@ -469,14 +448,14 @@ namespace MonoDevelop.Inspector.Mac
             return rtrn;
         }
 
-        public async Task InvokeImageChanged(IViewWrapper view, IWindowWrapper selectedWindow)
+        public async Task InvokeImageChanged(IView view, IWindow selectedWindow)
         {
             if (view.NativeObject is NSImageView imageView)
             {
                 var image = await OpenDialogSelectImage(selectedWindow);
                 if (image != null)
                 {
-                    SetButton(new MacImageViewWrapper(imageView), image);
+                    SetButton(new ImageView(imageView), image);
                 }
             }
             else if (view.NativeObject is NSButton btn)
@@ -484,14 +463,14 @@ namespace MonoDevelop.Inspector.Mac
                 var image = await OpenDialogSelectImage(selectedWindow);
                 if (image != null)
                 {
-                    SetButton(new MacButtonWrapper(btn), image);
+                    SetButton(new Button(btn), image);
                 }
             }
         }
 
-        public IBorderedWindow CreateErrorWindow(IViewWrapper view)
+        public IBorderedWindow CreateErrorWindow(IView view)
         {
-            return new MacBorderedWindow(view, NSColor.Red);
+            return new BorderedWindow(view, NSColor.Red);
         }
 
         public IFontWrapper GetFromName(string selected, int fontSize)
@@ -499,7 +478,7 @@ namespace MonoDevelop.Inspector.Mac
             return new MacFont(NSFont.FromFontName(selected, fontSize));
         }
 
-        public void ClearSubmenuItems(List<IMenuItemWrapper> menuItems, IMenuWrapper submenu)
+        public void ClearSubmenuItems(List<IMenuItem> menuItems, IMenu submenu)
         {
             var menu = (NSMenu)submenu.NativeObject;
             foreach (var item in menuItems) {
@@ -507,34 +486,34 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public IMenuItemWrapper CreateMenuItem(string title, EventHandler menuItemOpenHandler)
+        public IMenuItem CreateMenuItem(string title, EventHandler menuItemOpenHandler)
         {
             var menuItem = new NSMenuItem(title, menuItemOpenHandler) { Enabled = false };
-            return new MacMenuItemWrapper(menuItem);
+            return new MenuItem(menuItem);
         }
 
-        public IMenuItemWrapper GetShowInspectorWindowMenuItem(EventHandler menuOpenHandler)
+        public IMenuItem GetShowInspectorWindowMenuItem(EventHandler menuOpenHandler)
         {
             var inspectorMenuItem = new NSMenuItem($"Show Inspector Window", menuOpenHandler);
             inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
             inspectorMenuItem.KeyEquivalent = "2";
-            return new MacMenuItemWrapper(inspectorMenuItem);
+            return new MenuItem(inspectorMenuItem);
         }
 
-        public IMenuItemWrapper GetShowAccessibilityWindowMenuItem(EventHandler menuOpenHandler)
+        public IMenuItem GetShowAccessibilityWindowMenuItem(EventHandler menuOpenHandler)
         {
             var inspectorMenuItem = new NSMenuItem($"Show Accessibility Window", menuOpenHandler);
             inspectorMenuItem.KeyEquivalentModifierMask = NSEventModifierMask.CommandKeyMask | NSEventModifierMask.ShiftKeyMask;
             inspectorMenuItem.KeyEquivalent = "1";
-            return new MacMenuItemWrapper(inspectorMenuItem);
+            return new MenuItem(inspectorMenuItem);
         }
 
-        public IMenuItemWrapper GetSeparatorMenuItem()
+        public IMenuItem GetSeparatorMenuItem()
         {
-            return new MacMenuItemWrapper(NSMenuItem.SeparatorItem);
+            return new MenuItem(NSMenuItem.SeparatorItem);
         }
 
-        public void SetAppearance(bool isDark, params IWindowWrapper[] inspectorWindow)
+        public void SetAppearance(bool isDark, params IWindow[] inspectorWindow)
         {
             //PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
             foreach (var item in inspectorWindow) {
@@ -542,7 +521,7 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public void CreateItem(IViewWrapper view, ToolbarView e)
+        public void CreateItem(IView view, ToolbarView e)
         {
             var nativeView = view.NativeObject;
             var createdView = Getview(e);
@@ -578,16 +557,16 @@ namespace MonoDevelop.Inspector.Mac
             return new NSView();
         }
 
-        public virtual IToolbarWrapperDelegateWrapper GetTouchBarDelegate(object element)
+        public virtual TouchBarBaseDelegate GetTouchBarDelegate(object element)
         {
             if (element is NSView)
             {
-                return new MacToolbarWrapperDelegateWrapper (new ColorPickerDelegate());
+                return new ColorPickerDelegate();
             }
             return null;
         }
 
-        public void SetCultureInfo(IWindowWrapper selectedWindow, CultureInfo e)
+        public void SetCultureInfo(IWindow selectedWindow, CultureInfo e)
         {
 
 		}

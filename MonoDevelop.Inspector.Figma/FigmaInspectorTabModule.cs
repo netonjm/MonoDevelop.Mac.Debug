@@ -70,7 +70,7 @@ namespace MonoDevelop.Inspector.Figma
         string configFilePath;
         FigmaConfig config;
 
-        void IInspectorTabModule.Load(IInspectorWindow inspectorWindow, ITabWrapper tab)
+        void IInspectorTabModule.Load(IInspectorWindow inspectorWindow, ITab tab)
         {
             this.inspectorWindow = inspectorWindow;
             var path = Path.GetDirectoryName(GetType().Assembly.Location);

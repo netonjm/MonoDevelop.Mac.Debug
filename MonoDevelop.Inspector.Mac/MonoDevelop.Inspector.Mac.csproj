@@ -166,4 +166,26 @@
 
     <Content Include="LICENSE.txt" Pack="True" PackagePath="\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Windows\Accessibility\" />
+    <None Remove="Windows\Inspector\" />
+    <None Remove="Views\" />
+    <None Remove="Windows\Toolbar\" />
+    <None Remove="Services\" />
+    <None Remove="HostWindow\" />
+    <None Remove="Windows\Inspector\PropertyPanel\" />
+    <None Remove="Windows\Inspector\TabView\" />
+    <None Remove="TouchBar\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windows\Accessibility\" />
+    <Folder Include="Windows\Inspector\" />
+    <Folder Include="Abstractions\" />
+    <Folder Include="Windows\Toolbar\" />
+    <Folder Include="Services\" />
+    <Folder Include="Views\" />
+    <Folder Include="HostWindow\" />
+    <Folder Include="Windows\Inspector\PropertyPanel\" />
+    <Folder Include="TouchBar\" />
+  </ItemGroup>
 </Project>

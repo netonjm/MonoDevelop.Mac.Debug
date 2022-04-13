@@ -10,7 +10,7 @@ namespace AppKit
 {
 	public static class Extensions
 	{
-		public static bool IsBlockedType (this IViewWrapper customView)
+		public static bool IsBlockedType (this IView customView)
 		{
 			if (customView is NSTableViewCell)
 			{
@@ -24,7 +24,7 @@ namespace AppKit
 			return obj.GetType().GetProperty(propertyName);
 		}
 
-		internal static NodeView Search (this NodeView nodeView, IViewWrapper view)
+		internal static TreeNodeView Search (this TreeNodeView nodeView, IView view)
 		{
 			if (nodeView.Wrapper != null && nodeView.Wrapper.NativeObject == view.NativeObject) {
 				return nodeView;
@@ -35,7 +35,7 @@ namespace AppKit
 			}
 
 			for (int i = 0; i < nodeView.ChildCount; i++) {
-				var node = (NodeView) nodeView.GetChild (i);
+				var node = (TreeNodeView) nodeView.GetChild (i);
 				var found = Search (node, view);
 				if (found != null) {
 					return found;

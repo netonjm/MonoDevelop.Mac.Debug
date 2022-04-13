@@ -15,10 +15,10 @@ namespace MonoDevelop.Inspector
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
 
-        internal IViewWrapper SelectedView => nativeObject as IViewWrapper;
+        internal IView SelectedView => nativeObject as IView;
         INativeObject nativeObject;
-        IViewWrapper nextKeyView, previousKeyView;
-		IMainWindowWrapper selectedWindow;
+        IView nextKeyView, previousKeyView;
+		IMainWindow selectedWindow;
 		InspectorViewMode ViewMode
         {
 			get => selectedWindow.ViewMode;
@@ -31,11 +31,11 @@ namespace MonoDevelop.Inspector
 		readonly IInspectorWindow inspectorWindow;
 		readonly IAccessibilityWindow accessibilityWindow;
 
-	 	readonly List<IMenuItemWrapper> menuItems = new List<IMenuItemWrapper>();
+	 	readonly List<IMenuItem> menuItems = new List<IMenuItem>();
 
 		IToolbarWindow toolbarWindow;
 
-		IMenuItemWrapper inspectorMenuItem, accessibilityMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
+		IMenuItem inspectorMenuItem, accessibilityMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
         readonly AccessibilityService accessibilityService;
 		List<IBorderedWindow> detectedErrors = new List<IBorderedWindow> ();
 
@@ -93,7 +93,7 @@ namespace MonoDevelop.Inspector
 			}
 		}
 
-        IMenuWrapper Submenu {
+        IMenu Submenu {
 			get {
                 return Delegate.GetSubMenu(); ;
 			}
@@ -129,7 +129,7 @@ namespace MonoDevelop.Inspector
 
 		#endregion
 
-		public void SetWindow (IMainWindowWrapper selectedWindow)
+		public void SetWindow (IMainWindow selectedWindow)
 		{
             if (this.selectedWindow?.NativeObject == selectedWindow?.NativeObject) {
                 return;
@@ -304,16 +304,16 @@ namespace MonoDevelop.Inspector
 
 		void RemoveView (INativeObject toRemove)
 		{
-            IViewWrapper parent = null;
-            if (toRemove is IViewWrapper viewWrapper) {
+            IView parent = null;
+            if (toRemove is IView viewWrapper) {
                 parent = viewWrapper?.PreviousValidKeyView;
                 viewWrapper.RemoveFromSuperview();
-            } else if (toRemove is IConstrainWrapper constrainWrapper)
+            } else if (toRemove is IConstrain constrainWrapper)
             {
                 parent = constrainWrapper?.PreviousValidKeyView;
                 constrainWrapper.RemoveFromSuperview();
             }
-            else if (toRemove is IConstrainContainerWrapper constrainContainerWrapper)
+            else if (toRemove is IConstrainContainer constrainContainerWrapper)
             {
                 parent = constrainContainerWrapper?.PreviousValidKeyView;
                 constrainContainerWrapper.RemoveFromSuperview();
@@ -426,7 +426,7 @@ namespace MonoDevelop.Inspector
 
         string ToMenuAction (bool value) => value ? "Show" : "Hide";
 
-		public event EventHandler<IViewWrapper> FocusedViewChanged;
+		public event EventHandler<IView> FocusedViewChanged;
 
 		internal void ChangeFocusedView (INativeObject nextView)
 		{

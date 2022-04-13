@@ -6,6 +6,7 @@ using CoreGraphics;
 using ExampleDebugMac.Resource;
 using Foundation;
 using MonoDevelop.Inspector.Mac;
+using MonoDevelop.Inspector.Mac.HostWindow;
 using ObjCRuntime;
 
 namespace ExampleDebugMac
@@ -20,7 +21,6 @@ namespace ExampleDebugMac
             return true;
         }
 
-
         static void Main (string[] args)
 		{
             NSApplication.Init();
@@ -28,14 +28,21 @@ namespace ExampleDebugMac
 
             var xPos = NSScreen.MainScreen.Frame.Width / 2;// NSWidth([[window screen] frame])/ 2 - NSWidth([window frame])/ 2;
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
-            var mainWindow = new MacAccInspectorWindow();
+            var mainWindow = new InspectorHostWindow();
+            mainWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable;
+            var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
+            stackView.EdgeInsets = new NSEdgeInsets(10, 10, 10, 10);
 
-			var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
-			mainWindow.ContentView = stackView;
-			stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
-          
+            mainWindow.ContentView = stackView;
+
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
+            stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
+
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
             stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
-			stackView.AddArrangedSubview(new NSTextField { StringValue = "345" });
+
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
+            stackView.AddArrangedSubview(new NSTextField { StringValue = "345" });
 			var button = new NSButton { Title =  "Press to show a message" };
 
             stackView.AddArrangedSubview(button);
@@ -67,12 +74,15 @@ namespace ExampleDebugMac
                 window.MakeKeyAndOrderFront(mainWindow);
             };
             stackView.AddArrangedSubview(button2);
-            button2.HeightAnchor.ConstraintEqualTo(100).Active = true; ;
-
+            //button2.HeightAnchor.ConstraintEqualTo(100).Active = true; ;
+            stackView.AddArrangedSubview(new NSView());
             mainWindow.Title = "Example Debug Xamarin.Mac";
 
-			//mainWindow.MakeKeyWindow();
-			mainWindow.MakeKeyAndOrderFront(null);
+            var size = new CGSize(200, 400);
+            mainWindow.SetContentSize(size);
+            mainWindow.Center();
+            //mainWindow.MakeKeyWindow();
+            mainWindow.MakeKeyAndOrderFront(null);
 			NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
 			NSApplication.SharedApplication.Run();
             //mainWindow.Dispose();

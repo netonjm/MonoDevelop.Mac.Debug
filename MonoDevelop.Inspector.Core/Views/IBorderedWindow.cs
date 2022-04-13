@@ -3,12 +3,12 @@
 
 namespace MonoDevelop.Inspector
 {
-    public interface IBorderedWindow : IWindowWrapper
+    public interface IBorderedWindow : IWindow
     {
         float BorderWidth { get; set; }
         bool Visible { get; set; }
-        void SetParentWindow(IWindowWrapper selectedWindow);
-        void AlignWith(IViewWrapper view);
+        void SetParentWindow(IWindow selectedWindow);
+        void AlignWith(IView view);
         void AlignWindowWithContentView();
         void OrderFront();
     }
