@@ -34,7 +34,7 @@ namespace MonoDevelop.Inspector.Mac
 				result = secureTextField.Font;
 				size = (float)secureTextField.Font.PointSize;
 			}
-			return new FontData(new MacFont (result), size);
+			return new FontData(new TreeeViewItemFont (result), size);
 		}
 
 		public static void SetFont (NSView view, NSFont font)

@@ -104,7 +104,7 @@ namespace MonoDevelop.Inspector.Mac
 		IView IWindow.ContentView {
 			get {
 				if (ContentView is NSView view) {
-					return new MacViewWrapper (view);
+					return new TreeViewItemView (view);
 				}
 				return null;
 			}
@@ -116,7 +116,7 @@ namespace MonoDevelop.Inspector.Mac
 		IView IWindow.FirstResponder {
 			get {
 				if (FirstResponder is NSView view) {
-					return new MacViewWrapper (view);
+					return new TreeViewItemView (view);
 				}
 				return null;
 			}

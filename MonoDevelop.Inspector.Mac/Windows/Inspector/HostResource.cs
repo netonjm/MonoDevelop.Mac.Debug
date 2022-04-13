@@ -42,15 +42,11 @@ namespace MonoDevelop.Inspector.Mac
                 case NamedResources.DescriptionLabelColor:
                     return NSColor.SecondaryLabelColor;
                 case NamedResources.ForegroundColor:
-                    return NSColor.LabelColor;
+                    return NSColor.ControlBackground;
                 case NamedResources.PadBackgroundColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                    NSColor.FromRgba(red: 0.12f, green: 0.12f, blue: 0.12f, alpha: 1.00f) :
-                    NSColor.White;
+                    return NSColor.ControlBackground;
                 case NamedResources.PanelTabBackground:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                       NSColor.FromRgba(red: 0.16f, green: 0.16f, blue: 0.16f, alpha: 1.00f) :
-                       NSColor.FromRgba(red: 0.98f, green: 0.98f, blue: 0.98f, alpha: 1.00f);
+                    return NSColor.ControlBackground;
                 case NamedResources.TabBorderColor:
                     return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
                         NSColor.FromRgba(255, 255, 255, 0) :
@@ -61,9 +57,7 @@ namespace MonoDevelop.Inspector.Mac
                        NSColor.FromRgba(255, 255, 255, 25) :
                         NSColor.FromRgba(0, 0, 0, 20);
                 case NamedResources.FrameBoxButtonBackgroundColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                      NSColor.FromRgb(0.38f, 0.55f, 0.91f) :
-                        NSColor.FromRgb(0.36f, 0.54f, 0.90f);
+                    return NSColor.ControlBackground;
             }
             return NSColor.FromName(name);
         }
@@ -80,7 +74,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public NSAppearance GetVibrantAppearance(NSAppearance appearance)
         {
-            return appearance;
+            return NSApplication.SharedApplication.EffectiveAppearance;
         }
     }
 }

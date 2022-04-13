@@ -11,7 +11,7 @@ using ObjCRuntime;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public class ComboBoxWrapper : TextFieldViewWrapper
+	public class PropertyPanelNSComboBox : PropertyPanelNSView
 	{
 		NSComboBox combo;
 
@@ -25,21 +25,42 @@ namespace MonoDevelop.Inspector.Mac
 		{
 			get
 			{
-				var items = string.Join (",", combo.Values.Select(s => s.ToString()));
-				return string.Format("{0} items. ({1})", combo.Values.Length, items);
+				var values = combo.Values;
+				var items = string.Join (",", values.Select(s => s.ToString()));
+				return string.Format("{0} items. ({1})", values.Length, items);
 			}
 		}
 
-		public ComboBoxWrapper(NSComboBox view) : base(view)
+		public PropertyPanelNSComboBox(NSComboBox view) : base(view)
 		{
 			this.combo = view;
 		}
 	}
 
-	public class TextViewWrapper : ViewWrapper
+	public class PropertyPanelNSPopupButton : PropertyPanelNSView
+	{
+		NSPopUpButton combo;
+
+		public string ComboItems
+		{
+			get
+			{
+				var values = combo.Items();
+				var items = string.Join(",", values.Select(s => s.Title.ToString()));
+				return string.Format("{0} items. ({1})", values.Length, items);
+			}
+		}
+
+		public PropertyPanelNSPopupButton(NSPopUpButton view) : base(view)
+		{
+			this.combo = view;
+		}
+	}
+
+	public class PropertyPanelNSTextView : PropertyPanelNSView
 	{
 		readonly NSTextView textView;
-		public TextViewWrapper(NSTextView view) : base(view)
+		public PropertyPanelNSTextView(NSTextView view) : base(view)
 		{
 			textView = view;
 		}
@@ -72,11 +93,11 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-    public class TextFieldViewWrapper : ViewWrapper
+    public class PropertyPanelNSTextField : PropertyPanelNSView
 	{
 		readonly NSTextField textView;
 
-		public TextFieldViewWrapper (NSTextField view) : base(view)
+		public PropertyPanelNSTextField (NSTextField view) : base(view)
 		{
 			textView = view;
 		}
@@ -111,7 +132,7 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class ButtonViewWrapper : ViewWrapper
+	public class PropertyPanelNSButton : PropertyPanelNSView
 	{
 		readonly NSButton buttonView;
 
@@ -176,7 +197,7 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
-		public ButtonViewWrapper(NSButton view) : base(view)
+		public PropertyPanelNSButton(NSButton view) : base(view)
 		{
 			buttonView = view;
 		}
@@ -206,7 +227,7 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class BoxViewWrapper : ViewWrapper
+	public class PropertyPanelNSBox : PropertyPanelNSView
 	{
 		readonly NSBox buttonView;
 
@@ -215,7 +236,7 @@ namespace MonoDevelop.Inspector.Mac
 			get => buttonView.IsFlipped;
 		}
 
-		public BoxViewWrapper(NSBox view) : base(view)
+		public PropertyPanelNSBox(NSBox view) : base(view)
 		{
 			buttonView = view;
 		}
@@ -248,7 +269,7 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class ImageViewWrapper : ViewWrapper
+	public class PropertyPanelNSImageView : PropertyPanelNSView
 	{
 		readonly NSImageView buttonView;
 
@@ -258,7 +279,7 @@ namespace MonoDevelop.Inspector.Mac
 			set => buttonView.Image = value;
 		}
 
-		public ImageViewWrapper(NSImageView view) : base(view)
+		public PropertyPanelNSImageView(NSImageView view) : base(view)
 		{
 			buttonView = view;
 		}
@@ -276,7 +297,7 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class ViewWrapper
+	public class PropertyPanelNSView
 	{
 		protected readonly NSView view;
 
@@ -286,7 +307,7 @@ namespace MonoDevelop.Inspector.Mac
 			set => view.Identifier = value;
 		}
 
-		public ViewWrapper (NSView view)
+		public PropertyPanelNSView (NSView view)
 		{
 			this.view = view;
 		}
@@ -398,7 +419,7 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
-		public Type CurrentType {
+		public Type ViewType {
 			get => view.GetType ();
 		}
 	}

@@ -255,35 +255,41 @@ namespace MonoDevelop.Inspector.Mac
             NSView view = viewSelected.NativeObject as NSView;
             if (view is NSComboBox comboBox)
             {
-                return new ComboBoxWrapper(comboBox);
+                return new PropertyPanelNSComboBox(comboBox);
             }
 
-            if (view is NSTextField textfield)
+            if (view is NSPopUpButton popUpButton)
             {
-                return new TextFieldViewWrapper(textfield);
-            }
-
-            if (view is NSTextView text)
-            {
-                return new TextViewWrapper(text);
-            }
-
-            if (view is NSButton btn)
-            {
-                return new ButtonViewWrapper(btn);
+                return new PropertyPanelNSComboBox(compopUpButtonboBox);
             }
 
             if (view is NSImageView img)
             {
-                return new ImageViewWrapper(img);
+                return new PropertyPanelNSImageView(img);
             }
 
             if (view is NSBox box)
             {
-                return new BoxViewWrapper(box);
+                return new PropertyPanelNSBox(box);
             }
 
-            return new ViewWrapper(view);
+
+            if (view is NSButton btn)
+            {
+                return new PropertyPanelNSButton(btn);
+            }
+
+            if (view is NSTextView text)
+            {
+                return new PropertyPanelNSTextView(text);
+            }
+
+            if (view is NSTextField textfield)
+            {
+                return new PropertyPanelNSTextField(textfield);
+            }
+
+            return new PropertyPanelNSView(view);
         }
 
         public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)
@@ -475,7 +481,7 @@ namespace MonoDevelop.Inspector.Mac
 
         public IFontWrapper GetFromName(string selected, int fontSize)
         {
-            return new MacFont(NSFont.FromFontName(selected, fontSize));
+            return new TreeeViewItemFont(NSFont.FromFontName(selected, fontSize));
         }
 
         public void ClearSubmenuItems(List<IMenuItem> menuItems, IMenu submenu)

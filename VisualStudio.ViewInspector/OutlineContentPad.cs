@@ -61,7 +61,7 @@ namespace VisualStudio.ViewInspector
             {
                 return;
             }
-            SelectedView = new MacViewWrapper(widget);
+            SelectedView = new TreeViewItemView(widget);
             viewSelectedOverlayWindow.AlignWith(SelectedView);
         }
 
@@ -73,7 +73,7 @@ namespace VisualStudio.ViewInspector
 
             outlinePanel.RaiseFirstResponder += (s, e) =>
             {
-                SelectedView = new MacViewWrapper(e);
+                SelectedView = new TreeViewItemView(e);
                 IsFirstResponderOverlayVisible = true;
                 RaiseFirstResponder?.Invoke(s, e);
             };
