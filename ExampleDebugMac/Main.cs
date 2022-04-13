@@ -35,11 +35,31 @@ namespace ExampleDebugMac
 
             mainWindow.ContentView = stackView;
 
-            stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("TextField:"));
             stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });
 
-            stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
-            stackView.AddArrangedSubview(new NSTextField { StringValue = "45" });
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("ImageView:"));
+            var imageView = new NSImageView();
+            stackView.AddArrangedSubview(imageView); ;
+            imageView.WidthAnchor.ConstraintEqualTo(100).Active = true;
+            imageView.HeightAnchor.ConstraintEqualTo(100).Active = true;
+
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("ComboBox"));
+
+            var comboBox = new NSComboBox();
+            comboBox.Add(new NSString("Item1"));
+            comboBox.Add(new NSString("Item2"));
+            comboBox.Add(new NSString("Item3"));
+            comboBox.SelectItem(0);
+            stackView.AddArrangedSubview(comboBox);
+
+            stackView.AddArrangedSubview(NSTextField.CreateLabel("NSPopUpButton:"));
+            var popupButton = new NSPopUpButton();
+            popupButton.AddItem("Item1");
+            popupButton.AddItem("Item2");
+            popupButton.AddItem("Item3");
+            comboBox.SelectItem(0);
+            stackView.AddArrangedSubview(popupButton);
 
             stackView.AddArrangedSubview(NSTextField.CreateLabel("This is a label"));
             stackView.AddArrangedSubview(new NSTextField { StringValue = "345" });

@@ -252,7 +252,7 @@ namespace MonoDevelop.Inspector.Mac
 
         object GetNativePropertyPanelWrapper(IView viewSelected)
         {
-            NSView view = viewSelected.NativeObject as NSView;
+            object view = viewSelected.NativeObject;
             if (view is NSComboBox comboBox)
             {
                 return new PropertyPanelNSComboBox(comboBox);
@@ -260,7 +260,12 @@ namespace MonoDevelop.Inspector.Mac
 
             if (view is NSPopUpButton popUpButton)
             {
-                return new PropertyPanelNSComboBox(compopUpButtonboBox);
+                return new PropertyPanelNSPopupButton(popUpButton);
+            }
+
+            if (view is NSStackView stackView)
+            {
+                return new PropertyPanelNSStackView(stackView);
             }
 
             if (view is NSImageView img)
@@ -272,7 +277,6 @@ namespace MonoDevelop.Inspector.Mac
             {
                 return new PropertyPanelNSBox(box);
             }
-
 
             if (view is NSButton btn)
             {
@@ -289,7 +293,7 @@ namespace MonoDevelop.Inspector.Mac
                 return new PropertyPanelNSTextField(textfield);
             }
 
-            return new PropertyPanelNSView(view);
+            return new PropertyPanelNSView(view as NSView);
         }
 
         public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)

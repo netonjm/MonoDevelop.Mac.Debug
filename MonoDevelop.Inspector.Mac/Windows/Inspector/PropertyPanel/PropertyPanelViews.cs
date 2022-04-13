@@ -8,12 +8,13 @@ using Foundation;
 using System.Collections.Generic;
 using System.Linq;
 using ObjCRuntime;
+using Xamarin.PropertyEditing.Drawing;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	public class PropertyPanelNSComboBox : PropertyPanelNSView
+	class PropertyPanelNSComboBox : PropertyPanelNSControl
 	{
-		NSComboBox combo;
+		NSComboBox combo => (NSComboBox)view;
 
 		public bool ButtonBordered
 		{
@@ -21,48 +22,97 @@ namespace MonoDevelop.Inspector.Mac
 			set => combo.ButtonBordered = value;
 		}
 
-		public string ComboItems
+		bool IsValidIndex(int index) => index == -1 || (index > 0 && index < combo.Count); 
+
+		public int SelectedIndex
+		{
+			get => (int)combo.SelectedIndex;
+			set
+			{
+				if (IsValidIndex(value))
+					combo.SelectItem(value);
+			}
+		}
+
+		public string SelectedItem
+		{
+			get => IsValidIndex(SelectedIndex) ? combo.Values[SelectedIndex].ToString() : "(none)";
+		}
+
+		public System.Collections.IList Items
 		{
 			get
 			{
 				var values = combo.Values;
-				var items = string.Join (",", values.Select(s => s.ToString()));
-				return string.Format("{0} items. ({1})", values.Length, items);
+				return values.Select(s => s.ToString()).ToList();
+			}
+			set
+			{
+				combo.RemoveAll();
+                foreach (var item in value)
+                {
+					combo.Add((NSString)item);
+				}
 			}
 		}
 
 		public PropertyPanelNSComboBox(NSComboBox view) : base(view)
 		{
-			this.combo = view;
+			
 		}
 	}
 
-	public class PropertyPanelNSPopupButton : PropertyPanelNSView
+	class PropertyPanelNSPopupButton : PropertyPanelNSControl
 	{
-		NSPopUpButton combo;
+		NSPopUpButton combo => (NSPopUpButton)view;
 
-		public string ComboItems
+		bool IsValidIndex(int index) => index == -1 || (index > 0 && index < combo.ItemCount);
+
+		public int SelectedIndex
+		{
+			get => (int)combo.IndexOfSelectedItem;
+			set
+			{
+				if (IsValidIndex(value))
+					combo.SelectItem(value);
+			}
+		}
+
+		public string SelectedItem
+		{
+			get => combo.ItemAtIndex(SelectedIndex)?.Title ?? "(none)";
+		}
+
+		public System.Collections.IList Items
 		{
 			get
 			{
 				var values = combo.Items();
-				var items = string.Join(",", values.Select(s => s.Title.ToString()));
-				return string.Format("{0} items. ({1})", values.Length, items);
+				return values.Select(s => s.Title).ToList();
+			}
+			set
+			{
+				combo.RemoveAllItems();
+				foreach (var item in value)
+				{
+					combo.AddItem(item as string);
+				}
 			}
 		}
 
 		public PropertyPanelNSPopupButton(NSPopUpButton view) : base(view)
 		{
-			this.combo = view;
+			
 		}
 	}
 
-	public class PropertyPanelNSTextView : PropertyPanelNSView
+	class PropertyPanelNSTextView : PropertyPanelNSView
 	{
-		readonly NSTextView textView;
+		NSTextView textView => (NSTextView)view;
+
 		public PropertyPanelNSTextView(NSTextView view) : base(view)
 		{
-			textView = view;
+			
 		}
 
 		public string Value
@@ -76,30 +126,30 @@ namespace MonoDevelop.Inspector.Mac
 			set => textView.Font = value;
 		}
 
-		public NSColor TextColor
+		public CommonColor TextColor
 		{
-			get => textView.TextColor;
-			set => textView.TextColor = value;
+			get => textView.TextColor.ToCommonColor();
+			set => textView.TextColor = value.ToNSColor();
 		}
-		public NSColor BackgroundColor
+		public CommonColor BackgroundColor
 		{
-			get => textView.BackgroundColor;
-			set => textView.BackgroundColor = value;
+			get => textView.BackgroundColor.ToCommonColor();
+			set => textView.BackgroundColor = value.ToNSColor();
 		}
 
-		public NSAttributedString AttributedStringValue
-		{
-			get => textView.AttributedString;
-		}
+		//public NSAttributedString AttributedStringValue
+		//{
+		//	get => textView.AttributedString;
+		//}
 	}
 
-    public class PropertyPanelNSTextField : PropertyPanelNSView
+    class PropertyPanelNSTextField : PropertyPanelNSControl
 	{
-		readonly NSTextField textView;
+		NSTextField textView => (NSTextField)view;
 
 		public PropertyPanelNSTextField (NSTextField view) : base(view)
 		{
-			textView = view;
+			
 		}
 
 		public string StringValue
@@ -114,40 +164,40 @@ namespace MonoDevelop.Inspector.Mac
 			set => textView.Font = value;
 		}
 
-		public NSColor TextColor
+		public CommonColor TextColor
 		{
-			get => textView.TextColor;
-			set => textView.TextColor = value;
+			get => textView.TextColor.ToCommonColor();
+			set => textView.TextColor = value.ToNSColor();
 		}
-		public NSColor BackgroundColor
+		public CommonColor BackgroundColor
 		{
-			get => textView.BackgroundColor;
-			set => textView.BackgroundColor = value;
+			get => textView.BackgroundColor.ToCommonColor();
+			set => textView.BackgroundColor = value.ToNSColor();
 		}
 
-		public NSAttributedString AttributedStringValue
-		{
-			get => textView.AttributedStringValue;
-			set => textView.AttributedStringValue = value;
-		}
+		//public NSAttributedString AttributedStringValue
+		//{
+		//	get => textView.AttributedStringValue;
+		//	set => textView.AttributedStringValue = value;
+		//}
 	}
 
-	public class PropertyPanelNSButton : PropertyPanelNSView
+	class PropertyPanelNSButton : PropertyPanelNSControl
 	{
-		readonly NSButton buttonView;
+		NSButton buttonView => (NSButton)view;
 
 		#region Image
 
-		public NSImage Image
+		public CommonImageBrush Image
 		{
-			get => buttonView.Image;
-			set => buttonView.Image = value;
+			get => buttonView.Image.ToCommonImageBrush();
+			set => buttonView.Image = value.ToNSImage();
 		}
 
-		public NSImage AlternateImage
+		public CommonImageBrush AlternateImage
 		{
-			get => buttonView.AlternateImage;
-			set => buttonView.AlternateImage = value;
+			get => buttonView.AlternateImage.ToCommonImageBrush();
+			set => buttonView.AlternateImage = value.ToNSImage();
 		}
 
 		#endregion
@@ -199,7 +249,7 @@ namespace MonoDevelop.Inspector.Mac
 
 		public PropertyPanelNSButton(NSButton view) : base(view)
 		{
-			buttonView = view;
+
 		}
 
 		public bool IsSpringLoaded
@@ -227,14 +277,9 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class PropertyPanelNSBox : PropertyPanelNSView
+	class PropertyPanelNSBox : PropertyPanelNSView
 	{
 		readonly NSBox buttonView;
-
-		public bool IsFlipped
-		{
-			get => buttonView.IsFlipped;
-		}
 
 		public PropertyPanelNSBox(NSBox view) : base(view)
 		{
@@ -252,24 +297,54 @@ namespace MonoDevelop.Inspector.Mac
 			get => buttonView.BorderType;
 			set => buttonView.BorderType = value;
 		}
-		public nfloat BoundsRotation
+		public float BoundsRotation
 		{
-			get => buttonView.BoundsRotation;
+			get => (float)buttonView.BoundsRotation;
 			set => buttonView.BoundsRotation = value;
 		}
-		public NSColor BorderColor
+		public CommonColor BorderColor
 		{
-			get => buttonView.BorderColor;
-			set => buttonView.BorderColor = value;
+			get => buttonView.BorderColor.ToCommonColor();
+			set => buttonView.BorderColor = value.ToNSColor();
 		}
 
-		public CGRect BorderRect
+		public CommonRectangle BorderRect
 		{
-			get => buttonView.BorderRect;
+			get => buttonView.BorderRect.ToCommonRectangle();
 		}
 	}
 
-	public class PropertyPanelNSImageView : PropertyPanelNSView
+
+	class PropertyPanelNSStackView : PropertyPanelNSView
+	{
+		NSStackView stackView => (NSStackView)view;
+
+        public NSUserInterfaceLayoutOrientation Orientation
+		{
+			get => stackView.Orientation;
+			set => stackView.Orientation = value;
+		}
+
+		public NSLayoutAttribute Alignment
+		{
+			get => stackView.Alignment;
+			set => stackView.Alignment = value;
+		}
+
+		public NSStackViewDistribution Distribution
+		{
+			get => stackView.Distribution;
+			set => stackView.Distribution = value;
+		}
+
+		public PropertyPanelNSStackView(NSStackView view) : base(view)
+		{
+			
+		}
+	}
+
+
+	class PropertyPanelNSImageView : PropertyPanelNSView
 	{
 		readonly NSImageView buttonView;
 
@@ -297,9 +372,47 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	public class PropertyPanelNSView
+	class PropertyPanelNSControl : PropertyPanelNSView
+	{
+		protected NSControl control => (NSControl)view;
+
+		public NSControlSize ControlSize
+		{
+			get => control.ControlSize;
+			set => control.ControlSize = value;
+		}
+
+		public bool Enabled
+		{
+			get => control.Enabled;
+			set => control.Enabled = value;
+		}
+
+		public PropertyPanelNSControl(NSControl control) : base(control)
+        {
+			
+		}
+	}
+
+	class PropertyPanelNSView
 	{
 		protected readonly NSView view;
+
+		public bool IsFlipped
+		{
+			get => view.IsFlipped;
+		}
+
+		public float AlphaValue
+		{
+			get => (float)view.AlphaValue;
+			set => view.AlphaValue = value;
+		}
+
+		public CommonSize FittingSize
+		{
+			get => view.FittingSize.ToCommonSize();
+		}
 
 		public string Identifier
 		{
@@ -333,9 +446,9 @@ namespace MonoDevelop.Inspector.Mac
 			set => view.TranslatesAutoresizingMaskIntoConstraints = value;
 		}
 
-		public CGRect AccessibilityFrame {
-			get => view.AccessibilityFrame;
-			set => view.AccessibilityFrame = value;
+		public CommonRectangle AccessibilityFrame {
+			get => view.AccessibilityFrame.ToCommonRectangle();
+			set => view.AccessibilityFrame = value.ToCGRect();
 		}
 
 		public string AccessibilityChildren
@@ -365,22 +478,22 @@ namespace MonoDevelop.Inspector.Mac
 			return builder.ToString();
 		}
 
-		public NSView NextKeyView
+		public object NextKeyView
 		{
 			get => view.NextKeyView;
 		}
 
-		public NSView NextValidKeyView
+		public object NextValidKeyView
 		{
 			get => view.NextValidKeyView;
 		}
 
-		public NSView PreviousKeyView
+		public object PreviousKeyView
 		{
 			get => view.PreviousKeyView;
 		}
 
-		public NSView PreviousValidKeyView
+		public object PreviousValidKeyView
 		{
 			get => view.PreviousValidKeyView;
 		}
@@ -408,14 +521,14 @@ namespace MonoDevelop.Inspector.Mac
 			set => view.Hidden = value;
 		}
 
-		public CGRect VisibleRect {
-			get => view.VisibleRect ();
+		public CommonRectangle VisibleRect {
+			get => view.VisibleRect ().ToCommonRectangle();
 		}
 
-		public CGRect Frame {
-			get => view.Frame;
+		public CommonRectangle Frame {
+			get => view.Frame.ToCommonRectangle();
 			set {
-				view.Frame = value;
+				view.Frame = value.ToCGRect();
 			}
 		}
 
