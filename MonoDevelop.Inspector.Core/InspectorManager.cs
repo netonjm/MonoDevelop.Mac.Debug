@@ -376,7 +376,7 @@ namespace MonoDevelop.Inspector
 			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
 			inspectorWindow.AlignRight(selectedWindow, WindowMargin);
 			accessibilityWindow.AlignLeft (selectedWindow, WindowMargin);
-			inspectorWindow.GenerateStatusView (SelectedView, Delegate, ViewMode);
+			inspectorWindow.Select (SelectedView, ViewMode);
 		}
 
 		void PopulateSubmenu ()

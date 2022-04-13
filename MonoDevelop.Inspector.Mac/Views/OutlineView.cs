@@ -115,9 +115,16 @@ namespace MonoDevelop.Inspector.Mac
 
 	public class TreeNodeView : Node
 	{
+		static string GetIdentifier(string nodeName, string identifier)
+        {
+			if (string.IsNullOrEmpty(identifier))
+				return nodeName;
+			return string.Format("{0} ({1})", nodeName, identifier);
+        }
+
 		static string GetName (IView view)
 		{
-			var name = string.Format("{0} ({1})", view.NodeName, view.Identifier ?? "N.I");
+			var name = GetIdentifier(view.NodeName, view.Identifier);
 			if (view.Hidden) {
 				name += " (hidden)";
 			}
@@ -130,21 +137,21 @@ namespace MonoDevelop.Inspector.Mac
             return name;
         }
 
-        public readonly INativeObject Wrapper;
+        public readonly INativeObject NativeObject;
 
         public TreeNodeView (IView view) : base (GetName (view))
 		{
-			this.Wrapper = view;
+			this.NativeObject = view;
 		}
 
         public TreeNodeView(IConstrainContainer text) : base(text.NodeName)
         {
-            this.Wrapper = text;
+            this.NativeObject = text;
         }
 
         public TreeNodeView(IConstrain constrain) : base(GetName(constrain))
         {
-            this.Wrapper = constrain;
+            this.NativeObject = constrain;
         }
     }
 

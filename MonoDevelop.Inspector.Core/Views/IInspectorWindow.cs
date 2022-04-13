@@ -22,7 +22,7 @@ namespace MonoDevelop.Inspector
         event EventHandler<ToolbarView> RaiseInsertItem;
 
 		void GenerateTree (IWindow window, InspectorViewMode viewMode);
-		void GenerateStatusView (IView view, IInspectDelegate inspectDelegate, InspectorViewMode mode);
+		void Select (INativeObject view, InspectorViewMode mode);
 		void RemoveItem ();
         void Initialize();
 	}

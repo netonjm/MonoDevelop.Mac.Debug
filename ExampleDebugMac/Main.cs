@@ -30,10 +30,22 @@ namespace ExampleDebugMac
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
             var mainWindow = new InspectorHostWindow();
             mainWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable;
-            var stackView = new NSStackView() { Orientation = NSUserInterfaceLayoutOrientation.Vertical };
-            stackView.EdgeInsets = new NSEdgeInsets(10, 10, 10, 10);
 
-            mainWindow.ContentView = stackView;
+            var tabView = new NSTabView();
+
+            mainWindow.ContentView = tabView;
+
+            var tabPage = new NSTabViewItem()
+            {
+                Label = "First Page"
+            };
+            tabView.Add(tabPage);
+
+            var stackView = new NSStackView() {
+                Orientation = NSUserInterfaceLayoutOrientation.Vertical,
+                EdgeInsets = new NSEdgeInsets(10, 10, 10, 10)
+            };
+            tabPage.View = stackView;
 
             stackView.AddArrangedSubview(NSTextField.CreateLabel("TextField:"));
             stackView.AddArrangedSubview(new NSTextField { StringValue = "123" });

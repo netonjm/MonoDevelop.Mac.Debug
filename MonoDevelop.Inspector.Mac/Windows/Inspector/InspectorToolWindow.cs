@@ -65,7 +65,14 @@ namespace MonoDevelop.Inspector.Mac
             {
                 if (outlineView.SelectedNode is TreeNodeView nodeView)
                 {
-                    RaiseFirstResponder?.Invoke(this, nodeView.Wrapper);
+                    if (nodeView.NativeObject is IConstrain constrain)
+                    {
+                        Select(constrain, InspectorViewMode.Native);
+                    }
+                    else
+                    {
+                        RaiseFirstResponder?.Invoke(this, nodeView.NativeObject);
+                    }
                 }
             };
 
@@ -75,7 +82,7 @@ namespace MonoDevelop.Inspector.Mac
                 {
                     if (outlineView.SelectedNode is TreeNodeView nodeView)
                     {
-                        RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
+                        RaiseDeleteItem?.Invoke(this, nodeView.NativeObject);
                     }
                 }
             };
@@ -150,6 +157,7 @@ namespace MonoDevelop.Inspector.Mac
             scrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
+            titleContainter.EdgeInsets = new NSEdgeInsets(margin, 0, margin, 0);
             //titleContainter.WantsLayer = true;
             //titleContainter.Layer.BackgroundColor = NSColor.Gray.CGColor;
 
@@ -331,14 +339,14 @@ namespace MonoDevelop.Inspector.Mac
 
         void MethodListView_DoubleClick(object sender, EventArgs e) => InvokeSelectedView();
 
-        IView viewSelected;
+        INativeObject viewSelected;
 
-        public void GenerateStatusView(IView view, IInspectDelegate inspectDelegate, InspectorViewMode viewMode)
+        public void Select(INativeObject view, InspectorViewMode viewMode)
         {
             viewSelected = view;
             if (viewSelected != null)
             {
-                propertyEditorPanel.Select(new object[] { inspectDelegate.GetWrapper(viewSelected, viewMode) });
+                propertyEditorPanel.Select(new object[] { inspectorDelegate.GetWrapper(viewSelected, viewMode) });
             }
             else
             {
@@ -360,7 +368,7 @@ namespace MonoDevelop.Inspector.Mac
         {
             if (outlineView.SelectedNode is TreeNodeView nodeView)
             {
-                RaiseDeleteItem?.Invoke(this, nodeView.Wrapper);
+                RaiseDeleteItem?.Invoke(this, nodeView.NativeObject);
             }
         }
 
