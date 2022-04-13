@@ -16,7 +16,9 @@ namespace MonoDevelop.Inspector
 		IView ContentView { get; set; }
 		IView FirstResponder { get; }
 		bool HasParentWindow { get; }
-      
+
+        public string Title { get; set; }
+
         event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
 		event EventHandler MovedRequested;
@@ -34,7 +36,6 @@ namespace MonoDevelop.Inspector
         float FrameWidth { get; }
         float FrameHeight { get; }
 
-        void SetTitle(string v);
 		void SetContentSize(int toolbarWindowWidth, int toolbarWindowHeight);
 		void Close();
         void SetAppareance(bool isDark);

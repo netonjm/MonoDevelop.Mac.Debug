@@ -12,6 +12,7 @@ namespace MonoDevelop.Inspector
         void SetFont(IView view, IFontWrapper font);
 		FontData GetFont(IView view);
 		void ConvertToNodes(IView view, INodeView nodeView, InspectorViewMode viewMode);
+        void ConvertToNodes(IWindow window, INodeView nodeView, InspectorViewMode viewMode);
         object GetWrapper (INativeObject viewSelected, InspectorViewMode viewMode);
 		void Recursively (IView contentView, List<DetectedError> DetectedErrors, InspectorViewMode viewMode);
 		void RemoveAllErrorWindows(IWindow windowWrapper);

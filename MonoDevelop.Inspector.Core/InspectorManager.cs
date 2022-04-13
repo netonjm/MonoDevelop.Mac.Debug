@@ -202,7 +202,7 @@ namespace MonoDevelop.Inspector
             debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
 
             accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
-			accessibilityWindow.SetTitle ("Accessibility Panel");
+			accessibilityWindow.Title = "Accessibility Panel";
 			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
 				ShowDetectedErrors = !ShowDetectedErrors;
 			};
@@ -210,7 +210,7 @@ namespace MonoDevelop.Inspector
 			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
 
             inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
-			inspectorWindow.SetTitle ("Inspector Panel");
+			inspectorWindow.Title = "Inspector Panel";
 			inspectorWindow.RaiseFirstResponder += (s, e) => {
 				if (selectedWindow.ContainsChildWindow (debugOverlayWindow))
 					debugOverlayWindow.Close ();

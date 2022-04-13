@@ -265,6 +265,5 @@ namespace MonoDevelop.Inspector.Mac
 
 			return fallbackImage;
 		}
-
 	}
 }

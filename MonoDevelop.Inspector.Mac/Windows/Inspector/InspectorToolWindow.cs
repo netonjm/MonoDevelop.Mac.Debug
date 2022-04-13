@@ -67,10 +67,17 @@ namespace MonoDevelop.Inspector.Mac
                 {
                     if (nodeView.NativeObject is IConstrain constrain)
                     {
+                        Console.WriteLine("IConstrain");
                         Select(constrain, InspectorViewMode.Native);
+                    }
+                    else if (nodeView.NativeObject is IWindow window)
+                    {
+                        Console.WriteLine("IWindow");
+                        Select(window, InspectorViewMode.Native);
                     }
                     else
                     {
+                        Console.WriteLine(nodeView.NativeObject.GetType().FullName);
                         RaiseFirstResponder?.Invoke(this, nodeView.NativeObject);
                     }
                 }
@@ -208,9 +215,6 @@ namespace MonoDevelop.Inspector.Mac
             this.tabView.Add(tabMethod);
             splitView.AddArrangedSubview(this.tabView);
 
-            //tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
-            //tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;
-
             methodSearchView.Activated += (sender, e) =>
             {
                 if (viewSelected != null)
@@ -296,7 +300,7 @@ namespace MonoDevelop.Inspector.Mac
         public void GenerateTree(IWindow window, InspectorViewMode viewMode)
         {
             data = new TreeNodeView(window.ContentView);
-            inspectorDelegate.ConvertToNodes(window.ContentView, new NodeView(data), viewMode);
+            inspectorDelegate.ConvertToNodes(window, new NodeView(data), viewMode);
             outlineView.SetData(data);
         }
 

@@ -197,6 +197,26 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
+        public void ConvertToNodes(IWindow window, INodeView node, InspectorViewMode viewMode)
+        {
+            var windowTreeNodeView = new TreeNodeView(window);
+
+            var windowNodeView = new NodeView(windowTreeNodeView);
+            node.AddChild(windowNodeView);
+
+            var nsWindow = (NSWindow)window;
+            var contentView = new TreeViewItemView(nsWindow.ContentView);
+
+            try
+            {
+                ConvertToNodes(contentView, windowNodeView, viewMode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
         public void ConvertToNodes(IView customView, INodeView node, InspectorViewMode viewMode)
         {
             var current = new TreeNodeView(customView);
@@ -250,64 +270,79 @@ namespace MonoDevelop.Inspector.Mac
             return NativeViewHelper.GetFont(view.NativeObject as NSView);
         }
 
-        object GetNativePropertyPanelWrapper(IView viewSelected)
+        object GetNativePropertyPanelWrapper(INativeObject viewSelected)
         {
-            object view = viewSelected.NativeObject;
-            if (view is NSComboBox comboBox)
+            object nativeObject = viewSelected.NativeObject;
+            if (nativeObject is NSComboBox comboBox)
             {
                 return new PropertyPanelNSComboBox(comboBox);
             }
 
-            if (view is NSPopUpButton popUpButton)
+            if (nativeObject is NSPopUpButton popUpButton)
             {
                 return new PropertyPanelNSPopupButton(popUpButton);
             }
 
-            if (view is NSStackView stackView)
+            if (nativeObject is NSStackView stackView)
             {
                 return new PropertyPanelNSStackView(stackView);
             }
 
-            if (view is NSImageView img)
+            if (nativeObject is NSImageView img)
             {
                 return new PropertyPanelNSImageView(img);
             }
 
-            if (view is NSBox box)
+            if (nativeObject is NSBox box)
             {
                 return new PropertyPanelNSBox(box);
             }
 
-            if (view is NSButton btn)
+            if (nativeObject is NSButton btn)
             {
                 return new PropertyPanelNSButton(btn);
             }
 
-            if (view is NSTextView text)
+            if (nativeObject is NSTextView text)
             {
                 return new PropertyPanelNSTextView(text);
             }
 
-            if (view is NSTextField textfield)
+            if (nativeObject is NSTextField textfield)
             {
                 return new PropertyPanelNSTextField(textfield);
             }
 
-            return new PropertyPanelNSView(view as NSView);
+            if (nativeObject is NSWindow window)
+            {
+                return new PropertyPanelNSWindow(window);
+            }
+
+            if (nativeObject is NSView view)
+            {
+                return new PropertyPanelNSView(view);
+            }
+
+            if (nativeObject is NSLayoutConstraint constraint)
+            {
+                return new PropertyPanelNSLayoutConstraint(constraint);
+            }
+
+            return new PropertyPanelNSResponder(nativeObject as NSResponder);
         }
 
         public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)
         {
-            if (viewSelected is IView view) {
-                if (viewMode == InspectorViewMode.Xwt)
-                {
-                    return view.View;
-                }
-                return GetNativePropertyPanelWrapper(view);
-            }
-            if (viewSelected is IConstrain constrain)
-                return constrain;
-            return viewSelected?.NativeObject;
+            //if (viewSelected is IView view) {
+                //if (viewMode == InspectorViewMode.Xwt)
+                //{
+                //    return view.View;
+                //}
+                return GetNativePropertyPanelWrapper(viewSelected);
+            //}
+            //if (viewSelected is IConstrain constrain)
+            //    return constrain;
+            //return viewSelected?.NativeObject;
         }
 
         public void SetFont(IView view, IFontWrapper font)
@@ -580,6 +615,5 @@ namespace MonoDevelop.Inspector.Mac
         {
 
 		}
-
     }
 }

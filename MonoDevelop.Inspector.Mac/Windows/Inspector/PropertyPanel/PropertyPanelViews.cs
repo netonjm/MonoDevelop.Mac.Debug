@@ -372,6 +372,76 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
+	class PropertyPanelNSWindow : PropertyPanelNSResponder
+	{
+		NSWindow window => (NSWindow)responder;
+
+		public string Title
+		{
+			get => window.Title;
+			set => window.Title = value;
+		}
+
+		public NSWindowStyle StyleMask
+		{
+			get => window.StyleMask;
+			set => window.StyleMask = value;
+		}
+
+		public string Subtitle
+		{
+			get => window.Subtitle;
+			set => window.Subtitle = value;
+		}
+
+		public NSWindowTabbingMode TabbingMode
+		{
+			get => window.TabbingMode;
+			set => window.TabbingMode = value;
+		}
+
+		public NSWindowToolbarStyle ToolbarStyle
+		{
+			get => window.ToolbarStyle;
+			set => window.ToolbarStyle = value;
+		}
+
+		public NSWindowTabGroup? TabGroup
+		{
+			get => window.TabGroup;
+		}
+
+		public CommonSize ContentMaxSize
+		{
+			get => window.ContentMaxSize.ToCommonSize();
+			set => window.ContentMaxSize = value.ToCGSize();
+		}
+
+		public CommonSize ContentMinSize
+		{
+			get => window.ContentMinSize.ToCommonSize();
+			set => window.ContentMinSize = value.ToCGSize();
+		}
+
+		public CommonSize ContentSize
+		{
+			get => (window.ContentView?.Frame.Size ?? window.Frame.Size).ToCommonSize();
+			set => window.SetContentSize(value.ToCGSize());
+		}
+
+		public CommonRectangle Frame
+		{
+			get => window.Frame.ToCommonRectangle();
+			set => window.SetFrame(value.ToCGRect(), true);
+		}
+
+		public PropertyPanelNSWindow(NSWindow window) : base(window)
+		{
+			
+		}
+	}
+
+
 	class PropertyPanelNSControl : PropertyPanelNSView
 	{
 		protected NSControl control => (NSControl)view;
@@ -394,9 +464,66 @@ namespace MonoDevelop.Inspector.Mac
 		}
 	}
 
-	class PropertyPanelNSView
+	class PropertyPanelNSLayoutConstraint : PropertyPanelNSResponder
 	{
-		protected readonly NSView view;
+		NSLayoutConstraint layoutConstraint => (NSLayoutConstraint)base.responder;
+
+		public float Constant
+		{
+			get => (float)layoutConstraint.Constant;
+			set => layoutConstraint.Constant = value;
+		}
+
+		public float Priority
+		{
+			get => (float)layoutConstraint.Priority;
+			set => layoutConstraint.Priority = value;
+		}
+
+		public NSLayoutRelation Relation
+		{
+			get => layoutConstraint.Relation;
+		}
+
+		public object FirstItem
+		{
+			get => layoutConstraint.FirstItem;
+		}
+
+		public NSLayoutAttribute FirstItemAttribute
+		{
+			get => layoutConstraint.FirstAttribute;
+		}
+
+		public object SecondItem
+		{
+			get => layoutConstraint.SecondItem;
+		}
+
+		public NSLayoutAttribute SecondItemAttribute
+		{
+			get => layoutConstraint.SecondAttribute;
+		}
+
+		public PropertyPanelNSLayoutConstraint(NSLayoutConstraint constraint) : base(constraint)
+		{
+			
+		}
+	}
+
+	class PropertyPanelNSResponder
+    {
+		protected readonly NSObject responder;
+
+		public PropertyPanelNSResponder(NSObject responder)
+        {
+			this.responder = responder;
+		}
+	}
+
+	class PropertyPanelNSView : PropertyPanelNSResponder
+	{
+		protected NSView view => (NSView) responder;
 
 		public bool IsFlipped
 		{
@@ -420,9 +547,9 @@ namespace MonoDevelop.Inspector.Mac
 			set => view.Identifier = value;
 		}
 
-		public PropertyPanelNSView (NSView view)
+		public PropertyPanelNSView(NSView view) : base(view)
 		{
-			this.view = view;
+
 		}
 
 		public string AccessibilityTitle {

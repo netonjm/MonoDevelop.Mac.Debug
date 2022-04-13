@@ -137,9 +137,26 @@ namespace MonoDevelop.Inspector.Mac
             return name;
         }
 
-        public readonly INativeObject NativeObject;
+		static string GetName(IWindow window)
+		{
+			if (string.IsNullOrEmpty(window.Title))
+            {
+				return "Window";
+            }
 
-        public TreeNodeView (IView view) : base (GetName (view))
+			var name = string.Format("\"{0}\" WINDOW", window.Title);
+			return name;
+		}
+
+
+		public readonly INativeObject NativeObject;
+
+		public TreeNodeView(IWindow view) : base(GetName(view))
+		{
+			this.NativeObject = view;
+		}
+
+		public TreeNodeView (IView view) : base (GetName (view))
 		{
 			this.NativeObject = view;
 		}
