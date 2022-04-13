@@ -78,7 +78,7 @@ namespace ExampleDebugMac
             stackView.AddArrangedSubview(new NSView());
             mainWindow.Title = "Example Debug Xamarin.Mac";
 
-            var size = new CGSize(200, 400);
+            var size = new CGSize(300, 400);
             mainWindow.SetContentSize(size);
             mainWindow.Center();
             //mainWindow.MakeKeyWindow();

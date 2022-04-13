@@ -128,12 +128,13 @@ namespace MonoDevelop.Inspector.Mac
 			};
 		}
 
-		public static NSStackView CreateVerticalStackView(int spacing = 10) => new NSStackView()
+		public static NSStackView CreateVerticalStackView(int spacing = 10, bool translatesAutoresizingMaskIntoConstraints = false) => new NSStackView()
 		{
 			Orientation = NSUserInterfaceLayoutOrientation.Vertical,
 			Alignment = NSLayoutAttribute.Leading,
 			Spacing = spacing,
 			Distribution = NSStackViewDistribution.Fill,
+			TranslatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
 		};
 
 		public static NSStackView CreateHorizontalStackView(int spacing = 10) => new NSStackView()
@@ -142,6 +143,7 @@ namespace MonoDevelop.Inspector.Mac
 			Alignment = NSLayoutAttribute.CenterY,
 			Spacing = spacing,
 			Distribution = NSStackViewDistribution.Fill,
+			TranslatesAutoresizingMaskIntoConstraints = false
 		};
 
 		public static NSFont GetSystemFont(bool bold, float size = 0.0f)

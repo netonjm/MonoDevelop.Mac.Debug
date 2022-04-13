@@ -95,6 +95,7 @@ namespace MonoDevelop.Inspector.Mac
 			var index = RowForItem (node);
 			if (index >= 0) {
 				SelectRow (index, false);
+				ScrollRowToVisible(index);
 			}
 		}
 	}

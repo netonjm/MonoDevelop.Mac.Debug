@@ -29,7 +29,7 @@ namespace MonoDevelop.Inspector.Mac
 			var accWindow = new AccessibilityToolWindow (new CGRect (10, 10, 600, 700));
 			var inspectorWindow = new InspectorToolWindow (inspectorDelegate, new CGRect (10, 10, 600, 700)); ;
 			var macToolbar = new ToolbarWindow (inspectorDelegate, new CGRect (10, 10, 100, 700));
-			macToolbar.ShowToolkit (hasToolkit);
+			macToolbar.ShowToolkitButton (hasToolkit);
 
 			return new InspectorManager (macDelegate, overlayWindow, nextWindow, previousWindow, accWindow, inspectorWindow, macToolbar);
 		}

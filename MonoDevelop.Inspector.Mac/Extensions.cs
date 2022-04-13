@@ -10,6 +10,13 @@ namespace AppKit
 {
 	public static class Extensions
 	{
+		internal static VerticalSeparator AddVerticalSeparator(this NSStackView stack)
+		{
+			var separator = new VerticalSeparator();
+			stack.AddArrangedSubview(separator);
+			return separator;
+		}
+
 		public static bool IsBlockedType (this IView customView)
 		{
 			if (customView is NSTableViewCell)

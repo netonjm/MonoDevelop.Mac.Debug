@@ -10,87 +10,6 @@ using MonoDevelop.Inspector.Mac.Abstractions;
 
 namespace MonoDevelop.Inspector.Mac
 {
-    class HostResource : IHostResourceProvider
-    {
-        public static bool IsLightAppearance(NSAppearance appearance)
-        {
-            var appearanceName = appearance?.Name;
-            if (appearanceName == NSAppearance.NameVibrantDark ||
-                appearanceName == NSAppearance.NameAccessibilityHighContrastVibrantDark ||
-                appearanceName == NSAppearance.NameDarkAqua ||
-                appearanceName == NSAppearance.NameAccessibilityHighContrastDarkAqua)
-                return false;
-
-            return true;
-        }
-
-        public static bool IsDarkAppearance(NSAppearance appearance)
-            => !IsLightAppearance(appearance);
-
-        public static bool IsLightAppearance(INSAppearanceCustomization appearanceCustomization)
-            => IsLightAppearance(appearanceCustomization?.EffectiveAppearance);
-
-        public static bool IsDarkAppearance(INSAppearanceCustomization appearanceCustomization)
-            => !IsLightAppearance(appearanceCustomization);
-
-        public NSColor GetNamedColor(string name)
-        {
-            switch (name)
-            {
-                case NamedResources.Checkerboard0Color:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                         NSColor.FromRgb(38, 38, 38) :
-                         NSColor.FromRgb(255, 255, 255);
-
-                case NamedResources.Checkerboard1Color:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                         NSColor.FromRgb(0, 0, 0) :
-                         NSColor.FromRgb(217, 217, 217);
-                case NamedResources.DescriptionLabelColor:
-                    return NSColor.SecondaryLabelColor;
-                case NamedResources.ForegroundColor:
-                    return NSColor.LabelColor;
-                case NamedResources.PadBackgroundColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                    NSColor.FromRgba(red: 0.12f, green: 0.12f, blue: 0.12f, alpha: 1.00f) :
-                    NSColor.White;
-                case NamedResources.PanelTabBackground:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                       NSColor.FromRgba(red: 0.16f, green: 0.16f, blue: 0.16f, alpha: 1.00f) :
-                       NSColor.FromRgba(red: 0.98f, green: 0.98f, blue: 0.98f, alpha: 1.00f);
-                case NamedResources.TabBorderColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                        NSColor.FromRgba(255, 255, 255, 0) :
-                         NSColor.FromRgba(0, 0, 0, 25);
-
-                case NamedResources.ValueBlockBackgroundColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                       NSColor.FromRgba(255, 255, 255, 25) :
-                        NSColor.FromRgba(0, 0, 0, 20);
-                case NamedResources.FrameBoxButtonBackgroundColor:
-                    return IsDarkAppearance(NSApplication.SharedApplication.EffectiveAppearance) ?
-                      NSColor.FromRgb(0.38f, 0.55f, 0.91f) :
-                        NSColor.FromRgb(0.36f, 0.54f, 0.90f);
-            }
-            return NSColor.FromName(name);
-        }
-
-        public NSFont GetNamedFont(string name, ObjCRuntime.nfloat fontSize)
-        {
-            return NSFont.SystemFontOfSize(NSFont.SystemFontSize);
-        }
-
-        public NSImage GetNamedImage(string name)
-        {
-            return new NSImage();
-        }
-
-        public NSAppearance GetVibrantAppearance(NSAppearance appearance)
-        {
-            return appearance;
-        }
-    }
-
     class InspectorToolWindow : BaseWindow, IInspectorWindow
     {
         const ushort DeleteKey = 51;
@@ -119,6 +38,7 @@ namespace MonoDevelop.Inspector.Mac
         NSSplitView splitView => (NSSplitView)ContentView;
         readonly HostResource hostResourceProvider;
 
+
         public InspectorToolWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
         {
             this.inspectorDelegate = inspectorDelegate;
@@ -138,18 +58,6 @@ namespace MonoDevelop.Inspector.Mac
                 SupportsMaterialDesign = true,
             };
 
-            var currentThemeStyle = NSUserDefaults.StandardUserDefaults.StringForKey("AppleInterfaceStyle") ?? "Light";
-            //PropertyEditorPanel.ThemeManager.Theme = currentThemeStyle == "Dark" ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
-
-            //var stackView = NativeViewHelper.CreateVerticalStackView(margin);
-            //splitView.AddSubview(stackView);
-
-            //stackView.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
-            //stackView.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
-            //stackView.TopAnchor.ConstraintEqualToAnchor(contentView.TopAnchor, margin).Active = true;
-
-            //constraint = stackView.HeightAnchor.ConstraintEqualToConstant(contentView.Frame.Height - margin * 2);
-            //constraint.Active = true;
             outlineView = new OutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
 
@@ -173,13 +81,8 @@ namespace MonoDevelop.Inspector.Mac
             };
 
             //TOOLBAR
-            var toolbarTab = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            var toolbarTabViewWrapper = new TabView(toolbarTab);
-
-            toolbarTab.WantsLayer = true;
-            toolbarTab.Layer.BackgroundColor = NSColor.Red.CGColor;
-
-            splitView.AddArrangedSubview(toolbarTab);
+            var tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            splitView.AddArrangedSubview(tabView);
 
             //toolbarTab.LeftAnchor.ConstraintEqualToAnchor(contentView.LeftAnchor, margin).Active = true;
             //toolbarTab.RightAnchor.ConstraintEqualToAnchor(contentView.RightAnchor, -margin).Active = true;
@@ -190,25 +93,26 @@ namespace MonoDevelop.Inspector.Mac
             var toolbarTabItem = new NSTabViewItem();
             toolbarTabItem.Label = "Toolbar";
          
-            var toolbarStackView = NativeViewHelper.CreateVerticalStackView();
-            var toolbarHorizontalStackView = NativeViewHelper.CreateHorizontalStackView();
+            var toolbarStackView = NativeViewHelper.CreateVerticalStackView(translatesAutoresizingMaskIntoConstraints: true);
+            toolbarStackView.EdgeInsets = new NSEdgeInsets(10, 10, 10, 10);
 
-            toolbarSearchTextField = new NSSearchField();
+            var toolbarHorizontalStackView = NativeViewHelper.CreateHorizontalStackView();
+            toolbarStackView.AddArrangedSubview(toolbarHorizontalStackView);
+          
+            toolbarSearchTextField = new NSSearchField() { TranslatesAutoresizingMaskIntoConstraints = false };
             toolbarSearchTextField.Changed += (object sender, EventArgs e) =>
             {
                 Search();
             };
-
             toolbarHorizontalStackView.AddArrangedSubview(toolbarSearchTextField);
 
             var compactModeToggleButton = new ToggleButton();
-            //compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
+            compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
             compactModeToggleButton.ToolTip = "Use compact display";
             toolbarHorizontalStackView.AddArrangedSubview(compactModeToggleButton);
+            compactModeToggleButton.WidthAnchor.ConstraintEqualTo(32).Active = true;
 
-            toolbarStackView.AddArrangedSubview(toolbarHorizontalStackView);
-
-            toolbarView = new MacInspectorToolbarView();
+            toolbarView = new MacInspectorToolbarView() { TranslatesAutoresizingMaskIntoConstraints = false };
             var toolbarViewScrollView = new ScrollContainerView(toolbarView);
             toolbarStackView.AddArrangedSubview(toolbarViewScrollView);
 
@@ -222,16 +126,17 @@ namespace MonoDevelop.Inspector.Mac
             outlineTabItem.Label = "View Hierarchy";
             outlineTabItem.View = outlineViewScrollView;
 
-            toolbarTab.Add(outlineTabItem);
-            toolbarTab.Add(toolbarTabItem);
+            tabView.Add(outlineTabItem);
+            tabView.Add(toolbarTabItem);
 
+            var wrapper = new TabView(tabView);
             foreach (var module in InspectorContext.Current.Modules)
             {
                 if (!module.IsEnabled)
                 {
                     continue;
                 }
-                module.Load(this, toolbarTabViewWrapper);
+                module.Load(this, wrapper);
             }
 
             //===================
@@ -290,10 +195,10 @@ namespace MonoDevelop.Inspector.Mac
 
             tabMethod.Label = "Methods";
 
-            tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            tabView.Add(tabPropertyPanel);
-            tabView.Add(tabMethod);
-            splitView.AddArrangedSubview(tabView);
+            this.tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            this.tabView.Add(tabPropertyPanel);
+            this.tabView.Add(tabMethod);
+            splitView.AddArrangedSubview(this.tabView);
 
             //tabView.LeftAnchor.ConstraintEqualToAnchor(stackView.LeftAnchor, 0).Active = true;
             //tabView.RightAnchor.ConstraintEqualToAnchor(stackView.RightAnchor, 0).Active = true;

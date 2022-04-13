@@ -153,7 +153,7 @@ namespace MonoDevelop.Inspector.Mac
             var acc = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
             var tool = new ToolbarWindow(this, new CGRect(10, 10, 100, 700));
-            tool.ShowToolkit(false);
+            tool.ShowToolkitButton(false);
             var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
             context.Initialize(manager, false);
             service.SetDelegate(this);

@@ -5,7 +5,7 @@ using CoreGraphics;
 
 namespace MonoDevelop.Inspector.Mac
 {
-	class VerticalSeparator : NSView
+	internal class VerticalSeparator : NSView
 	{
 		public VerticalSeparator ()
 		{

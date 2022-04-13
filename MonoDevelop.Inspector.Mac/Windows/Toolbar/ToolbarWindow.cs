@@ -27,26 +27,164 @@ namespace MonoDevelop.Inspector.Mac
         const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
-		readonly NSStackView stackView;
-        readonly NSStackView secondStackView;
+		readonly NSStackView firstRowStackView;
+        readonly NSStackView secondRowStackView;
         readonly IInspectDelegate inspectDelegate;
 
-        readonly ToggleButton toolkitButton;
+        ToggleButton toolkitButton;
 
-        NSView rescanSeparator;
-      
-        public void ShowToolkit (bool value)
+		NSStackView main;
+		NSView rescanSeparator;
+
+        public void ShowToolkitButton (bool value)
         {
             if (!value) {
                 toolkitButton.RemoveFromSuperview();
                 rescanSeparator.RemoveFromSuperview();
             } else {
-                if (!stackView.Subviews.Contains (toolkitButton)){
-                    stackView.AddArrangedSubview(toolkitButton);
-                    stackView.AddArrangedSubview(rescanSeparator);
+                if (!firstRowStackView.Subviews.Contains (toolkitButton)){
+                    firstRowStackView.AddArrangedSubview(toolkitButton);
+                    firstRowStackView.AddArrangedSubview(rescanSeparator);
                 } 
-            } 
+            }
         }
+
+		NSStackView CreateFirstRow()
+        {
+			var stack = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
+			var keyViewLoopButton = CreateToogleButton("overlay-actual.png", "Shows current focused item");
+			stack.AddArrangedSubview(keyViewLoopButton);
+			keyViewLoopButton.Activated += (s, e) => {
+				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
+			};
+
+			var prevKeyViewLoopButton = CreateToogleButton("overlay-previous.png", "Shows previous focused item");
+			stack.AddArrangedSubview(prevKeyViewLoopButton);
+			prevKeyViewLoopButton.Activated += (s, e) => {
+				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
+			};
+
+			var nextKeyViewLoopButton = CreateToogleButton("overlay-next.png", "Shows next focused item");
+			stack.AddArrangedSubview(nextKeyViewLoopButton);
+			nextKeyViewLoopButton.Activated += (s, e) => {
+				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
+			};
+
+			stack.AddVerticalSeparator();
+
+			toolkitButton = CreateToogleButton("rescan-16.png", "Change beetween Toolkits");
+			stack.AddArrangedSubview(toolkitButton);
+			toolkitButton.Activated += ToolkitButton_Activated; ;
+
+			rescanSeparator = stack.AddVerticalSeparator();
+
+			var themeButton = CreateToogleButton("style-16.png", "Change Style Theme");
+			stack.AddArrangedSubview(themeButton);
+			themeButton.Activated += ThemeButton_Activated;
+
+			stack.AddVerticalSeparator();
+
+			deleteButton = CreateImageButton("delete-16.png", "Delete selected item");
+			stack.AddArrangedSubview(deleteButton);
+			deleteButton.Activated += (s, e) =>
+			{
+				ItemDeleted?.Invoke(this, EventArgs.Empty);
+			};
+
+			changeImageButton = CreateImageButton("image-16.png", "Change image from selected item");
+			stack.AddArrangedSubview(changeImageButton);
+
+			changeImageButton.Activated += (s, e) =>
+			{
+				ItemImageChanged?.Invoke(this, EventArgs.Empty);
+			};
+
+			stack.AddVerticalSeparator();
+
+			//Visual issues view
+			languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+			languagesComboBox.ToolTip = "Change font from selected item";
+
+			cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
+			var culturesStr = new NSString[cultureInfos.Length];
+
+			NSString selected = null;
+			for (int i = 0; i < cultureInfos.Length; i++)
+			{
+				culturesStr[i] = new NSString(cultureInfos[i].DisplayName);
+				if (i == 0 || cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
+				{
+					selected = culturesStr[i];
+				}
+			}
+
+			languagesComboBox.Add(culturesStr);
+			stack.AddArrangedSubview(languagesComboBox);
+
+			languagesComboBox.Select(selected);
+
+			languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
+			languagesComboBox.SelectionChanged += LanguagesComboBox_SelectionChanged;
+			//languagesComboBox.WidthAnchor.ConstraintEqualTo(220).Active = true;
+
+			return stack;
+		}
+
+		NSStackView CreateSecondRow()
+		{
+			var stackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
+			//FONTS 
+
+			fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fontsCombobox.ToolTip = "Change font from selected item";
+			fonts = NSFontManager.SharedFontManager.AvailableFonts
+				.Select(s => new NSString(s))
+				.ToArray();
+
+			fontsCombobox.Add(fonts);
+			fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualTo(220).Active = true;
+
+			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
+			fontSizeTextView.ToolTip = "Change font size from selected item";
+			fontSizeTextView.WidthAnchor.ConstraintEqualTo(40).Active = true;
+
+			fontsCombobox.SelectionChanged += (s, e) => {
+				OnFontChanged();
+			};
+
+			fontSizeTextView.Activated += (s, e) => {
+				OnFontChanged();
+			};
+			return stackView;
+		}
+
+        class ToolbarImageButton : ImageButton
+		{
+			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolWindow.ButtonWidth, base.IntrinsicContentSize.Height);
+		}
+
+        class ToolbarToogleButton : ToggleButton
+		{
+			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolWindow.ButtonWidth, base.IntrinsicContentSize.Height);
+        }
+
+		ToolbarImageButton CreateImageButton(string resourceName, string tooltip)
+        {
+			var deleteButton = new ToolbarImageButton()
+			{
+				Image = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject,
+				ToolTip = tooltip
+			};
+			return deleteButton;
+		}
+
+		ToolbarToogleButton CreateToogleButton(string resourceName, string tooltip)
+        {
+			var previousImage = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject;
+			var prevKeyViewLoopButton = new ToolbarToogleButton() { Image = previousImage };
+			prevKeyViewLoopButton.ToolTip = tooltip;
+			return prevKeyViewLoopButton;
+		}
 
 		public ToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
         {
@@ -58,141 +196,21 @@ namespace MonoDevelop.Inspector.Mac
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-            NSStackView verticalStackView;
-            ContentView = verticalStackView = NativeViewHelper.CreateVerticalStackView (MenuItemSeparation);
+			main = NativeViewHelper.CreateVerticalStackView(MenuItemSeparation);
+			ContentView = main;
 
-            stackView = NativeViewHelper.CreateHorizontalStackView (MenuItemSeparation);
-            verticalStackView.AddArrangedSubview (stackView);
+			main.EdgeInsets = new NSEdgeInsets(Margin, Margin, Margin, Margin);
 
-            stackView.LeftAnchor.ConstraintEqualTo(verticalStackView.LeftAnchor, 10).Active = true;
-            stackView.RightAnchor.ConstraintEqualTo(verticalStackView.RightAnchor, 10).Active = true;
+			firstRowStackView = CreateFirstRow();
+			main.AddArrangedSubview (firstRowStackView);
 
-            secondStackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
-            verticalStackView.AddArrangedSubview(secondStackView);
+			secondRowStackView = CreateSecondRow(); ;
+            main.AddArrangedSubview(secondRowStackView);
 
-            secondStackView.LeftAnchor.ConstraintEqualTo(verticalStackView.LeftAnchor, 10).Active = true;
-            secondStackView.RightAnchor.ConstraintEqualTo(verticalStackView.RightAnchor, 10).Active = true;
-
-            //Visual issues view
-            var actualImage = (NSImage)inspectDelegate.GetImageResource("overlay-actual.png").NativeObject;
-            var keyViewLoopButton = new ToggleButton() { Image = actualImage };
-			keyViewLoopButton.ToolTip = "Shows current focused item";
-			AddButton (keyViewLoopButton);
-			keyViewLoopButton.Activated += (s, e) => {
-				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
-			};
-
-            var previousImage = (NSImage)inspectDelegate.GetImageResource("overlay-previous.png").NativeObject;
-            var prevKeyViewLoopButton = new ToggleButton() { Image = previousImage }; 
-			prevKeyViewLoopButton.ToolTip = "Shows previous view item";
-			AddButton (prevKeyViewLoopButton);
-			prevKeyViewLoopButton.Activated += (s, e) => {
-				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
-			};
-
-            var nextImage = (NSImage)inspectDelegate.GetImageResource("overlay-next.png").NativeObject;
-            var nextKeyViewLoopButton = new ToggleButton() { Image = nextImage };
-			nextKeyViewLoopButton.ToolTip = "Shows next view item";
-			AddButton (nextKeyViewLoopButton);
-			nextKeyViewLoopButton.Activated += (s, e) => {
-				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
-			};
-
-			AddSeparator ();
-
-            var rescanImage = (NSImage)inspectDelegate.GetImageResource("rescan-16.png").NativeObject;
-            toolkitButton = new ToggleButton { Image = rescanImage };
-			toolkitButton.ToolTip = "Change beetween Toolkits";
-			AddButton (toolkitButton);
-			toolkitButton.Activated += ToolkitButton_Activated;;
-
-            rescanSeparator = AddSeparator ();
-
-            var themeImage = (NSImage)inspectDelegate.GetImageResource("style-16.png").NativeObject;
-            var themeButton = new ToggleButton { Image = themeImage }; 
-			themeButton.ToolTip = "Change Style Theme";
-			AddButton (themeButton);
-			themeButton.Activated += ThemeButton_Activated;
-
-			AddSeparator ();
-
-            var deleteImage = (NSImage)inspectDelegate.GetImageResource("delete-16.png").NativeObject;
-            deleteButton = new ImageButton();
-			deleteButton.Image = deleteImage;
-			deleteButton.ToolTip = "Delete selected item";
-			AddButton (deleteButton);
-			deleteButton.Activated += (s,e) =>
-			{
-				ItemDeleted?.Invoke(this, EventArgs.Empty);
-			};
-
-            var changeImg = (NSImage)inspectDelegate.GetImageResource("image-16.png").NativeObject;
-			changeImage = new ImageButton();
-			changeImage.Image = changeImg;
-			changeImage.ToolTip = "Change image from selected item";
-			AddButton (changeImage);
-
-			changeImage.Activated += (s, e) =>
-			{
-				ItemImageChanged?.Invoke(this, EventArgs.Empty);
-			};
-
-            AddSeparator();
-
-            languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
-            languagesComboBox.ToolTip = "Change font from selected item";
-       
-            cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            var culturesStr = new NSString[cultureInfos.Length];
-
-            NSString selected = null;
-            for (int i = 0; i < cultureInfos.Length; i++)
-            {
-                culturesStr[i] = new NSString(cultureInfos[i].DisplayName);
-                if (i == 0 || cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
-                {
-                    selected = culturesStr[i];
-                }
-            }
-
-            languagesComboBox.Add(culturesStr);
-            stackView.AddArrangedSubview(languagesComboBox);
-
-            languagesComboBox.Select(selected);
-
-            languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
-            languagesComboBox.SelectionChanged  += LanguagesComboBox_SelectionChanged;
-            languagesComboBox.WidthAnchor.ConstraintEqualTo(220).Active = true;
-
-            //FONTS 
-
-            fontsCombobox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
-			fontsCombobox.ToolTip = "Change font from selected item";
-			fonts = NSFontManager.SharedFontManager.AvailableFonts
-				.Select (s => new NSString(s))
-				.ToArray ();
-
-			fontsCombobox.Add(fonts);
-            fontsCombobox.WidthAnchor.ConstraintGreaterThanOrEqualTo(220).Active = true;
-		
-			fontSizeTextView = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false };
-			fontSizeTextView.ToolTip = "Change font size from selected item";
-            fontSizeTextView.WidthAnchor.ConstraintEqualTo(40).Active = true;
-
-			fontsCombobox.SelectionChanged += (s, e) => {
-				OnFontChanged();
-			};
-
-			fontSizeTextView.Activated += (s, e) => {
-				OnFontChanged();
-			};
-
-            endSpace = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
-
-            //stackView.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
         }
 
-        NSView endSpace;
+		const int Margin = 5;
 
         int GetSelectedLanguage ()
         {
@@ -261,7 +279,7 @@ namespace MonoDevelop.Inspector.Mac
 
 		bool fontButtonsVisible
 		{
-			get => stackView.Subviews.Contains(fontsCombobox);
+			get => firstRowStackView.Subviews.Contains(fontsCombobox);
 			set
 			{
 				if (fontButtonsVisible == value)
@@ -271,22 +289,20 @@ namespace MonoDevelop.Inspector.Mac
 
 				if (value)
 				{
-					secondStackView.AddArrangedSubview(fontsCombobox);
-                    secondStackView.AddArrangedSubview(fontSizeTextView);
-                    secondStackView.AddArrangedSubview(endSpace);
+					secondRowStackView.AddArrangedSubview(fontsCombobox);
+                    secondRowStackView.AddArrangedSubview(fontSizeTextView);
 				}
 				else
 				{
 					fontSizeTextView.RemoveFromSuperview();
 					fontsCombobox.RemoveFromSuperview();
-                    endSpace.RemoveFromSuperview();
                 }
 			}
 		}
 
 		bool imageButtonVisible
 		{
-			get => stackView.Subviews.Contains(changeImage);
+			get => firstRowStackView.Subviews.Contains(changeImageButton);
 			set
 			{
 				if (imageButtonVisible == value)
@@ -296,11 +312,11 @@ namespace MonoDevelop.Inspector.Mac
 
 				if (value)
 				{
-					stackView.AddArrangedSubview(changeImage);
+					firstRowStackView.AddArrangedSubview(changeImageButton);
 				}
 				else
 				{
-					changeImage.RemoveFromSuperview();
+					changeImageButton.RemoveFromSuperview();
 				}
 			}
 		}
@@ -326,12 +342,12 @@ namespace MonoDevelop.Inspector.Mac
 		//public override bool CanBecomeKeyWindow => false;
 		//public override bool CanBecomeMainWindow => false;
 
-		ImageButton deleteButton, changeImage;
+		ImageButton deleteButton, changeImageButton;
 
 		public bool ImageChangedEnabled
 		{
-			get => changeImage.Enabled;
-			set => changeImage.Enabled = value;
+			get => changeImageButton.Enabled;
+			set => changeImageButton.Enabled = value;
 		}
 
 		void ThemeButton_Activated (object sender, EventArgs e)
@@ -339,19 +355,6 @@ namespace MonoDevelop.Inspector.Mac
 			if (sender is ToggleButton btn) {
 				ThemeChanged?.Invoke (this, btn.IsToggled);
 			}
-		}
-
-        NSView AddSeparator ()
-        {
-            var separator = new VerticalSeparator();
-            stackView.AddArrangedSubview(separator);
-            return separator;
-        }  
-
-		void AddButton (NSButton view)
-		{
-			stackView.AddArrangedSubview (view);
-			view.WidthAnchor.ConstraintEqualTo(InspectorToolWindow.ButtonWidth).Active = true;
 		}
 	}
 }

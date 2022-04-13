@@ -12,7 +12,7 @@ namespace MonoDevelop.Inspector
 
     interface IToolbarWindow : IWindow
 	{
-        void ShowToolkit(bool value);
+        void ShowToolkitButton(bool value);
         event EventHandler<bool> KeyViewLoop;
 		event EventHandler<bool> NextKeyViewLoop;
 		event EventHandler<bool> PreviousKeyViewLoop;
