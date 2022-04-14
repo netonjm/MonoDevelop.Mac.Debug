@@ -102,7 +102,13 @@ namespace MonoDevelop.Inspector.Mac
             ShowsToolbarButton = false;
             MovableByWindowBackground = false;
 
-            ContentView = new NSSplitView();
+            var splitView = new NSSplitView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            ContentView.AddSubview(splitView);
+
+            splitView.LeadingAnchor.ConstraintEqualTo(ContentView.LeadingAnchor, 7).Active = true;
+            splitView.TrailingAnchor.ConstraintEqualTo(ContentView.TrailingAnchor, -7).Active = true;
+            splitView.TopAnchor.ConstraintEqualTo(ContentView.TopAnchor, 7).Active = true;
+            splitView.BottomAnchor.ConstraintEqualTo(ContentView.BottomAnchor, -7).Active = true;
 
             hostResourceProvider = new HostResource();
             propertyEditorPanel = new PropertyEditorPanel(hostResourceProvider);

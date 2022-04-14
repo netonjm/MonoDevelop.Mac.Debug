@@ -19,7 +19,7 @@ namespace MonoDevelop.Inspector.Mac.Abstractions
                 var label = content.Label;
                 if (string.IsNullOrEmpty(label))
                     return label;
-                return $"\"{label}\" {content.GetType().FullName}";
+                return $"\"{label}\" NSTabViewItem";
             }
         }
     }
