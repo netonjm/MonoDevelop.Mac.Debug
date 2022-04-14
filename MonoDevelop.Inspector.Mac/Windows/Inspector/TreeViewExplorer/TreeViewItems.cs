@@ -44,16 +44,16 @@ namespace MonoDevelop.Inspector.Mac
         {
             StringBuilder builder = new StringBuilder();
 
-            if (item.FirstItem != null) {
-                builder.Append(string.Format("First [{0}, {1}]", item.FirstAttribute.ToString(), item.FirstItem.GetType ().Name));
-            }
-
-            builder.Append($" {item.Relation}");
-
             if (item.SecondItem != null) {
+                builder.Append(string.Format("First [{0}, {1}]", item.FirstAttribute.ToString(), item.FirstItem.GetType ().Name));
+                builder.Append($" {item.Relation}");
                 builder.Append(string.Format(" Second [{0}, {1}]", item.SecondAttribute.ToString(), item.SecondItem.GetType().Name));
             }
-
+            else
+            {
+                builder.Append($"{item.FirstAttribute.GetType().Name} {item.FirstAttribute.ToString()}");
+            }
+           
             builder.Append($" Mult:{item.Multiplier} Cons:{item.Constant} Prior: {item.Priority}");
             return builder.ToString();
         }
@@ -82,6 +82,46 @@ namespace MonoDevelop.Inspector.Mac
         public IView PreviousValidKeyView {
             get => new TreeViewItemView (item.FirstItem as NSView ?? item.SecondItem as NSView);
         }
+    }
+
+    class ConstrainContainer : IConstrainContainer
+    {
+        IView wrapper;
+        NSView view;
+        public ConstrainContainer(IView previous)
+        {
+            this.wrapper = previous;
+            view = previous.NativeObject as NSView;
+        }
+
+        public string NodeName => "Constraints";
+
+        public IView PreviousValidKeyView => wrapper;
+
+        public object NativeObject => null;
+
+        public void RemoveFromSuperview()
+        {
+            if (view != null)
+            {
+                var constraints = view.Constraints;
+                view.RemoveConstraints(constraints);
+            }
+        }
+    }
+
+    class TabView : ITab
+    {
+        NSTabView view;
+
+        public TabView(NSTabView previous)
+        {
+            this.view = previous;
+        }
+
+        public string NodeName => "NSTabView";
+
+        public object NativeObject => view;
     }
 
     class TreeViewItemView : IView
@@ -152,17 +192,17 @@ namespace MonoDevelop.Inspector.Mac
         public object NativeObject => widget;
         public object View => widget;
 
-
         public string NodeName {
             get
             {
                 if (widget is NSTextField textField)
                 {
-                    return string.Format("\"{0}\" {1}", textField.StringValue, widget.GetType().Name);
+                    return string.Format("\"{0}\" {1}", textField.StringValue,
+                        textField.IsLabel() ? "Label" : widget.GetType().Name);
                 }
                 if (widget is NSTextView textView)
                 {
-                    return string.Format("\"{0}\" {1}", textView.Value, widget.GetType().Name);
+                    return string.Format("\"{0}\" {1}", textView.Value,widget.GetType().Name);
                 }
                 if (widget is NSButton button)
                 {

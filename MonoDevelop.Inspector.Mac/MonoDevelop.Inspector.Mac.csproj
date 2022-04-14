@@ -165,6 +165,97 @@
     </EmbeddedResource>
 
     <Content Include="LICENSE.txt" Pack="True" PackagePath="\" />
+
+    <EmbeddedResource Include="Resources\treeview\Button.png">
+      <LogicalName>Button.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Check.png">
+      <LogicalName>Check.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintBottom.png">
+      <LogicalName>ConstraintBottom.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintCenterX.png">
+      <LogicalName>ConstraintCenterX.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintCenterY.png">
+      <LogicalName>ConstraintCenterY.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintHeight.png">
+      <LogicalName>ConstraintHeight.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintLeft.png">
+      <LogicalName>ConstraintLeft.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintRadio.png">
+      <LogicalName>ConstraintRadio.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintRight.png">
+      <LogicalName>ConstraintRight.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Constraints.png">
+      <LogicalName>Constraints.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintTop.png">
+      <LogicalName>ConstraintTop.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ConstraintWidth.png">
+      <LogicalName>ConstraintWidth.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Disclosure.png">
+      <LogicalName>Disclosure.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\HelpButton.png">
+      <LogicalName>HelpButton.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\HorizontalSlider.png">
+      <LogicalName>HorizontalSlider.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Label.png">
+      <LogicalName>Label.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\SplitView.png">
+      <LogicalName>SplitView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Stepper.png">
+      <LogicalName>Stepper.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Switch.png">
+      <LogicalName>Switch.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Tab.png">
+      <LogicalName>Tab.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\TabView.png">
+      <LogicalName>TabView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\View.png">
+      <LogicalName>View.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ComboBox.png">
+      <LogicalName>ComboBox.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\PopupButton.png">
+      <LogicalName>PopupButton.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\TextField.png">
+      <LogicalName>TextField.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\SecureTextField.png">
+      <LogicalName>SecureTextField.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Window.png">
+      <LogicalName>Window.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\SearchField.png">
+      <LogicalName>SearchField.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\StackViewHorizontal.png">
+      <LogicalName>StackViewHorizontal.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\StackViewVertical.png">
+      <LogicalName>StackViewVertical.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Remove="Windows\Accessibility\" />
@@ -176,6 +267,37 @@
     <None Remove="Windows\Inspector\PropertyPanel\" />
     <None Remove="Windows\Inspector\TabView\" />
     <None Remove="TouchBar\" />
+    <None Remove="Resources\treeview\" />
+    <None Remove="Resources\treeview\Button.png" />
+    <None Remove="Resources\treeview\Check.png" />
+    <None Remove="Resources\treeview\ConstraintBottom.png" />
+    <None Remove="Resources\treeview\ConstraintCenterX.png" />
+    <None Remove="Resources\treeview\ConstraintCenterY.png" />
+    <None Remove="Resources\treeview\ConstraintHeight.png" />
+    <None Remove="Resources\treeview\ConstraintLeft.png" />
+    <None Remove="Resources\treeview\ConstraintRadio.png" />
+    <None Remove="Resources\treeview\ConstraintRight.png" />
+    <None Remove="Resources\treeview\Constraints.png" />
+    <None Remove="Resources\treeview\ConstraintTop.png" />
+    <None Remove="Resources\treeview\ConstraintWidth.png" />
+    <None Remove="Resources\treeview\Disclosure.png" />
+    <None Remove="Resources\treeview\HelpButton.png" />
+    <None Remove="Resources\treeview\HorizontalSlider.png" />
+    <None Remove="Resources\treeview\Label.png" />
+    <None Remove="Resources\treeview\SplitView.png" />
+    <None Remove="Resources\treeview\Stepper.png" />
+    <None Remove="Resources\treeview\Switch.png" />
+    <None Remove="Resources\treeview\Tab.png" />
+    <None Remove="Resources\treeview\TabView.png" />
+    <None Remove="Resources\treeview\View.png" />
+    <None Remove="Resources\treeview\ComboBox.png" />
+    <None Remove="Resources\treeview\PopupButton.png" />
+    <None Remove="Resources\treeview\TextField.png" />
+    <None Remove="Resources\treeview\SecureTextField.png" />
+    <None Remove="Resources\treeview\Window.png" />
+    <None Remove="Resources\treeview\SearchField.png" />
+    <None Remove="Resources\treeview\StackViewHorizontal.png" />
+    <None Remove="Resources\treeview\StackViewVertical.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Windows\Accessibility\" />
@@ -187,5 +309,6 @@
     <Folder Include="HostWindow\" />
     <Folder Include="Windows\Inspector\PropertyPanel\" />
     <Folder Include="TouchBar\" />
+    <Folder Include="Resources\treeview\" />
   </ItemGroup>
 </Project>

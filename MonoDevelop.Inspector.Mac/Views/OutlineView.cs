@@ -6,6 +6,20 @@ using Foundation;
 
 namespace MonoDevelop.Inspector.Mac
 {
+	public class MainNode
+	{
+		public Node Node
+		{
+			get;
+			set;
+		}
+
+		public MainNode()
+		{
+			Node = new Node("main");
+		}
+	}
+
 	public class OutlineView : NSOutlineView
 	{
 		public event EventHandler<Node> StartDrag;
@@ -34,6 +48,9 @@ namespace MonoDevelop.Inspector.Mac
 			}
 		}
 
+		NSOutlineViewDelegate outlineViewDelegate;
+		OutlineViewDataSource outlineViewDataSource;
+
 		public OutlineView ()
 		{
 			AllowsExpansionToolTips = true;
@@ -47,44 +64,30 @@ namespace MonoDevelop.Inspector.Mac
 			AddColumn (column);
 			OutlineTableColumn = column;
 
-			Delegate = new OutlineViewDelegate ();
-
-			var outlineViewDataSource = new OutlineViewDataSource(Data);
-			DataSource = outlineViewDataSource;
+			Delegate = outlineViewDelegate = GetDelegate();
+			DataSource = outlineViewDataSource = GetDataSource(Data);
 			outlineViewDataSource.StartDrag += (sender, e) =>
 			{
 				StartDrag?.Invoke(this, e as Node);
 			};
 		}
 
-		public void SetData (Node data)
+		public void SetData (Node data, bool expand = true)
 		{
 			this.Data.Node = data;
 			ReloadData ();
-			ExpandItem (ItemAtRow (0), true);
+			if (expand)
+				ExpandItem (ItemAtRow (0), true);
 		}
 
-		class OutlineViewDelegate : NSOutlineViewDelegate
+		public virtual OutlineViewDataSource GetDataSource(MainNode node)
 		{
-			public OutlineViewDelegate ()
-			{
-			}
+			return new OutlineViewDataSource(node);
+		}
 
-			const string identifer = "myCellIdentifier";
-			public override NSView GetView (NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
-			{
-				var view = (NSTextField)outlineView.MakeView (identifer, this);
-				if (view == null) {
-					view = NativeViewHelper.CreateLabel (((Node)item).Name);
-				}
-				return view;
-			}
-
-			public override bool ShouldSelectItem (NSOutlineView outlineView, NSObject item)
-			{
-				((OutlineView) outlineView).SelectedNode = (Node)item;
-				return true;
-			}
+		public virtual NSOutlineViewDelegate GetDelegate()
+        {
+			return new OutlineViewDelegate();
 		}
 
 		internal void FocusNode (Node node)
@@ -94,27 +97,122 @@ namespace MonoDevelop.Inspector.Mac
 			}
 			var index = RowForItem (node);
 			if (index >= 0) {
-				SelectRow (index, false);
+				if (node.Parent != null)
+                {
+					ExpandItem(node.Parent, false);
+				}
 				ScrollRowToVisible(index);
+				SelectRow(index, false);
 			}
-		}
-	}
-
-	class MainNode
-	{
-		public Node Node {
-			get;
-			set;
-		}
-
-		public MainNode ()
-		{
-			Node = new Node ("test");
 		}
 	}
 
 	public class TreeNodeView : Node
 	{
+		public bool TryGetImageName(out string value)
+        {
+			var nativeObject = NativeObject.NativeObject;
+			value = null;
+
+			if (NativeObject is IConstrainContainer)
+            {
+				value = "Constraints.png";
+            }
+			else if (NativeObject is ITabItem)
+			{
+				value = "Tab.png";
+			}
+			else if (NativeObject is IConstrain && nativeObject is NSLayoutConstraint constraint)
+			{
+                switch (constraint.FirstAttribute)
+                {
+					case NSLayoutAttribute.Leading:
+					case NSLayoutAttribute.Left:
+						value = "ConstraintLeft.png";
+						break;
+					case NSLayoutAttribute.Trailing:
+					case NSLayoutAttribute.Right:
+						value = "ConstraintRight.png";
+						break;
+					case NSLayoutAttribute.Top:
+						value = "ConstraintTop.png";
+						break;
+					case NSLayoutAttribute.Bottom:
+						value = "ConstraintBottom.png";
+						break;
+					case NSLayoutAttribute.Width:
+						value = "ConstraintWidth.png";
+						break;
+					case NSLayoutAttribute.Height:
+						value = "ConstraintHeight.png";
+						break;
+					case NSLayoutAttribute.CenterX:
+						value = "ConstraintCenterX.png";
+						break;
+					case NSLayoutAttribute.CenterY:
+						value = "ConstraintCenterY.png";
+						break;
+				}
+			}
+			else if (nativeObject is NSWindow)
+			{
+				value = "Window.png";
+			}
+			else if (nativeObject is NSTabView)
+			{
+				value = "TabView.png";
+			}
+			else if (nativeObject is NSComboBox)
+			{
+				value = "ComboBox.png";
+			}
+			else if (nativeObject is NSPopUpButton)
+			{
+				value = "PopupButton.png";
+			}
+			else if (nativeObject is NSStackView stackView)
+			{
+				value = stackView.Orientation == NSUserInterfaceLayoutOrientation.Horizontal ? "StackViewHorizontal.png" : "StackViewVertical.png";
+			}
+			else if (nativeObject is NSSplitView)
+			{
+				value = "SplitView.png";
+			}
+			else if (nativeObject is NSSearchField)
+			{
+				value = "SearchField.png";
+			}
+			else if (nativeObject is NSSecureTextField)
+			{
+				value = "SecureTextField.png";
+			}
+			else if (nativeObject is NSTextField nSTextField)
+			{
+				value = nSTextField.IsLabel() ? "Label.png" : "TextField.png";
+			}
+			else if (nativeObject is NSButton button)
+			{
+                switch (button.BezelStyle)
+                {
+					case NSBezelStyle.Disclosure:
+						value = "Disclosure.png";
+						break;
+					case NSBezelStyle.HelpButton:
+						value = "HelpButton.png";
+						break;
+					default:
+						value = "Button.png";
+						break;
+                }
+			}
+			else if (nativeObject is NSView)
+			{
+				value = "View.png";
+			}
+
+			return !string.IsNullOrEmpty(value);
+        }
+
 		static string GetIdentifier(string nodeName, string identifier)
         {
 			if (string.IsNullOrEmpty(identifier))
@@ -131,7 +229,7 @@ namespace MonoDevelop.Inspector.Mac
 			return name;
 		}
 
-        static string GetName(IConstrain view)
+		static string GetName(IConstrain view)
         {
             var name = string.Format("{0} ({1})", view.NodeName, view.Identifier ?? " (constraint)");
             return name;
@@ -141,15 +239,19 @@ namespace MonoDevelop.Inspector.Mac
 		{
 			if (string.IsNullOrEmpty(window.Title))
             {
-				return "Window";
+				return "NSWindow";
             }
 
-			var name = string.Format("\"{0}\" WINDOW", window.Title);
+			var name = string.Format("\"{0}\" NSWindow", window.Title);
 			return name;
 		}
 
-
 		public readonly INativeObject NativeObject;
+
+		public TreeNodeView(ITabItem view) : base(view.NodeName)
+		{
+			this.NativeObject = view;
+		}
 
 		public TreeNodeView(IWindow view) : base(GetName(view))
 		{
@@ -177,6 +279,8 @@ namespace MonoDevelop.Inspector.Mac
 		public string Name { get; private set; }
 		List<Node> Children;
 
+		public Node Parent { get; private set; }
+
 		public Node (string name)
 		{
 			Name = name;
@@ -186,13 +290,26 @@ namespace MonoDevelop.Inspector.Mac
 		public Node AddChild (string name)
 		{
 			Node n = new Node (name);
-			Children.Add (n);
+			AddChild(n);
 			return n;
 		}
 
 		public void AddChild (Node node)
 		{
-			Children.Add (node);
+			if (!Children.Contains(node))
+            {
+				Children.Add(node);
+				node.Parent = this;
+			}
+		}
+
+		public void RemoveChild(Node node)
+		{
+			if (Children.Contains(node))
+            {
+				Children.Remove(node);
+				node.Parent = null;
+			}
 		}
 
 		public Node GetChild (int index)
@@ -204,7 +321,77 @@ namespace MonoDevelop.Inspector.Mac
 		public bool IsLeaf { get { return ChildCount == 0; } }
 	}
 
-	class OutlineViewDataSource : NSOutlineViewDataSource
+	public abstract class ImageRowSubView : NSView
+	{
+		internal const string IdentifierId = "PreferencesSubCategoriesCell";
+
+		protected NSImage image;
+		protected NSImageView imageView;
+		protected NSTextField textField;
+
+		public ImageRowSubView()
+		{
+			Identifier = IdentifierId;
+
+			imageView = new NSImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
+			this.AddSubview(imageView);
+
+			imageView.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
+			imageView.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 4).Active = true;
+
+			imageView.WidthAnchor.ConstraintEqualTo(16).Active = true;
+			imageView.HeightAnchor.ConstraintEqualTo(16).Active = true;
+
+			textField = NSTextField.CreateLabel(string.Empty);
+			textField.TranslatesAutoresizingMaskIntoConstraints = false;
+			textField.UsesSingleLineMode = true;
+			textField.LineBreakMode = NSLineBreakMode.TruncatingTail;
+
+			this.AddSubview(textField);
+			textField.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
+			textField.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 25).Active = true;
+		}
+
+		public override void ViewDidChangeEffectiveAppearance()
+		{
+			base.ViewDidChangeEffectiveAppearance();
+			RefreshStates();
+		}
+
+		internal void RefreshStates()
+		{
+			if (image == null)
+				return;
+
+			imageView.Image = image;
+		}
+	}
+
+	public class OutlineViewDelegate : NSOutlineViewDelegate
+	{
+		public OutlineViewDelegate()
+		{
+		}
+
+		protected const string identifer = "myCellIdentifier";
+		public override NSView GetView(NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
+		{
+			var view = (NSTextField)outlineView.MakeView(identifer, this);
+			if (view == null)
+			{
+				view = NativeViewHelper.CreateLabel(((Node)item).Name);
+			}
+			return view;
+		}
+
+		public override bool ShouldSelectItem(NSOutlineView outlineView, NSObject item)
+		{
+			((OutlineView)outlineView).SelectedNode = (Node)item;
+			return true;
+		}
+	}
+
+	public class OutlineViewDataSource : NSOutlineViewDataSource
 	{
 		public event EventHandler<NSObject> StartDrag;
 

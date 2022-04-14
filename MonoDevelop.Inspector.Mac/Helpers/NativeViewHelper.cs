@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -8,7 +9,45 @@ namespace MonoDevelop.Inspector.Mac
 {
 	public static class NativeViewHelper
 	{
-        readonly static public float DefaultSize = (float) NSFont.SystemFontSize;
+		public static NSImage GetManifestImageResource(string resource)
+        {
+			return GetManifestImageResource(typeof(NativeViewHelper).Assembly, resource);
+        }
+
+		public static NSImage GetManifestImageResource(Assembly assembly, string resource)
+		{
+			if (assembly == null)
+			{
+				//TODO: not safe
+				assembly = Assembly.GetEntryAssembly();
+			}
+			//var resources = assembly.GetManifestResourceNames();
+			//System.IO.File.WriteAllLines("/Users/jmedrano/log.txt", resources);
+
+			try
+			{
+				//TODO: not safe
+				//var fullResourceName = string.Concat(assembly.GetName().Name, ".Resources.", resource);
+				//
+				using (var stream = assembly.GetManifestResourceStream(resource))
+				{
+					return NSImage.FromStream(stream);
+				}
+			}
+			catch (System.ArgumentNullException)
+			{
+				//LoggingService.LogError(string.Format("[FIGMA]  File '{0}' not found in Resources and/or not set Build action to EmbeddedResource", resource));
+			}
+			catch (System.Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+				//LoggingService.LogError("[FIGMA] Error.", ex);
+			}
+			return null;
+		}
+
+
+		readonly static public float DefaultSize = (float) NSFont.SystemFontSize;
         readonly static public NSFont DefaultFont = NSFont.FromFontName (DefaultFontName, DefaultSize);
 
         public const string DefaultFontName = ".AppleSystemUIFont";

@@ -5,6 +5,11 @@ namespace MonoDevelop.Inspector
 {
     public interface ITab : INativeObject
     {
+        public string NodeName { get; }
+    }
 
+    public interface ITabItem : INativeObject
+    {
+        public string NodeName { get; }
     }
 }

@@ -10,6 +10,63 @@ using MonoDevelop.Inspector.Mac.Abstractions;
 
 namespace MonoDevelop.Inspector.Mac
 {
+    class InspectorOutlineView : OutlineView
+    {
+        class InspectorImageNode : ImageRowSubView
+        {
+            public void SetData(TreeNodeView node, string imageName)
+            {
+                image = NativeViewHelper.GetManifestImageResource(imageName);
+                textField.StringValue = node.Name;
+                RefreshStates();
+            }
+        }
+
+        class InspectorOutlineViewDelegate : OutlineViewDelegate
+        {
+            public override ObjCRuntime.nfloat GetRowHeight(NSOutlineView outlineView, NSObject item)
+            {
+                return 22;
+            }
+
+            protected const string imageNodeName = "InspectorImageNode";
+            public override NSView GetView(NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
+            {
+                var data = (TreeNodeView)item;
+                if (data.TryGetImageName(out var imageValue))
+                {
+                    var view = (InspectorImageNode)outlineView.MakeView(imageNodeName, this);
+                    if (view == null)
+                    {
+                        view = new InspectorImageNode();
+                    }
+                    view.SetData(data, imageValue);
+                    return view;
+                }
+                else
+                {
+                    var view = (NSTextField)outlineView.MakeView(identifer, this);
+                    if (view == null)
+                    {
+                        view = NativeViewHelper.CreateLabel(((Node)item).Name);
+                    }
+                    return view;
+                }
+            }
+        }
+
+        public InspectorOutlineView ()
+        {
+            HeaderView = null;
+            BackgroundColor = NSColor.Clear;
+        }
+
+        public override NSOutlineViewDelegate GetDelegate()
+        {
+            return new InspectorOutlineViewDelegate();
+        }
+    }
+
     class InspectorToolWindow : BaseWindow, IInspectorWindow
     {
         const ushort DeleteKey = 51;
@@ -26,7 +83,7 @@ namespace MonoDevelop.Inspector.Mac
         //NSLayoutConstraint constraint;
 
         MethodListView methodListView;
-        public OutlineView outlineView { get; private set; }
+        public InspectorOutlineView outlineView { get; private set; }
 
         NSTabView tabView;
 
@@ -58,8 +115,10 @@ namespace MonoDevelop.Inspector.Mac
                 SupportsMaterialDesign = true,
             };
 
-            outlineView = new OutlineView();
+            outlineView = new InspectorOutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
+            outlineViewScrollView.BackgroundColor = NSColor.Clear;
+            outlineViewScrollView.DrawsBackground = false;
 
             outlineView.SelectionNodeChanged += (s, e) =>
             {
@@ -67,17 +126,14 @@ namespace MonoDevelop.Inspector.Mac
                 {
                     if (nodeView.NativeObject is IConstrain constrain)
                     {
-                        Console.WriteLine("IConstrain");
                         Select(constrain, InspectorViewMode.Native);
                     }
                     else if (nodeView.NativeObject is IWindow window)
                     {
-                        Console.WriteLine("IWindow");
                         Select(window, InspectorViewMode.Native);
                     }
                     else
                     {
-                        Console.WriteLine(nodeView.NativeObject.GetType().FullName);
                         RaiseFirstResponder?.Invoke(this, nodeView.NativeObject);
                     }
                 }
@@ -164,7 +220,7 @@ namespace MonoDevelop.Inspector.Mac
             scrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
-            titleContainter.EdgeInsets = new NSEdgeInsets(margin, 0, margin, 0);
+            titleContainter.EdgeInsets = new NSEdgeInsets(0, margin, 0, margin);
             //titleContainter.WantsLayer = true;
             //titleContainter.Layer.BackgroundColor = NSColor.Gray.CGColor;
 
@@ -301,7 +357,50 @@ namespace MonoDevelop.Inspector.Mac
         {
             data = new TreeNodeView(window.ContentView);
             inspectorDelegate.ConvertToNodes(window, new NodeView(data), viewMode);
-            outlineView.SetData(data);
+            outlineView.SetData(data, false);
+            ExpandNodes(data);
+        }
+
+        bool IsExpandibleNode(TreeNodeView nodeView)
+        {
+            if (nodeView.NativeObject is IConstrainContainer)
+            {
+                return false;
+            }
+
+            if (nodeView.NativeObject is IView view && view.NativeObject is NSView nsView)
+            {
+                if (nsView is NSTextField)
+                    return false;
+                if (nsView is NSTextView)
+                    return false;
+                if (nsView is NSComboBox)
+                    return false;
+                if (nsView is NSPopUpButton)
+                    return false;
+                if (nsView is NSButton)
+                    return false;
+                if (nsView is NSImageView)
+                    return false;
+            }
+
+            return true;
+        }
+
+        void ExpandNodes(TreeNodeView nodeView)
+        {
+            if (!IsExpandibleNode(nodeView))
+            {
+                return;
+            }
+
+            outlineView.ExpandItem(nodeView, false);
+
+            for (int i = 0; i < nodeView.ChildCount; i++)
+            {
+                var child =(TreeNodeView) nodeView.GetChild(i);
+                ExpandNodes(child);
+            }
         }
 
         NSTextField resultMessage;

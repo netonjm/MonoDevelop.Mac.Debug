@@ -172,31 +172,6 @@ namespace MonoDevelop.Inspector.Mac
 			return new Button(invokeButton);
         }
 
-        class MacConstrainContainerWrapper : IConstrainContainer
-        {
-            IView wrapper;
-            NSView view;
-            public MacConstrainContainerWrapper(IView previous)
-            {
-                this.wrapper = previous;
-                view = previous.NativeObject as NSView;
-            }
-
-            public string NodeName => "Constraints";
-
-            public IView PreviousValidKeyView => wrapper;
-
-            public object NativeObject => null;
-
-            public void RemoveFromSuperview()
-            {
-                if (view != null ) {
-                    var constraints = view.Constraints;
-                    view.RemoveConstraints(constraints);
-                }
-            }
-        }
-
         public void ConvertToNodes(IWindow window, INodeView node, InspectorViewMode viewMode)
         {
             var windowTreeNodeView = new TreeNodeView(window);
@@ -223,8 +198,9 @@ namespace MonoDevelop.Inspector.Mac
             var nodeWrapper = new NodeView(current);
             node.AddChild(nodeWrapper);
 
+            //add constraints
             if (customView.HasConstraints) {
-                var contraintContainer = new MacConstrainContainerWrapper(customView);
+                var contraintContainer = new ConstrainContainer(customView);
                 var constraintsContainerNodeView = new TreeNodeView(contraintContainer);
                 var constraintsContainerNodeWrapper = new NodeView(constraintsContainerNodeView);
                 nodeWrapper.AddChild(constraintsContainerNodeWrapper);
@@ -237,20 +213,45 @@ namespace MonoDevelop.Inspector.Mac
                 }
             }
 
-            if (customView.Subviews == null)
+            //tabview has an special behaviour
+            if (customView.NativeObject is NSTabView tabView)
             {
-                return;
-            }
+                foreach (var item in tabView.Items)
+                {
+                    try
+                    {
+                        var tabViewItem = new TabViewItem(item);
+                        var treeNodeView = new TreeNodeView(tabViewItem);
+                        var nodeView = new NodeView(treeNodeView);
+                        nodeWrapper.AddChild(nodeView);
 
-            foreach (var item in customView.Subviews)
-            {
-                try
-                {
-                    ConvertToNodes(item, nodeWrapper, viewMode);
+                        //now we want scan tabs
+                        var tabMainView = new TreeViewItemView(item.View);
+                        ConvertToNodes(tabMainView, nodeView, viewMode);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                 }
-                catch (Exception ex)
+            }
+            else
+            {
+                if (customView.Subviews == null)
                 {
-                    Console.WriteLine(ex);
+                    return;
+                }
+
+                foreach (var item in customView.Subviews)
+                {
+                    try
+                    {
+                        ConvertToNodes(item, nodeWrapper, viewMode);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                 }
             }
         }

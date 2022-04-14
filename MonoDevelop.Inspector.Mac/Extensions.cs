@@ -12,6 +12,11 @@ namespace AppKit
 {
 	public static class Extensions
 	{
+		public static bool IsLabel(this NSTextField nSTextField)
+        {
+			return !nSTextField.DrawsBackground && !nSTextField.Editable && !nSTextField.Bezeled;
+		}
+
 		public static CGColor ToCGColor(this CommonColor color)
 			=> new CGColor(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
 

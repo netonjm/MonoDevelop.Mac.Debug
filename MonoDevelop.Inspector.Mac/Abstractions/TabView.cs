@@ -2,15 +2,25 @@
 
 namespace MonoDevelop.Inspector.Mac.Abstractions
 {
-    internal class TabView : ITab
+    internal class TabViewItem : ITabItem
     {
-        private NSTabView content;
+        private NSTabViewItem content;
 
-        public TabView (NSTabView content)
+        public TabViewItem(NSTabViewItem content)
         {
             this.content = content;
         }
 
         public object NativeObject => content;
+
+        public string NodeName
+        {
+            get {
+                var label = content.Label;
+                if (string.IsNullOrEmpty(label))
+                    return label;
+                return $"\"{label}\" {content.GetType().FullName}";
+            }
+        }
     }
 }
