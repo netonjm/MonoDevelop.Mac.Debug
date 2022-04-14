@@ -15,8 +15,9 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
 	public class InspectorHostWindow : BaseWindow, IMainWindow, INSTouchBarDelegate
     {
         NSTouchBar touchbar;
-        ToolbarService service;
-        InspectorContext context;
+        ToolbarService toolbarService;
+        InspectorContext inspectorContext;
+        MacInspectorDelegate inspectorDelegate;
 
         public InspectorViewMode ViewMode { get; set; } = InspectorViewMode.Native;
 
@@ -35,18 +36,20 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
 
         void Initialize()
 		{
-            NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
-            touchbar = new NSTouchBar();
-            service = ToolbarService.Current;
-            context = InspectorContext.Current;
-
-            if (context.Manager == null)
+            if (inspectorDelegate == null)
             {
-                var inspectorDelegate = new MacInspectorDelegate();
-                inspectorDelegate.InitializeManager(context, service);
-            }
+                NSApplication.SharedApplication.SetAutomaticCustomizeTouchBarMenuItemEnabled(true);
+                touchbar = new NSTouchBar();
+                toolbarService = ToolbarService.Current;
+                inspectorContext = InspectorContext.Current;
 
-            context.FocusedViewChanged += Context_FocusedViewChanged;
+                inspectorDelegate = new MacInspectorDelegate();
+
+                //we need to load assemblies?
+                var manager = inspectorDelegate.CreateInspectorManager();
+                inspectorContext.Initialize(inspectorDelegate, manager, false);
+                inspectorContext.FocusedViewChanged += Context_FocusedViewChanged;
+            }
         }
 
         void Context_FocusedViewChanged(object sender, IView e)
@@ -59,7 +62,7 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
 
         protected override void Dispose(bool disposing)
         {
-            context.FocusedViewChanged -= Context_FocusedViewChanged;
+            inspectorContext.FocusedViewChanged -= Context_FocusedViewChanged;
             base.Dispose(disposing);
         }
 
@@ -71,7 +74,7 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
 
         void RefreshBar (NSView view)
         {
-            var touchBarDelegate = service.GetTouchBarDelegate(view);
+            var touchBarDelegate = toolbarService.GetTouchBarDelegate(view);
             if (touchBarDelegate != null)
             {
                 touchBarDelegate.SetCurrentView(view);
@@ -83,14 +86,14 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
 
         public override void BecomeKeyWindow()
         {
-            context.Attach(this);
+            inspectorContext.Attach(this);
             base.BecomeKeyWindow();
         }
 
         public override bool MakeFirstResponder (NSResponder aResponder)
 		{
 			if (aResponder is NSView view) {
-                context.ChangeFocusedView (new TreeViewItemView (view));
+                inspectorContext.ChangeFocusedView (new TreeViewItemView (view));
                 RefreshBar(view);
             }
             return base.MakeFirstResponder (aResponder);

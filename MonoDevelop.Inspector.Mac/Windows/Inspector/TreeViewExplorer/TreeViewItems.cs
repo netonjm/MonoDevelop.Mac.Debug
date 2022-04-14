@@ -43,18 +43,25 @@ namespace MonoDevelop.Inspector.Mac
         string GetNodeName ()
         {
             StringBuilder builder = new StringBuilder();
-
-            if (item.SecondItem != null) {
-                builder.Append(string.Format("F:[{0}, {1}]", item.FirstAttribute.ToString(), item.FirstItem.GetType ().Name));
-                builder.Append($" {item.Relation}");
-                builder.Append(string.Format(" S:[{0}, {1}]", item.SecondAttribute.ToString(), item.SecondItem.GetType().Name));
-            }
-            else
+            try
             {
-                builder.Append($"{item.FirstItem.GetType().Name} {item.FirstAttribute.ToString()}");
+                if (item.SecondItem != null)
+                {
+                    builder.Append(string.Format("F:[{0}, {1}]", item.FirstAttribute.ToString(), item.FirstItem.GetType().Name));
+                    builder.Append($" {item.Relation}");
+                    builder.Append(string.Format(" S:[{0}, {1}]", item.SecondAttribute.ToString(), item.SecondItem.GetType().Name));
+                }
+                else
+                {
+                    builder.Append($"{item.FirstItem.GetType().Name} {item.FirstAttribute.ToString()}");
+                }
+
+                builder.Append($" C:{item.Constant} M:{item.Multiplier} P:{item.Priority}");
             }
-           
-            builder.Append($" C:{item.Constant} M:{item.Multiplier} P:{item.Priority}");
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex.ToString());
+            }
             return builder.ToString();
         }
 

@@ -10,9 +10,6 @@ namespace MonoDevelop.Inspector
         public event EventHandler<IView> FocusedViewChanged;
         public readonly List<IInspectorTabModule> Modules = new List<IInspectorTabModule>();
 
-        readonly List<IMainWindow> windows = new List<IMainWindow> ();
-        internal InspectorManager Manager { get; set; }
-
         readonly public string ModulesDirectoryPath;
 
         public InspectorContext ()
@@ -22,18 +19,25 @@ namespace MonoDevelop.Inspector
         }
 
         protected bool hasToolkit;
-        public void Initialize (InspectorManager manager, bool hasToolkit)
+        internal IInspectDelegate InspectorDelegate { get; private set; }
+        internal InspectorManager Manager { get; private set; }
+
+        public bool IsAllowedWindow(IWindow window)
         {
+            return Manager.IsAllowedWindow(window);
+        }
+
+        internal void Initialize (IInspectDelegate inspectDelegate, InspectorManager manager, bool hasToolkit)
+        {
+            this.InspectorDelegate = inspectDelegate;
             this.hasToolkit = hasToolkit;
+
             Manager = manager;
-            Manager.FocusedViewChanged += (s,e) => FocusedViewChanged?.Invoke (s,e);
+            Manager.FocusedViewChanged += (s, e) => FocusedViewChanged?.Invoke(s, e);
         }
 
         public void Attach (IMainWindow window) 
 		{
-			if (!windows.Contains (window)) {
-				windows.Add(window);
-			}
 			Manager.SetWindow(window);
 		}
 
@@ -41,7 +45,6 @@ namespace MonoDevelop.Inspector
 
 		public void Remove (IMainWindow window)
 		{
-			windows.Remove(window);
 			Manager.SetWindow(null);
 		}
 

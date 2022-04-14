@@ -63,7 +63,7 @@ namespace VisualStudio.ViewInspector
         {
             //data = new NodeView(window.ContentView);
             //inspectorDelegate.ConvertToNodes(window.ContentView, new NodeWrapper(data), viewMode);
-            View.SetData(node);
+            //View.SetData(node);
         }
 
         public void FocusNode(Node node)

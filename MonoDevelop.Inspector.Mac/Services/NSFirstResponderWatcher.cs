@@ -3,46 +3,377 @@
 using System;
 using AppKit;
 using Foundation;
+using System.Linq;
+using CoreGraphics;
+using System.Timers;
 
 namespace MonoDevelop.Inspector.Mac.Services
 {
-	class NSFirstResponderWatcher : IDisposable
-	{
-		NSTimer timer;
-		NSResponder responder;
-		IWindow window;
-		public EventHandler<NSResponder> Changed;
-		public double Interval { get; set; } = 0.2;
+    public class ObservableWindow : WindowWrapper, IMainWindow
+    {
+        ObservableWindowDelegate windowDelegate;
 
-		public NSFirstResponderWatcher (IWindow window)
-		{
-			this.window = window;
-		}
+        public ObservableWindow(NSWindow window) : base(window)
+        {
+            this.windowDelegate = new ObservableWindowDelegate(this);
+            Window = window;
+            //Observer to check window close and deatach
+           
+        }
 
-		void TickHandleAction (NSTimer obj)
-		{
-			if (window.FirstResponder != responder) {
-				responder = (AppKit.NSResponder)window.FirstResponder;
-				Changed?.Invoke (this, responder);
-			}
-		}
+        class ObservableWindowDelegate : NSWindowDelegate
+        {
+            WeakReference<ObservableWindow> weakWindow;
 
-		public void Start ()
-		{
-			Stop ();
-			timer = NSTimer.CreateRepeatingScheduledTimer (TimeSpan.FromSeconds (Interval), TickHandleAction);
-		}
+            public ObservableWindowDelegate(ObservableWindow window)
+            {
+                this.weakWindow = new WeakReference<ObservableWindow>(window);
+            }
 
-		public void Stop ()
-		{
-			if (timer != null) {
-				timer.Invalidate ();
-			}
-		}
+            public override void DidResize(NSNotification notification)
+            {
+                if (weakWindow.TryGetTarget(out var target))
+                {
+                    target.RaiseResizeRequested();
+                    return;
+                }
+            }
 
-		public void Dispose ()
-		{
-			Stop ();
-		}
-	}
+            public override void DidMove(NSNotification notification)
+            {
+                if (weakWindow.TryGetTarget(out var target))
+                {
+                    target.RaiseMovedRequested();
+                }
+            }
+
+            public override void DidResignKey(NSNotification notification)
+            {
+                if (weakWindow.TryGetTarget(out var target))
+                {
+                    target.RaiseLostFocus();
+                    return;
+                }
+            }
+        }
+
+        public InspectorViewMode ViewMode { get; set; }
+
+        public override NSWindow Window {
+            get => base.Window; set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+                if (window?.Delegate != null)
+                {
+                    window.Delegate = null;
+                }
+                this.window = value;
+                this.window.Delegate = windowDelegate;
+            }
+        }
+    }
+
+    public class WindowWrapper : IWindow
+    {
+        public event EventHandler LostFocus;
+        public event EventHandler ResizeRequested;
+        public event EventHandler MovedRequested;
+
+        protected void RaiseLostFocus() => LostFocus?.Invoke(this, EventArgs.Empty);
+        protected void RaiseResizeRequested() => ResizeRequested?.Invoke(this, EventArgs.Empty);
+        protected void RaiseMovedRequested() => MovedRequested?.Invoke(this, EventArgs.Empty);
+
+        IView IWindow.ContentView
+        {
+            get
+            {
+                if (window.ContentView is NSView view)
+                {
+                    return new TreeViewItemView(view);
+                }
+                return null;
+            }
+            set
+            {
+                window.ContentView = value.NativeObject as NSView;
+            }
+        }
+
+        IView IWindow.FirstResponder
+        {
+            get
+            {
+                if (window.FirstResponder is NSView view)
+                {
+                    return new TreeViewItemView(view);
+                }
+                return null;
+            }
+        }
+
+        public bool HasParentWindow => window.ParentWindow != null;
+
+        public string Title
+        {
+            get => window.Title;
+            set => window.Title = value;
+        }
+
+        public float FrameX => (float)window.Frame.X;
+        public float FrameY => (float)window.Frame.Y;
+        public float FrameWidth => (float)window.Frame.Width;
+        public float FrameHeight => (float)window.Frame.Height;
+
+        public object NativeObject => window;
+
+        public virtual NSWindow Window {
+            get => window;
+            set
+            {
+                this.window = value;
+            }
+        }
+
+        public IWindow ParentWindow
+        {
+            get
+            {
+                var paren = window.ParentWindow;
+                if (paren == null)
+                {
+                    return null;
+                }
+                return new WindowWrapper(paren);
+            }
+        }
+        protected NSWindow window;
+
+        public WindowWrapper(NSWindow window)
+        {
+            Window = window;
+        }
+
+        public void AddChildWindow(IWindow borderer)
+        {
+            if (borderer.NativeObject is NSWindow currentWindow)
+            {
+                if (currentWindow.ParentWindow != null && currentWindow.ParentWindow != window)
+                {
+                    currentWindow.ParentWindow.RemoveChildWindow(currentWindow);
+                }
+                window.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+            }
+        }
+
+        public void AlignLeft(IWindow toView, int pixels)
+        {
+            var toViewWindow = toView.NativeObject as NSWindow;
+            var frame = window.Frame;
+            frame.Location = new CGPoint(toViewWindow.Frame.Left - window.Frame.Width - pixels, toViewWindow.Frame.Bottom - frame.Height);
+            window.SetFrame(frame, true);
+        }
+
+        public void AlignRight(IWindow toView, int pixels)
+        {
+            var toViewWindow = toView.NativeObject as NSWindow;
+            var frame = window.Frame;
+            frame.Location = new CGPoint(toViewWindow.Frame.Right + pixels, toViewWindow.Frame.Bottom - frame.Height);
+            window.SetFrame(frame, true);
+        }
+
+        public void AlignTop(IWindow toView, int pixels)
+        {
+            var toViewWindow = toView.NativeObject as NSWindow;
+            var frame = window.Frame;
+            frame.Location = new CGPoint(toViewWindow.Frame.Left, toViewWindow.AccessibilityFrame.Y + toViewWindow.Frame.Height + pixels);
+            window.SetFrame(frame, true);
+        }
+
+        public void Close()
+        {
+            window.Close();
+        }
+
+        public bool ContainsChildWindow(IWindow debugOverlayWindow)
+        {
+            return window.ChildWindows.Contains(debugOverlayWindow.NativeObject as NSWindow);
+        }
+
+        public void RecalculateKeyViewLoop()
+        {
+            window.RecalculateKeyViewLoop();
+        }
+
+        public void SetAppareance(bool isDark)
+        {
+            window.Appearance = NSAppearance.GetAppearance(isDark ? NSAppearance.NameVibrantDark : NSAppearance.NameVibrantLight);
+        }
+
+        public void SetContentSize(int toolbarWindowWidth, int toolbarWindowHeight)
+        {
+            window.SetContentSize(new CGSize(toolbarWindowWidth, toolbarWindowHeight));
+        }
+    }
+
+ //   public class NSFirstResponderWatcher : IDisposable
+	//{
+	//	NSTimer timer;
+	//	NSResponder responder;
+	
+	//	public EventHandler<NSResponder> Changed;
+	//	public double Interval { get; set; } = 0.2;
+
+	//	public NSFirstResponderWatcher ()
+	//	{
+			
+	//	}
+
+	//	NSWindow window;
+	//	public NSWindow CurrentWindow {
+	//		get => window;
+	//		set
+ //           {
+	//			if (window == value)
+	//				return;
+	//			window = value;
+
+	//			//observer to drop window when closed
+
+
+ //           }
+	//	}
+
+ //       void TickHandleAction (NSTimer obj)
+	//	{
+	//		if (window == null)
+	//			return;
+
+	//		var currentResponder = window.FirstResponder;
+	//		if (currentResponder != responder) {
+	//			responder = currentResponder;
+	//			Changed?.Invoke (this, responder);
+	//		}
+	//	}
+
+	//	public void Start ()
+	//	{
+	//		Stop ();
+	//		timer = NSTimer.CreateRepeatingScheduledTimer (TimeSpan.FromSeconds (Interval), TickHandleAction);
+	//	}
+
+	//	public void Stop ()
+	//	{
+	//		if (timer != null) {
+	//			timer.Invalidate ();
+	//		}
+	//	}
+
+	//	public void Dispose ()
+	//	{
+	//		Stop ();
+	//	}
+	//}
+
+    public class WindowWatcher : IDisposable
+    {
+        Timer m_Timer;
+       
+        public event EventHandler<NSWindow> WindowChanged;
+        public event EventHandler<NSResponder> ResponderChanged;
+
+        public double Interval { get; set; } = 0.2;
+
+        public Func<NSWindow,bool> IsWindowAllowedFunc { get; set; }
+
+        public WindowWatcher()
+        {
+            m_Timer = new Timer();
+            m_Timer.Enabled = true;
+            m_Timer.Interval = Interval;
+            m_Timer.Elapsed += TickHandleAction;
+        }
+
+        NSWindow window;
+        public NSWindow CurrentWindow
+        {
+            get => window;
+            private set
+            {
+                if (window == value)
+                    return;
+                window = value;
+                WindowChanged?.Invoke(this, window);
+
+                CurrentResponder = window.NextResponder;
+            }
+        }
+
+        NSResponder responder;
+        public NSResponder CurrentResponder
+        {
+            get => responder;
+            private set
+            {
+                if (responder == value)
+                    return;
+                responder = value;
+                ResponderChanged?.Invoke(this, responder);
+            }
+        }
+
+        NSResponder GetRealResponder (NSResponder responder)
+        {
+            if (responder is NSView view)
+            {
+                if (view is NSTextView textView && textView.Superview is NSClipView clipView && clipView.Superview is NSTextField textField)
+                {
+                    return textField;
+                }
+            }
+            return responder;
+        } 
+
+        void TickHandleAction(object sender, ElapsedEventArgs e)
+        {
+            AppKit.NSApplication.SharedApplication.InvokeOnMainThread(() =>
+            {
+                var focusedWindow = NSApplication.SharedApplication.ModalWindow ?? NSApplication.SharedApplication.KeyWindow;
+
+                if (!IsWindowAllowedFunc?.Invoke(focusedWindow) ?? true)
+                {
+                    return;
+                }
+
+                if (focusedWindow != null)
+                {
+                    CurrentWindow = focusedWindow;
+                }
+
+                if (window == null)
+                    return;
+
+                var currentResponder = GetRealResponder(window.FirstResponder);
+                CurrentResponder = currentResponder;
+            });
+        }
+
+        public void Start()
+        {
+            Stop();
+            m_Timer.Start();
+        }
+
+        public void Stop()
+        {
+            m_Timer.Stop();
+        }
+
+        public void Dispose()
+        {
+            Stop();
+        }
+    }
 }

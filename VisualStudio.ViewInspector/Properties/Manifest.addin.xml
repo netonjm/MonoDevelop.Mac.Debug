@@ -4,8 +4,10 @@
 	</Runtime>
        <Extension path = "/MonoDevelop/DesignerSupport/PropertyProviders">
             <Class class = "VisualStudio.ViewInspector.PropertyProvider"/>
+        </Extension>
+     <Extension path="/MonoDevelop/Ide/StartupHandlers">
+        <Class class="VisualStudio.ViewInspector.InitializeCommand"/>
     </Extension>
-   
 	<Extension path = "/MonoDevelop/Ide/MainMenu/Tools">
         <SeparatorItem id="myFocusSection" _label="Accessibility" insertbefore="CustomToolsSection" />
          <CommandItem id = "VisualStudio.ViewInspector.PadViewCommandHandler" />
@@ -13,7 +15,7 @@
     </Extension>
 
      <Extension path = "/MonoDevelop/Ide/Pads">
-     <Pad id = "VisualStudio.ViewInspector.OutlinePad"
+    <!-- <Pad id = "VisualStudio.ViewInspector.OutlinePad"
             class = "VisualStudio.ViewInspector.OutlinePad"
             _label="Gtk View Inspector"
             icon = "md-toolbox-pad"
@@ -34,8 +36,8 @@
             defaultPlacement="Right"
             defaultStatus="AutoHide"
             />
-        
-        <Pad id = "VisualStudio.ViewInspector.InspectorPropertyPad"
+        -->
+    <!--    <Pad id = "VisualStudio.ViewInspector.InspectorPropertyPad"
             class = "VisualStudio.ViewInspector.InspectorPropertyPad"
             _label="Gtk View Properties"
             icon = "md-properties-pad"
@@ -43,7 +45,7 @@
             defaultLayout="*"
             defaultPlacement="MonoDevelop.DesignerSupport.ToolboxPad/bottom; right"
             defaultStatus="AutoHide"
-            />
+            />-->
      </Extension>
 	 <Extension path = "/MonoDevelop/Ide/Commands/Tools">
             <Command id = "VisualStudio.ViewInspector.SearchSelectedView"
@@ -65,11 +67,4 @@
                 _displayName = "Inspect Focused View" />
         
      </Extension>
-
-     <Dependencies>
-		<Addin id="Core" version="17.0"/>
-		<Addin id="Ide" version="17.0"/>
-		<Addin id="PackageManagement" version="17.0"/>
-		<Addin id="DotNetCore" version="17.0" />
-	</Dependencies>
 </ExtensionModel>

@@ -143,10 +143,8 @@ namespace MonoDevelop.Inspector.Mac
             }
         }
 
-        public void InitializeManager (InspectorContext context, ToolbarService service)
+        public InspectorManager CreateInspectorManager()
         {
-            LoadModules(context);
-          
             var over = new BorderedWindow(CGRect.Empty, NSColor.Green);
             var next = new BorderedWindow(CGRect.Empty, NSColor.Red);
             var previous = new BorderedWindow(CGRect.Empty, NSColor.Blue);
@@ -154,10 +152,23 @@ namespace MonoDevelop.Inspector.Mac
             var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
             var tool = new ToolbarWindow(this, new CGRect(10, 10, 100, 700));
             tool.ShowToolkitButton(false);
+
             var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
-            context.Initialize(manager, false);
-            service.SetDelegate(this);
+            return manager;
         }
+
+        //public void InitializeManager (InspectorContext context, ToolbarService service = null, bool loadModules = false)
+        //{
+        //    if (loadModules)
+        //    {
+        //        LoadModules(context);
+        //    }
+          
+         
+        //    context.Initialize(manager, false);
+
+        //    service?.SetDelegate(this);
+        //}
 
         public void SetCultureInfo(CultureInfo e)
         {
@@ -179,7 +190,7 @@ namespace MonoDevelop.Inspector.Mac
             var windowNodeView = new NodeView(windowTreeNodeView);
             node.AddChild(windowNodeView);
 
-            var nsWindow = (NSWindow)window;
+            var nsWindow = (NSWindow)window.NativeObject;
             var contentView = new TreeViewItemView(nsWindow.ContentView);
 
             try

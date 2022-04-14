@@ -72,7 +72,7 @@ namespace MonoDevelop.Inspector.Mac
 				}
 				base.DidMove(notification);
             }
-
+			
             public override void DidResignKey(NSNotification notification)
             {
 				if (weakWindow.TryGetTarget(out var target))
@@ -93,7 +93,14 @@ namespace MonoDevelop.Inspector.Mac
 
 		public void AddChildWindow (IWindow borderer)
 		{
-			base.AddChildWindow(borderer.NativeObject as NSWindow, NSWindowOrderingMode.Above);
+			if (borderer.NativeObject is NSWindow currentWindow)
+            {
+				if (currentWindow.ParentWindow != null && currentWindow.ParentWindow != this)
+                {
+					currentWindow.ParentWindow.RemoveChildWindow(currentWindow);
+				}
+				base.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+			}
 		}
 
 		public bool ContainsChildWindow (IWindow debugOverlayWindow)
@@ -127,7 +134,20 @@ namespace MonoDevelop.Inspector.Mac
 		public float FrameWidth => (float)Frame.Width;
 		public float FrameHeight => (float)Frame.Height;
 
-		public void AlignRight(IWindow toView, int pixels)
+		IWindow IWindow.ParentWindow
+		{
+			get
+			{
+				var paren = base.ParentWindow;
+				if (paren == null)
+				{
+					return null;
+				}
+				return new Services.WindowWrapper(paren);
+			}
+		}
+
+        public void AlignRight(IWindow toView, int pixels)
 		{
 			var toViewWindow = toView.NativeObject as NSWindow;
 			var frame = Frame;

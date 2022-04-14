@@ -8,16 +8,16 @@ namespace MonoDevelop.Inspector
 	public interface IMainWindow: IWindow
 	{
 		InspectorViewMode ViewMode { get; set; }
-
     }
 
 	public interface IWindow : INativeObject
     {
 		IView ContentView { get; set; }
 		IView FirstResponder { get; }
-		bool HasParentWindow { get; }
 
-        public string Title { get; set; }
+		IWindow ParentWindow { get; }
+
+		public string Title { get; set; }
 
         event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
