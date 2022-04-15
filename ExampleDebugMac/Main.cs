@@ -6,7 +6,6 @@ using CoreGraphics;
 using ExampleDebugMac.Resource;
 using Foundation;
 using MonoDevelop.Inspector.Mac;
-using MonoDevelop.Inspector.Mac.HostWindow;
 using ObjCRuntime;
 
 namespace ExampleDebugMac
@@ -26,11 +25,15 @@ namespace ExampleDebugMac
             NSApplication.Init();
 			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
 
+            VisualStudio.ViewInspector.Runtime.Initialize();
+
             var xPos = NSScreen.MainScreen.Frame.Width / 2;// NSWidth([[window screen] frame])/ 2 - NSWidth([window frame])/ 2;
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
-            var mainWindow = new InspectorHostWindow();
-            mainWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable;
 
+            var mainWindow = new NSWindow();
+            mainWindow.StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable;
+           
+            //acc
             var tabView = new NSTabView();
 
             mainWindow.ContentView = tabView;

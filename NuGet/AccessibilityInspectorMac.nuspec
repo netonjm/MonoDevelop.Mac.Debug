@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Accessibility.Inspector.Mac</id>
+    <id>VisualStudio.ViewInspector.Mac</id>
     <version>0.3.10</version>
-    <title>Accessibility Inspector for Xamarin.Mac</title>
+    <title>ViewInspector for Xamarin.Mac</title>
     <authors>Jose Medrano</authors>
     <owners>Microsoft</owners>
     <licenseUrl>https://github.com/netonjm/MonoDevelop.Mac.Debug/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/netonjm/MonoDevelop.Mac.Debug</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/netonjm/MonoDevelop.Mac.Debug/master/icon/cocoa.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Accessibility Inspector for Xamarin.Mac allows you to inspect views in realtime and detect possible accessibility issues.</description>
+    <description>View Inspector for Xamarin.Mac allows you to inspect views in realtime and detect possible accessibility issues.</description>
     <copyright>netonjm</copyright>
     <tags>accessibility inspector xamarin mac</tags>
   </metadata>
   <files>
-    <file src="..\MonoDevelop.Inspector.Mac\bin\Release\*.dll" target="lib\net6.0" />
+    <file src="..\VisualStudio.ViewInspector.Mac\bin\Release\*.dll" target="lib\net6.0" />
   </files>
 </package>
