@@ -8,6 +8,7 @@
             var inspectorManager = inspectorDelegate.CreateInspectorManager();
             InspectorContext.Current.Initialize(inspectorDelegate, inspectorManager, hasToolkit);
             inspectorManager.ShowsInspectorWindow = true;
+            inspectorManager.IsFirstResponderOverlayVisible = true;
         }
     }
 }

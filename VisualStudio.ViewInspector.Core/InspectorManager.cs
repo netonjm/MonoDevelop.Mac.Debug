@@ -48,7 +48,7 @@ namespace VisualStudio.ViewInspector
 			set {
 				isNextResponderOverlayVisible = value;
 
-				if (debugNextOverlayWindow != null) {
+				if (debugNextOverlayWindow != null && selectedWindow != null) {
 					debugNextOverlayWindow.SetParentWindow (selectedWindow);
 					debugNextOverlayWindow.Visible = value;
 
@@ -65,7 +65,7 @@ namespace VisualStudio.ViewInspector
 			get => isPreviousResponderOverlayVisible;
 			set {
 				isPreviousResponderOverlayVisible = value;
-				if (debugPreviousOverlayWindow != null) {
+				if (debugPreviousOverlayWindow != null && selectedWindow != null) {
 					debugPreviousOverlayWindow.SetParentWindow (selectedWindow);
 					debugPreviousOverlayWindow.Visible = value;
 
@@ -83,7 +83,7 @@ namespace VisualStudio.ViewInspector
 			set {
 				isFirstResponderOverlayVisible = value;
 
-				if (debugOverlayWindow != null) {
+				if (debugOverlayWindow != null && selectedWindow != null) {
 					debugOverlayWindow.SetParentWindow (selectedWindow);
 					debugOverlayWindow.Visible = value;
 					if (SelectedView != null) {
@@ -489,10 +489,11 @@ namespace VisualStudio.ViewInspector
 			RefreshWindows ();
             RefreshOverlaysVisibility();
 
-            if (SelectedView != null)
+			var selectedView = SelectedView;
+			if (selectedView != null)
             {
-                toolbarWindow.ChangeView(this, SelectedView);
-				FocusedViewChanged?.Invoke(this, SelectedView);
+                toolbarWindow.ChangeView(this, selectedView);
+				FocusedViewChanged?.Invoke(this, selectedView);
             }
 		}
 
