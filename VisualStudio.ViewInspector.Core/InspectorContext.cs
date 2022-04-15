@@ -7,7 +7,7 @@ using VisualStudio.ViewInspector.Modules;
 
 namespace VisualStudio.ViewInspector
 {
-	public class InspectorContext
+	public class InspectorContext : IDisposable
 	{
         public event EventHandler<IView> FocusedViewChanged;
 
@@ -22,6 +22,8 @@ namespace VisualStudio.ViewInspector
         IWindowWatcher Watcher;
 
         public IView SelectedView => Manager.SelectedView;
+
+        public bool Started => Watcher?.Started ?? false;
 
         public InspectorContext ()
 		{
@@ -60,6 +62,8 @@ namespace VisualStudio.ViewInspector
             if (Watcher == null)
                 return;
 
+            Attach(null);
+
             Watcher.Stop();
             Watcher.ResponderChanged -= Watcher_ResponderChanged;
             Watcher.WindowChanged -= Watcher_WindowChanged;
@@ -68,7 +72,6 @@ namespace VisualStudio.ViewInspector
         void Watcher_WindowChanged(object sender, IMainWindow e)
         {
             Attach(e);
-            Console.WriteLine(e.Title);
         }
 
         void Watcher_ResponderChanged(object sender, INativeObject e)
@@ -85,6 +88,11 @@ namespace VisualStudio.ViewInspector
 		}
 
 		public void ChangeFocusedView(IView nSView) => Manager.ChangeFocusedView(nSView);
+
+        public void Dispose()
+        {
+            StopWatcher();
+        }
 
         public static InspectorContext Current { get; set; } = new InspectorContext();
     }

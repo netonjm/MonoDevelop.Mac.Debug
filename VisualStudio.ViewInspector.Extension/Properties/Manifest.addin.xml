@@ -5,4 +5,17 @@
      <Extension path="/MonoDevelop/Ide/StartupHandlers">
         <Class class="VisualStudio.ViewInspector.Extension.InitializeCommand"/>
     </Extension>
+    <Extension path = "/MonoDevelop/Ide/MainMenu/Tools">
+        <SeparatorItem id="myFocusSection" _label="Accessibility" insertbefore="CustomToolsSection" />
+         <CommandItem id = "VisualStudio.ViewInspector.PadViewCommandHandler" />
+        <SeparatorItem id="myFocusSectionSeparator"/>
+    </Extension>
+    	 <Extension path = "/MonoDevelop/Ide/Commands/Tools">
+            <Command id = "VisualStudio.ViewInspector.PadViewCommandHandler"
+                defaultHandler = "VisualStudio.ViewInspector.Extension.PadViewCommandHandler"
+                _label = "Inspect Focused View"
+                macShortcut="Control|Meta|I"
+                _displayName = "Inspect Focused View" />
+     </Extension>
+
 </ExtensionModel>

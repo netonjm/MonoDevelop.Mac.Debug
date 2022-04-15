@@ -58,6 +58,8 @@ namespace VisualStudio.ViewInspector.Mac.Services
             }
         }
 
+        public bool Started { get; private set; }
+
         NSResponder GetRealResponder (NSResponder responder)
         {
             if (responder is NSView view)
@@ -97,11 +99,13 @@ namespace VisualStudio.ViewInspector.Mac.Services
         public void Start()
         {
             Stop();
+            Started = true;
             m_Timer.Start();
         }
 
         public void Stop()
         {
+            Started = false;
             m_Timer.Stop();
         }
 

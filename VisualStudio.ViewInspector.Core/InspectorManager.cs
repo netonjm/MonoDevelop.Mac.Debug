@@ -170,6 +170,8 @@ namespace VisualStudio.ViewInspector
 
 			this.selectedWindow = selectedWindow;
 			if (this.selectedWindow == null) {
+				ShowAccessibilityWindow(false);
+				ShowInspectorWindow(false);
 				return;
 			}
 
@@ -181,13 +183,14 @@ namespace VisualStudio.ViewInspector
 			this.selectedWindow.MovedRequested += OnRespositionViews;
 			this.selectedWindow.LostFocus += OnRespositionViews;
 
-			ShowAccessibilityWindow(true);
-			ShowHideInspectorWindow(true);
-
-			//RepositionView();
+			ShowAccessibilityWindow(ShowsAccessibilityWindow);
+			ShowInspectorWindow(ShowsInspectorWindow);
 		}
 
-        void RefreshOverlaysVisibility ()
+        public bool ShowsAccessibilityWindow { get; set; }
+		public bool ShowsInspectorWindow { get; set; }
+
+		void RefreshOverlaysVisibility ()
 		{
 			IsPreviousResponderOverlayVisible = IsPreviousResponderOverlayVisible;
 			IsNextResponderOverlayVisible = IsNextResponderOverlayVisible;
@@ -368,7 +371,7 @@ namespace VisualStudio.ViewInspector
 			RefreshOverlaysVisibility();
 		}
 
-        public void ShowHideInspectorWindow (bool value)
+        public void ShowInspectorWindow (bool value)
 		{
 			if (value) {
 				if (inspectorWindow.ParentWindow?.NativeObject != selectedWindow?.NativeObject) {

@@ -17,6 +17,8 @@ namespace VisualStudio.ViewInspector
         Func<IWindow, bool> IsWindowAllowedFunc { get; set; }
         double Interval { get; set; }
 
+        bool Started { get; }
+
         void Start();
         void Stop();
     }
