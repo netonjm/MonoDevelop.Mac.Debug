@@ -20,8 +20,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		public event EventHandler<bool> PreviousKeyViewLoop;
 		public event EventHandler<bool> ThemeChanged;
 
-        public event EventHandler ItemDeleted;
+		public event EventHandler RefreshTreeViewRequested;
+
+		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
+		
 		public event EventHandler<FontData> FontChanged;
         public event EventHandler<CultureInfo> CultureChanged;
 
@@ -34,12 +37,26 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
         readonly NSStackView secondRowStackView;
         readonly IInspectDelegate inspectDelegate;
 
-        ToggleButton toolkitButton;
+		NSString[] fonts;
+		NSComboBox fontsCombobox;
+		NSTextField fontSizeTextView;
+		//public override bool CanBecomeKeyWindow => false;
+		//public override bool CanBecomeMainWindow => false;
+
+		ImageButton deleteButton, changeImageButton, refreshButton;
+		ToggleButton toolkitButton;
 
 		NSStackView main;
-		NSView rescanSeparator;
 
-        public void ShowToolkitButton (bool value)
+		NSView rescanSeparator;
+		const int Margin = 5;
+
+		bool handleChange;
+
+		CultureInfo[] cultureInfos;
+		NSComboBox languagesComboBox;
+
+		public void ShowToolkitButton (bool value)
         {
             if (!value) {
                 toolkitButton.RemoveFromSuperview();
@@ -72,6 +89,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
 			};
+
+			stack.AddVerticalSeparator();
+
+
+			refreshButton = CreateImageButton("rescan-16.png", "Refresh View Tree");
+			stack.AddArrangedSubview(refreshButton);
+            refreshButton.Activated += RefreshButton_Activated;
 
 			stack.AddVerticalSeparator();
 
@@ -133,7 +157,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stack;
 		}
 
-		NSStackView CreateSecondRow()
+        private void RefreshButton_Activated(object sender, EventArgs e)
+        {
+			RefreshTreeViewRequested?.Invoke(this, EventArgs.Empty);
+		}
+
+        NSStackView CreateSecondRow()
 		{
 			var stackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
 			//FONTS 
@@ -213,9 +242,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
         }
 
-		const int Margin = 5;
-
-        int GetSelectedLanguage ()
+		int GetSelectedLanguage ()
         {
             for (int i = 0; i < cultureInfos.Length; i++)
             {
@@ -227,8 +254,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
             return 0;
         }
 
-        CultureInfo[] cultureInfos;
-        NSComboBox languagesComboBox;
         void LanguagesComboBox_SelectionChanged(object sender, EventArgs e)
         {
             var currentIndex = (int)languagesComboBox.SelectedIndex;
@@ -238,8 +263,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
                 CultureChanged?.Invoke(this, selected);
             }
         }
-
-		bool handleChange;
 
         public void ChangeView (InspectorManager manager, IView viewWrapper)
         {
@@ -338,14 +361,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
                 FontChanged?.Invoke(this, new FontData (font, fontSize));
 			}
 		}
-
-		NSString[] fonts;
-		NSComboBox fontsCombobox;
-		NSTextField fontSizeTextView;
-		//public override bool CanBecomeKeyWindow => false;
-		//public override bool CanBecomeMainWindow => false;
-
-		ImageButton deleteButton, changeImageButton;
 
 		public bool ImageChangedEnabled
 		{

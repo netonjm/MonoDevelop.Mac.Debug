@@ -582,7 +582,7 @@ namespace VisualStudio.ViewInspector
         {
             //PropertyEditorPanel.ThemeManager.Theme = isDark ? PropertyEditorTheme.Dark : PropertyEditorTheme.Light;
             foreach (var item in inspectorWindow) {
-                item.SetAppareance(isDark);
+                item?.SetAppareance(isDark);
             }
         }
 
@@ -659,6 +659,23 @@ namespace VisualStudio.ViewInspector
             if (currentWindow != null)
                 return new ObservableWindow(currentWindow);
             return null;
+        }
+
+        public static bool IsLightAppearance(NSAppearance appearance)
+        {
+            var appearanceName = appearance?.Name;
+            if (appearanceName == NSAppearance.NameVibrantDark ||
+                appearanceName == NSAppearance.NameAccessibilityHighContrastVibrantDark ||
+                appearanceName == NSAppearance.NameDarkAqua ||
+                appearanceName == NSAppearance.NameAccessibilityHighContrastDarkAqua)
+                return false;
+
+            return true;
+        }
+
+        public bool IsDarkTheme()
+        {
+            return !IsLightAppearance(NSApplication.SharedApplication.EffectiveAppearance);
         }
     }
 }

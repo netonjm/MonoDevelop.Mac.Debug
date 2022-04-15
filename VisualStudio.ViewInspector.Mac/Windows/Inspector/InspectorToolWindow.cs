@@ -265,7 +265,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             var tabPropertyPanel = new NSTabViewItem();
             tabPropertyPanel.View = propertyEditorPanel;
-            tabPropertyPanel.Label = "Properties";
+            tabPropertyPanel.Label = PropertiesTabName;
 
             var tabMethod = new NSTabViewItem();
 
@@ -275,7 +275,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             methodStackPanel.TopAnchor.ConstraintEqualTo(tabMethod.View.TopAnchor, 0).Active = true;
             methodStackPanel.BottomAnchor.ConstraintEqualTo(tabMethod.View.BottomAnchor, 0).Active = true;
 
-            tabMethod.Label = "Methods";
+            tabMethod.Label = MethodsTabName;
 
             this.tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
             this.tabView.Add(tabPropertyPanel);
@@ -294,9 +294,26 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 toolbarView.ShowOnlyImages(!toolbarView.IsImageMode);
             };
-
+             
             toolbarView.ShowOnlyImages(true);
             splitView.SetPositionOfDivider(300,0);
+
+            this.tabView.DidSelect += TabView_DidSelect;
+        }
+
+        const string PropertiesTabName = "Properties";
+        const string MethodsTabName = "Methods";
+
+        private void TabView_DidSelect(object sender, NSTabViewItemEventArgs e)
+        {
+            if (e.Item.Label == PropertiesTabName)
+            {
+                RefreshPropertyEditor();
+            }
+            else if (e.Item.Label == MethodsTabName)
+            {
+                RefreshMethodList();
+            }
         }
 
         NSSearchField methodSearchView;
@@ -370,6 +387,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             inspectorDelegate.ConvertToNodes(window, new NodeView(data), viewMode);
             outlineView.SetData(data, false);
             ExpandNodes(data);
+
+            if (viewSelected != null)
+            {
+                Select(viewSelected, viewModeSelected);
+            }
         }
 
         bool IsExpandibleNode(TreeNodeView nodeView)
@@ -454,20 +476,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         void MethodListView_DoubleClick(object sender, EventArgs e) => InvokeSelectedView();
 
         INativeObject viewSelected;
+        InspectorViewMode viewModeSelected;
 
         public void Select(INativeObject view, InspectorViewMode viewMode)
         {
             viewSelected = view;
-            if (viewSelected != null)
-            {
-                propertyEditorPanel.Select(new object[] { inspectorDelegate.GetWrapper(viewSelected, viewMode) });
-            }
-            else
-            {
-                propertyEditorPanel.Select(new object[0]);
-            }
+            viewModeSelected = viewMode;
 
-            //methodListView.SetObject(view?.NativeObject, methodSearchView.StringValue);
             if (data != null && view != null)
             {
                 var found = data.Search(view);
@@ -475,6 +490,32 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     outlineView.FocusNode(found);
                 }
+            }
+
+            if (tabView.Selected.Label == PropertiesTabName)
+            {
+                RefreshPropertyEditor();
+            }
+            else if (tabView.Selected.Label == MethodsTabName)
+            {
+                RefreshMethodList();
+            }
+        }
+
+        void RefreshMethodList()
+        {
+            methodListView.SetObject(viewSelected?.NativeObject, methodSearchView.StringValue);
+        }
+
+        void RefreshPropertyEditor()
+        {
+            if (viewSelected != null)
+            {
+                propertyEditorPanel.Select(new object[] { inspectorDelegate.GetWrapper(viewSelected, viewModeSelected) });
+            }
+            else
+            {
+                propertyEditorPanel.Select(new object[0]);
             }
         }
 

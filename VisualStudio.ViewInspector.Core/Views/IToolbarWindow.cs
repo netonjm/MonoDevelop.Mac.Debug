@@ -22,7 +22,8 @@ namespace VisualStudio.ViewInspector.Abstractions
 		event EventHandler ItemImageChanged;
 		event EventHandler<FontData> FontChanged;
 		event EventHandler<InspectorViewMode> InspectorViewModeChanged;
-		bool ImageChangedEnabled { get; set; }
+        event EventHandler RefreshTreeViewRequested;
+        bool ImageChangedEnabled { get; set; }
         void ChangeView(InspectorManager manager, IView viewWrapper);
     }
 }

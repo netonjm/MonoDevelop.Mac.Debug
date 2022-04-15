@@ -53,5 +53,6 @@ namespace VisualStudio.ViewInspector
         void SetAppearance(bool isDark,params IWindow[] inspectorWindow);
         void CreateItem(IView view, ToolbarView e);
         void SetCultureInfo(CultureInfo cultureInfo);
-	}
+        bool IsDarkTheme();
+    }
 }

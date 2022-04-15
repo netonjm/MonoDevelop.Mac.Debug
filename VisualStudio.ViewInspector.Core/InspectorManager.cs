@@ -199,6 +199,12 @@ namespace VisualStudio.ViewInspector
 
 		internal IInspectDelegate Delegate;
 
+		void RefreshTreeView()
+        {
+			inspectorWindow.GenerateTree(selectedWindow, ViewMode);
+			selectedWindow.RecalculateKeyViewLoop();
+		}
+
 		public InspectorManager (IInspectDelegate inspectorDelegate, 
         IBorderedWindow overlay, 
         IBorderedWindow next, 
@@ -220,8 +226,7 @@ namespace VisualStudio.ViewInspector
 				if (showDetectedErrors)
 					ShowErrors(true);
 
-				inspectorWindow.GenerateTree(selectedWindow, ViewMode);
-				selectedWindow.RecalculateKeyViewLoop();
+				RefreshTreeView();
 			};
 
             debugOverlayWindow = overlay; //new MacBorderedWindow (CGRect.Empty, NSColor.Green);
@@ -258,13 +263,7 @@ namespace VisualStudio.ViewInspector
 			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
 		
 			toolbarWindow.ThemeChanged += (sender, isDark) => {
-                inspectorWindow.SetAppareance(isDark);
-                Delegate.SetAppearance(isDark, 
-                inspectorWindow, 
-                accessibilityWindow,
-                toolbarWindow, 
-                selectedWindow
-                );
+				SetStyle(isDark);
             };
 
             inspectorWindow.Initialize();
@@ -273,6 +272,10 @@ namespace VisualStudio.ViewInspector
 				ViewMode = e;
                 RefreshNeeded();
             };
+
+			toolbarWindow.RefreshTreeViewRequested += (s,e) => {
+				RefreshTreeView();
+			};
 
 			toolbarWindow.ItemDeleted += (sender, e) =>
 			{
@@ -318,6 +321,8 @@ namespace VisualStudio.ViewInspector
 				IsFirstResponderOverlayVisible = true;
 				e.Focus();
 			};
+
+			SetStyle(Delegate.IsDarkTheme());
 		}
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
@@ -350,6 +355,17 @@ namespace VisualStudio.ViewInspector
                 ChangeFocusedView(parent);
             RefreshNeeded();
         }
+
+		void SetStyle(bool isDark)
+        {
+			inspectorWindow.SetAppareance(isDark);
+			Delegate.SetAppearance(isDark,
+			inspectorWindow,
+			accessibilityWindow,
+			toolbarWindow,
+			selectedWindow
+			);
+		}
 
         void RefreshNeeded ()
         {
