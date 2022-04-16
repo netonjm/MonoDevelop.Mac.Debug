@@ -215,9 +215,15 @@ namespace VisualStudio.ViewInspector.Mac.Views
 						value = "ConstraintCenterY.png";
 						break;
 				}
+
+				if (value == null)
+					value = "Constraints.png";
+
+				return true;
 			}
 
-			value = GetDefaultName(nativeObject);
+			if (value == null)
+				value = GetDefaultName(nativeObject);
 
 			return !string.IsNullOrEmpty(value);
         }
