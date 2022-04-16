@@ -5,7 +5,7 @@ using Mono.Addins.Description;
 [assembly: Addin(
 	"ViewInspector",
 	Namespace = "VisualStudio",
-	Version = "0.8"
+	Version = "0.8.2"
 )]
 
 [assembly: AddinName("VisualStudio View Inspector")]
