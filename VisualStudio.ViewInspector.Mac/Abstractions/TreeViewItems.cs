@@ -9,10 +9,10 @@ using VisualStudio.ViewInspector.Abstractions;
 
 namespace VisualStudio.ViewInspector.Mac.Abstractions
 {
-    class TreeViewItemRectangle : IRectangle
+    class RectangleWrapper : IRectangle
     {
         CGRect rect;
-        public TreeViewItemRectangle(CGRect rect)
+        public RectangleWrapper(CGRect rect)
         {
             this.rect = rect;
         }
@@ -20,10 +20,10 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public object NativeObject => rect;
     }
 
-    class TreeeViewItemFont : IFont
+    class FontWrapper : IFont
     {
         NSFont rect;
-        public TreeeViewItemFont(NSFont rect)
+        public FontWrapper(NSFont rect)
         {
             this.rect = rect;
         }
@@ -31,10 +31,10 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public object NativeObject => rect;
     }
 
-    class TreeViewItemConstraint : IConstrain
+    class ConstraintWrapper : IConstrain
     {
         NSLayoutConstraint item;
-        public TreeViewItemConstraint(NSLayoutConstraint item)
+        public ConstraintWrapper(NSLayoutConstraint item)
         {
             this.item = item;
         }
@@ -88,15 +88,15 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public string Identifier { get => item.Active ? "active" : "inactive"; }
 
         public IView PreviousValidKeyView {
-            get => new TreeViewItemView (item.FirstItem as NSView ?? item.SecondItem as NSView);
+            get => new ViewWrapper (item.FirstItem as NSView ?? item.SecondItem as NSView);
         }
     }
 
-    class ConstrainContainer : IConstrainContainer
+    class ConstrainContainerWrapper : IConstrainContainer
     {
         IView wrapper;
         NSView view;
-        public ConstrainContainer(IView previous)
+        public ConstrainContainerWrapper(IView previous)
         {
             this.wrapper = previous;
             view = previous.NativeObject as NSView;
@@ -118,11 +118,23 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         }
     }
 
-    class TabView : ITab
+    class ViewControllerContainerWrapper : IViewControllerContainer
+    {
+        public ViewControllerContainerWrapper()
+        {
+
+        }
+
+        public string NodeName => "ViewControllers";
+
+        public object NativeObject => null;
+    }
+
+    class TabViewWrapper : ITab
     {
         NSTabView view;
 
-        public TabView(NSTabView previous)
+        public TabViewWrapper(NSTabView previous)
         {
             this.view = previous;
         }
@@ -132,19 +144,61 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public object NativeObject => view;
     }
 
-    class TreeViewItemView : IView
+    class WindowControllerWrapper : IWindowController
+    {
+        public IWindow Window => new WindowWrapper(windowController.Window);
+
+        public object NativeObject => windowController;
+
+        public string NodeName
+        {
+            get
+            {
+                return "WindowController";
+            }
+        }
+
+        NSWindowController windowController;
+        public WindowControllerWrapper(NSWindowController windowController)
+        {
+            this.windowController = windowController;
+        }
+    }
+
+    class ViewControllerWrapper : IViewController
+    {
+        public IView View => new ViewWrapper(nSViewController.View);
+
+        public object NativeObject => nSViewController;
+
+        public string NodeName
+        {
+            get
+            {
+                return "ViewController";
+            }
+        }
+
+        NSViewController nSViewController;
+        public ViewControllerWrapper(NSViewController nSViewController)
+        {
+            this.nSViewController = nSViewController;
+        }
+    }
+
+    class ViewWrapper : IView
     {
         public bool Hidden => widget.Hidden;
 
         public string Identifier => widget.Identifier;
 
-        public IRectangle AccessibilityFrame => new TreeViewItemRectangle(widget.AccessibilityFrame);
+        public IRectangle AccessibilityFrame => new RectangleWrapper(widget.AccessibilityFrame);
 
         public List<IView> Subviews {
             get {
                 List<IView> tmp = new List<IView>();
                 foreach (var w in widget.Subviews) {
-                    tmp.Add(new TreeViewItemView(w));
+                    tmp.Add(new ViewWrapper(w));
                 }
                 return tmp;
             }
@@ -153,7 +207,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public IView NextValidKeyView {
             get {
                 if (widget.NextValidKeyView != null)
-                    return new TreeViewItemView(widget.NextValidKeyView);
+                    return new ViewWrapper(widget.NextValidKeyView);
                 return null;
             }
         }
@@ -161,17 +215,17 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public IView PreviousValidKeyView {
             get {
                 if (widget.PreviousValidKeyView != null)
-                    return new TreeViewItemView(widget.PreviousValidKeyView);
+                    return new ViewWrapper(widget.PreviousValidKeyView);
                 return null;
             }
         }
 
-        public IRectangle Frame => new TreeViewItemRectangle(widget.Frame);
+        public IRectangle Frame => new RectangleWrapper(widget.Frame);
 
         public IView Superview {
             get {
                 if (widget.Superview != null)
-                    return new TreeViewItemView(widget.Superview);
+                    return new ViewWrapper(widget.Superview);
                 return null;
             }
         }
@@ -231,7 +285,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
                 var result = new List<IConstrain>();
                 foreach (var item in widget.Constraints)
                 {
-                    var cons = new TreeViewItemConstraint(item);
+                    var cons = new ConstraintWrapper(item);
                     result.Add(cons);
                 }
                 return result;
@@ -249,7 +303,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         }
 
         internal NSView widget;
-		public TreeViewItemView (NSView widget)
+		public ViewWrapper (NSView widget)
 		{
 			this.widget = widget;
 		}

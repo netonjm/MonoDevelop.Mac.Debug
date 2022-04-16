@@ -23,11 +23,28 @@ namespace VisualStudio.ViewInspector.Abstractions
         void RemoveFromSuperview();
     }
 
+    public interface IViewControllerContainer : INativeObject
+    {
+        string NodeName { get; }
+    }
+
     public interface IConstrainContainer : INativeObject
     {
         string NodeName { get; }
         IView PreviousValidKeyView { get; }
         void RemoveFromSuperview();
+    }
+
+    public interface IWindowController : INativeObject
+    {
+        IWindow Window { get; }
+        string NodeName { get; }
+    }
+
+    public interface IViewController : INativeObject
+    {
+        IView View { get; }
+        string NodeName { get; }
     }
 
     public interface IView

@@ -114,7 +114,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows
 		IView IWindow.ContentView {
 			get {
 				if (ContentView is NSView view) {
-					return new TreeViewItemView (view);
+					return new ViewWrapper (view);
 				}
 				return null;
 			}
@@ -126,7 +126,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows
 		IView IWindow.FirstResponder {
 			get {
 				if (FirstResponder is NSView view) {
-					return new TreeViewItemView (view);
+					return new ViewWrapper (view);
 				}
 				return null;
 			}

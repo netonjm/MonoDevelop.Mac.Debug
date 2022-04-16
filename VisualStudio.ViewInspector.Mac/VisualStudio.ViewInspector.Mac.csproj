@@ -256,6 +256,28 @@
     <EmbeddedResource Include="Resources\treeview\StackViewVertical.png">
       <LogicalName>StackViewVertical.png</LogicalName>
     </EmbeddedResource>
+
+    <EmbeddedResource Include="Resources\treeview\OutlineView.png">
+      <LogicalName>OutlineView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ScrollerHorizontal.png">
+      <LogicalName>ScrollerHorizontal.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ScrollerVertical.png">
+      <LogicalName>ScrollerVertical.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ScrollView.png">
+      <LogicalName>ScrollView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\TableView.png">
+      <LogicalName>TableView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ClipView.png">
+      <LogicalName>ClipView.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\ImageView.png">
+      <LogicalName>ImageView.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Remove="Windows\Accessibility\" />
@@ -298,6 +320,13 @@
     <None Remove="Resources\treeview\SearchField.png" />
     <None Remove="Resources\treeview\StackViewHorizontal.png" />
     <None Remove="Resources\treeview\StackViewVertical.png" />
+    <None Remove="Resources\treeview\OutlineView.png" />
+    <None Remove="Resources\treeview\ScrollerHorizontal.png" />
+    <None Remove="Resources\treeview\ScrollerVertical.png" />
+    <None Remove="Resources\treeview\ScrollView.png" />
+    <None Remove="Resources\treeview\TableView.png" />
+    <None Remove="Resources\treeview\ClipView.png" />
+    <None Remove="Resources\treeview\ImageView.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Windows\Accessibility\" />

@@ -79,7 +79,7 @@ namespace AppKit
 			return obj.GetType().GetProperty(propertyName);
 		}
 
-		internal static TreeNodeView Search (this TreeNodeView nodeView, INativeObject view)
+		internal static TreeNode Search (this TreeNode nodeView, INativeObject view)
 		{
 			if (nodeView.NativeObject != null && nodeView.NativeObject.NativeObject == view.NativeObject) {
 				return nodeView;
@@ -90,7 +90,7 @@ namespace AppKit
 			}
 
 			for (int i = 0; i < nodeView.ChildCount; i++) {
-				var node = (TreeNodeView) nodeView.GetChild (i);
+				var node = (TreeNode) nodeView.GetChild (i);
 				var found = Search (node, view);
 				if (found != null) {
 					return found;

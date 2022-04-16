@@ -19,7 +19,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
     {
         class InspectorImageNode : ImageRowSubView
         {
-            public void SetData(TreeNodeView node, string imageName)
+            public void SetData(TreeNode node, string imageName)
             {
                 image = NativeViewHelper.GetManifestImageResource(imageName);
                 textField.StringValue = node.Name;
@@ -37,7 +37,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             protected const string imageNodeName = "InspectorImageNode";
             public override NSView GetView(NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
             {
-                var data = (TreeNodeView)item;
+                var data = (TreeNode)item;
                 if (data.TryGetImageName(out var imageValue))
                 {
                     var view = (InspectorImageNode)outlineView.MakeView(imageNodeName, this);
@@ -133,6 +133,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         InspectorToolWindow inspectorToolWindow => (InspectorToolWindow)View.Window;
 
+
         public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
@@ -165,19 +166,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             outlineView.SelectionNodeChanged += (s, e) =>
             {
-                if (outlineView.SelectedNode is TreeNodeView nodeView)
+                if (outlineView.SelectedNode is TreeNode treeNode)
                 {
-                    if (nodeView.NativeObject is IConstrain constrain)
+                    if (treeNode.NativeObject is IView view)
                     {
-                        Select(constrain, InspectorViewMode.Native);
+                        inspectorToolWindow.RaiseFirstRespondedChanged(view);
                     }
-                    else if (nodeView.NativeObject is IWindow window)
+                    else 
                     {
-                        Select(window, InspectorViewMode.Native);
-                    }
-                    else
-                    {
-                        inspectorToolWindow.RaiseFirstRespondedChanged (nodeView.NativeObject);
+                        Select(treeNode.NativeObject, viewModeSelected);
                     }
                 }
             };
@@ -186,7 +183,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 if (e == DeleteKey)
                 {
-                    if (outlineView.SelectedNode is TreeNodeView nodeView)
+                    if (outlineView.SelectedNode is TreeNode nodeView)
                     {
                         inspectorToolWindow.RaiseFirstRespondedChanged(nodeView.NativeObject);
                     }
@@ -242,7 +239,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             tabView.Add(outlineTabItem);
             tabView.Add(toolbarTabItem);
 
-            var wrapper = new TabView(tabView);
+            var wrapper = new TabViewWrapper(tabView);
             foreach (var module in InspectorContext.Current.Modules)
             {
                 if (!module.IsEnabled)
@@ -349,7 +346,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         NSSearchField methodSearchView;
         ScrollContainerView scrollView;
-        TreeNodeView data;
+        TreeNode data;
 
         List<CollectionHeaderItem> toolbarData = new List<CollectionHeaderItem>();
 
@@ -414,7 +411,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public void GenerateTree(IWindow window, InspectorViewMode viewMode)
         {
-            data = new TreeNodeView(window.ContentView);
+            data = new TreeNode(window.ContentView);
             inspectorDelegate.ConvertToNodes(window, new NodeView(data), viewMode);
             outlineView.SetData(data, false);
             ExpandNodes(data);
@@ -425,7 +422,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             }
         }
 
-        bool IsExpandibleNode(TreeNodeView nodeView)
+        bool IsExpandibleNode(TreeNode nodeView)
         {
             if (nodeView.NativeObject is IConstrainContainer)
             {
@@ -451,7 +448,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             return true;
         }
 
-        void ExpandNodes(TreeNodeView nodeView)
+        void ExpandNodes(TreeNode nodeView)
         {
             if (!IsExpandibleNode(nodeView))
             {
@@ -462,7 +459,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             for (int i = 0; i < nodeView.ChildCount; i++)
             {
-                var child =(TreeNodeView) nodeView.GetChild(i);
+                var child =(TreeNode) nodeView.GetChild(i);
                 ExpandNodes(child);
             }
         }
@@ -542,7 +539,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         {
             if (viewSelected != null)
             {
-                propertyEditorPanel.Select(new object[] { inspectorDelegate.GetWrapper(viewSelected, viewModeSelected) });
+                var wrapper = inspectorDelegate.GetWrapper(viewSelected, viewModeSelected);
+                propertyEditorPanel.Select(new object[] { wrapper });
             }
             else
             {
@@ -552,7 +550,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public void RemoveItem()
         {
-            if (outlineView.SelectedNode is TreeNodeView nodeView)
+            if (outlineView.SelectedNode is TreeNode nodeView)
             {
                 inspectorToolWindow.RaiseItemDeleted(nodeView.NativeObject);
             }

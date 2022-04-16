@@ -5,9 +5,9 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
 {
     internal class NodeView : INodeView
     {
-        private TreeNodeView nodel;
+        private TreeNode nodel;
 
-        public NodeView(TreeNodeView nodel)
+        public NodeView(TreeNode nodel)
         {
             this.nodel = nodel;
         }
@@ -16,7 +16,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
 
         public void AddChild(INodeView nodel)
         {
-            this.nodel.AddChild(nodel.NativeObject as TreeNodeView);
+            this.nodel.AddChild(nodel.NativeObject as TreeNode);
         }
     }
 }

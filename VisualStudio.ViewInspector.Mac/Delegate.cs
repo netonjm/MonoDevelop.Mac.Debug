@@ -193,13 +193,46 @@ namespace VisualStudio.ViewInspector
 
         public void ConvertToNodes(IWindow window, INodeView node, InspectorViewMode viewMode)
         {
-            var windowTreeNodeView = new TreeNodeView(window);
-
-            var windowNodeView = new NodeView(windowTreeNodeView);
+            var windowNodeView = new NodeView(new TreeNode(window));
             node.AddChild(windowNodeView);
 
+            //window controller node
             var nsWindow = (NSWindow)window.NativeObject;
-            var contentView = new TreeViewItemView(nsWindow.ContentView);
+            
+            if (nsWindow.WindowController != null)
+            {
+                var windowController = new WindowControllerWrapper(nsWindow.WindowController);
+                var windowControllerNodeView = new NodeView(new TreeNode(windowController));
+                windowNodeView.AddChild(windowControllerNodeView);
+            }
+
+            if (nsWindow.ContentViewController != null)
+            {
+                var contentController = new ViewControllerWrapper(nsWindow.ContentViewController);
+                var contentControllerNodeView = new NodeView(new TreeNode(contentController));
+                windowNodeView.AddChild(contentControllerNodeView);
+                
+                windowNodeView = contentControllerNodeView;
+
+                var childControllers = nsWindow.ContentViewController.ChildViewControllers;
+                if (childControllers != null && childControllers.Length > 0)
+                {
+                    //controllers node
+                    var contraintContainer = new ViewControllerContainerWrapper();
+                    var constraintsContainerNodeView = new NodeView(new TreeNode(contraintContainer));
+                    contentControllerNodeView.AddChild(constraintsContainerNodeView);
+
+                    foreach (var controller in childControllers)
+                    {
+                        var childViewController = new ViewControllerWrapper(controller);
+                        var childViewControllerNodeView = new NodeView(new TreeNode(childViewController));
+                        constraintsContainerNodeView.AddChild(childViewControllerNodeView);
+                    }
+                }
+            }
+
+            //scan content
+            var contentView = new ViewWrapper(nsWindow.ContentView);
 
             try
             {
@@ -213,20 +246,20 @@ namespace VisualStudio.ViewInspector
 
         public void ConvertToNodes(IView customView, INodeView node, InspectorViewMode viewMode)
         {
-            var current = new TreeNodeView(customView);
+            var current = new TreeNode(customView);
             var nodeWrapper = new NodeView(current);
             node.AddChild(nodeWrapper);
 
             //add constraints
             if (customView.HasConstraints) {
-                var contraintContainer = new ConstrainContainer(customView);
-                var constraintsContainerNodeView = new TreeNodeView(contraintContainer);
+                var contraintContainer = new ConstrainContainerWrapper(customView);
+                var constraintsContainerNodeView = new TreeNode(contraintContainer);
                 var constraintsContainerNodeWrapper = new NodeView(constraintsContainerNodeView);
                 nodeWrapper.AddChild(constraintsContainerNodeWrapper);
 
                 foreach (var item in customView.Constraints)
                 {
-                    var constraintNodeView = new TreeNodeView(item);
+                    var constraintNodeView = new TreeNode(item);
                     var constraintWrapper = new NodeView(constraintNodeView);
                     constraintsContainerNodeWrapper.AddChild(constraintWrapper);
                 }
@@ -240,12 +273,12 @@ namespace VisualStudio.ViewInspector
                     try
                     {
                         var tabViewItem = new TabViewItem(item);
-                        var treeNodeView = new TreeNodeView(tabViewItem);
+                        var treeNodeView = new TreeNode(tabViewItem);
                         var nodeView = new NodeView(treeNodeView);
                         nodeWrapper.AddChild(nodeView);
 
                         //now we want scan tabs
-                        var tabMainView = new TreeViewItemView(item.View);
+                        var tabMainView = new ViewWrapper(item.View);
                         ConvertToNodes(tabMainView, nodeView, viewMode);
                     }
                     catch (Exception ex)
@@ -348,6 +381,7 @@ namespace VisualStudio.ViewInspector
                 return new PropertyPanelNSLayoutConstraint(constraint);
             }
 
+            //return nativeObject;
             return new PropertyPanelNSResponder(nativeObject as NSResponder);
         }
 
@@ -540,7 +574,7 @@ namespace VisualStudio.ViewInspector
 
         public IFont GetFromName(string selected, int fontSize)
         {
-            return new TreeeViewItemFont(NSFont.FromFontName(selected, fontSize));
+            return new FontWrapper(NSFont.FromFontName(selected, fontSize));
         }
 
         public void ClearSubmenuItems(List<IMenuItem> menuItems, IMenu submenu)
@@ -645,7 +679,7 @@ namespace VisualStudio.ViewInspector
         {
             if (e.NativeObject is NSView v)
             {
-                view = new TreeViewItemView(v);
+                view = new ViewWrapper(v);
                 return true;
             }
             view = null;

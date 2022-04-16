@@ -97,7 +97,7 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
         public override bool MakeFirstResponder (NSResponder aResponder)
 		{
 			if (aResponder is NSView view) {
-                inspectorContext.ChangeFocusedView (new TreeViewItemView (view));
+                inspectorContext.ChangeFocusedView (new ViewWrapper (view));
                 RefreshBar(view);
             }
             return base.MakeFirstResponder (aResponder);

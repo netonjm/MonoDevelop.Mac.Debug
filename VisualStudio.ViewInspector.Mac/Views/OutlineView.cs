@@ -108,22 +108,83 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		}
 	}
 
-	public class TreeNodeView : Node
+	public class TreeNode : Node
 	{
+		const string Extension = ".png";
+
+		string GetDefaultName (Type type, Enum enumeration = null)
+        {
+			var typeName = type.Name.StartsWith("NS") ? type.Name.Substring(2) : type.Name;
+			if (enumeration != null)
+            {
+				return string.Concat(typeName, enumeration.ToString(), Extension);
+			}
+			return string.Concat(typeName, Extension);
+		}
+
+		string GetDefaultName (NSObject nativeObject)
+        {
+            if (nativeObject is NSWindow)
+				return GetDefaultName(typeof(NSWindow));
+            if (nativeObject is NSTabView)
+				return GetDefaultName(typeof(NSTabView));
+			if (nativeObject is NSScroller scroller)
+				return GetDefaultName(typeof(NSScroller), NSUserInterfaceLayoutOrientation.Vertical);
+			if (nativeObject is NSImageView)
+				return GetDefaultName(typeof(NSImageView));
+			if (nativeObject is NSClipView)
+				return GetDefaultName(typeof(NSClipView));
+			if (nativeObject is NSComboBox)
+				return GetDefaultName(typeof(NSComboBox));
+			if (nativeObject is NSPopUpButton)
+				return GetDefaultName(typeof(NSPopUpButton));
+			if (nativeObject is NSStackView stackView)
+				return GetDefaultName(typeof(NSStackView), stackView.Orientation);
+			if (nativeObject is NSSplitView)
+				return GetDefaultName(typeof(NSSplitView));
+			if (nativeObject is NSSearchField)
+				return GetDefaultName(typeof(NSSearchField));
+			if (nativeObject is NSSecureTextField)
+				return GetDefaultName(typeof(NSSecureTextField));
+			if (nativeObject is NSTextField nSTextField)
+				return nSTextField.IsLabel() ? "Label.png" : GetDefaultName(typeof(NSTextField));
+
+			if (nativeObject is NSButton button)
+			{
+				switch (button.BezelStyle)
+				{
+					case NSBezelStyle.Disclosure:
+					case NSBezelStyle.HelpButton:
+						return GetDefaultName(typeof(NSButton), button.BezelStyle);
+					default:
+						return GetDefaultName(typeof(NSButton));
+				}
+			}
+
+            if (nativeObject is NSView)
+				return GetDefaultName(typeof(NSView));
+
+            return null;
+        }
+
 		public bool TryGetImageName(out string value)
         {
-			var nativeObject = NativeObject.NativeObject;
+			var nativeObject = NativeObject.NativeObject as NSObject;
 			value = null;
 
 			if (NativeObject is IConstrainContainer)
             {
 				value = "Constraints.png";
+				return true;
             }
-			else if (NativeObject is ITabItem)
+
+			if (NativeObject is ITabItem)
 			{
 				value = "Tab.png";
+				return true;
 			}
-			else if (NativeObject is IConstrain && nativeObject is NSLayoutConstraint constraint)
+
+			if (NativeObject is IConstrain && nativeObject is NSLayoutConstraint constraint)
 			{
                 switch (constraint.FirstAttribute)
                 {
@@ -155,61 +216,8 @@ namespace VisualStudio.ViewInspector.Mac.Views
 						break;
 				}
 			}
-			else if (nativeObject is NSWindow)
-			{
-				value = "Window.png";
-			}
-			else if (nativeObject is NSTabView)
-			{
-				value = "TabView.png";
-			}
-			else if (nativeObject is NSComboBox)
-			{
-				value = "ComboBox.png";
-			}
-			else if (nativeObject is NSPopUpButton)
-			{
-				value = "PopupButton.png";
-			}
-			else if (nativeObject is NSStackView stackView)
-			{
-				value = stackView.Orientation == NSUserInterfaceLayoutOrientation.Horizontal ? "StackViewHorizontal.png" : "StackViewVertical.png";
-			}
-			else if (nativeObject is NSSplitView)
-			{
-				value = "SplitView.png";
-			}
-			else if (nativeObject is NSSearchField)
-			{
-				value = "SearchField.png";
-			}
-			else if (nativeObject is NSSecureTextField)
-			{
-				value = "SecureTextField.png";
-			}
-			else if (nativeObject is NSTextField nSTextField)
-			{
-				value = nSTextField.IsLabel() ? "Label.png" : "TextField.png";
-			}
-			else if (nativeObject is NSButton button)
-			{
-                switch (button.BezelStyle)
-                {
-					case NSBezelStyle.Disclosure:
-						value = "Disclosure.png";
-						break;
-					case NSBezelStyle.HelpButton:
-						value = "HelpButton.png";
-						break;
-					default:
-						value = "Button.png";
-						break;
-                }
-			}
-			else if (nativeObject is NSView)
-			{
-				value = "View.png";
-			}
+
+			value = GetDefaultName(nativeObject);
 
 			return !string.IsNullOrEmpty(value);
         }
@@ -249,27 +257,42 @@ namespace VisualStudio.ViewInspector.Mac.Views
 
 		public readonly INativeObject NativeObject;
 
-		public TreeNodeView(ITabItem view) : base(view.NodeName)
+		public TreeNode(IViewControllerContainer view) : base(view.NodeName)
 		{
 			this.NativeObject = view;
 		}
 
-		public TreeNodeView(IWindow view) : base(GetName(view))
+		public TreeNode(IViewController view) : base(view.NodeName)
 		{
 			this.NativeObject = view;
 		}
 
-		public TreeNodeView (IView view) : base (GetName (view))
+		public TreeNode(IWindowController view) : base(view.NodeName)
 		{
 			this.NativeObject = view;
 		}
 
-        public TreeNodeView(IConstrainContainer text) : base(text.NodeName)
+		public TreeNode(ITabItem view) : base(view.NodeName)
+		{
+			this.NativeObject = view;
+		}
+
+		public TreeNode(IWindow view) : base(GetName(view))
+		{
+			this.NativeObject = view;
+		}
+
+		public TreeNode (IView view) : base (GetName (view))
+		{
+			this.NativeObject = view;
+		}
+
+        public TreeNode(IConstrainContainer text) : base(text.NodeName)
         {
             this.NativeObject = text;
         }
 
-        public TreeNodeView(IConstrain constrain) : base(GetName(constrain))
+        public TreeNode(IConstrain constrain) : base(GetName(constrain))
         {
             this.NativeObject = constrain;
         }

@@ -104,7 +104,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
             {
                 if (window.ContentView is NSView view)
                 {
-                    return new TreeViewItemView(view);
+                    return new ViewWrapper(view);
                 }
                 return null;
             }
@@ -120,7 +120,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
             {
                 if (window.FirstResponder is NSView view)
                 {
-                    return new TreeViewItemView(view);
+                    return new ViewWrapper(view);
                 }
                 return null;
             }
