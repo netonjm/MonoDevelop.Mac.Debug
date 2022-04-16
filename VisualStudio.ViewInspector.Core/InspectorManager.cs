@@ -243,7 +243,7 @@ namespace VisualStudio.ViewInspector
 
             inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
 			inspectorWindow.Title = "Inspector Panel";
-			inspectorWindow.RaiseFirstResponder += (s, e) => {
+			inspectorWindow.FirstRespondedChanged += (s, e) => {
                 if (selectedWindow.ContainsChildWindow(debugOverlayWindow))
                     debugOverlayWindow.Close();
                 selectedWindow.AddChildWindow(debugOverlayWindow);
@@ -251,12 +251,12 @@ namespace VisualStudio.ViewInspector
                 //IsFirstResponderOverlayVisible = true;
                 ChangeFocusedView(e);
             };
-			inspectorWindow.RaiseDeleteItem += (s, e) =>
+			inspectorWindow.ItemDeleted += (s, e) =>
 			{
 				  RemoveView(e);
 			};
 
-			inspectorWindow.RaiseInsertItem += InspectorWindow_RaiseInsertItem;
+			inspectorWindow.ItemInserted += InspectorWindow_RaiseInsertItem;
 
             toolbarWindow = toolWindow; //new MacToolbarWindow (this);
 

@@ -74,18 +74,39 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
     class InspectorToolWindow : BaseWindow, IInspectorWindow
     {
-        const ushort DeleteKey = 51;
+        public event EventHandler<INativeObject> FirstRespondedChanged;
+        public event EventHandler<INativeObject> ItemDeleted;
+        public event EventHandler<ToolbarView> ItemInserted;
 
-        public event EventHandler<INativeObject> RaiseFirstResponder;
-        public event EventHandler<INativeObject> RaiseDeleteItem;
+        internal void RaiseFirstRespondedChanged(INativeObject nativeObject) => FirstRespondedChanged?.Invoke(this, nativeObject);
+        internal void RaiseItemDeleted(INativeObject nativeObject) => ItemDeleted?.Invoke(this, nativeObject);
+        internal void RaiseItemInserted(ToolbarView view) => ItemInserted?.Invoke(this, view);
+
+        public void GenerateTree(IWindow window, InspectorViewMode viewMode) => contentViewController.GenerateTree(window, viewMode);
+        public void Initialize() => contentViewController.Initialize();
+        public void RemoveItem() => contentViewController.RemoveItem();
+        public void Select(INativeObject view, InspectorViewMode mode) => contentViewController.Select(view, mode);
+
+        readonly InspectorToolContentViewController contentViewController;
+
+        public InspectorToolWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+        {
+            ShowsToolbarButton = false;
+            MovableByWindowBackground = false;
+
+            ContentViewController = contentViewController = new InspectorToolContentViewController(inspectorDelegate);
+        }
+    }
+
+    class InspectorToolContentViewController : NSViewController
+    {
+        const ushort DeleteKey = 51;
 
         public const int ButtonWidth = 30;
         const int margin = 10;
-        const int ScrollViewSize = 240;
         readonly PropertyEditorProvider editorProvider;
 
         PropertyEditorPanel propertyEditorPanel;
-        //NSLayoutConstraint constraint;
 
         MethodListView methodListView;
         public InspectorOutlineView outlineView { get; private set; }
@@ -97,23 +118,34 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public event EventHandler<ToolbarView> RaiseInsertItem;
         public event EventHandler<Tuple<string, string, string, string>> LoadFigma;
-        NSSplitView splitView => (NSSplitView)ContentView;
+
+        readonly NSSplitView splitView;
         readonly HostResource hostResourceProvider;
 
+        public override void ViewWillAppear()
+        {
+            base.ViewWillAppear();
 
-        public InspectorToolWindow(IInspectDelegate inspectorDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.Resizable, NSBackingStore.Buffered, false)
+            var defaultSize = new CGSize(400, 650);
+            inspectorToolWindow.SetContentSize(defaultSize);
+            splitView.SetPositionOfDivider(defaultSize.Height/2, 0);
+        }
+
+        InspectorToolWindow inspectorToolWindow => (InspectorToolWindow)View.Window;
+
+        public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
-            ShowsToolbarButton = false;
-            MovableByWindowBackground = false;
 
-            var splitView = new NSSplitView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            ContentView.AddSubview(splitView);
+            View = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            splitView.LeadingAnchor.ConstraintEqualTo(ContentView.LeadingAnchor, 7).Active = true;
-            splitView.TrailingAnchor.ConstraintEqualTo(ContentView.TrailingAnchor, -7).Active = true;
-            splitView.TopAnchor.ConstraintEqualTo(ContentView.TopAnchor, 7).Active = true;
-            splitView.BottomAnchor.ConstraintEqualTo(ContentView.BottomAnchor, -7).Active = true;
+            splitView = new NSSplitView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            View.AddSubview(splitView);
+
+            splitView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor, 7).Active = true;
+            splitView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor, -7).Active = true;
+            splitView.TopAnchor.ConstraintEqualTo(View.TopAnchor, 7).Active = true;
+            splitView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -7).Active = true;
 
             hostResourceProvider = new HostResource();
             propertyEditorPanel = new PropertyEditorPanel(hostResourceProvider);
@@ -145,7 +177,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                     }
                     else
                     {
-                        RaiseFirstResponder?.Invoke(this, nodeView.NativeObject);
+                        inspectorToolWindow.RaiseFirstRespondedChanged (nodeView.NativeObject);
                     }
                 }
             };
@@ -156,7 +188,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     if (outlineView.SelectedNode is TreeNodeView nodeView)
                     {
-                        RaiseDeleteItem?.Invoke(this, nodeView.NativeObject);
+                        inspectorToolWindow.RaiseFirstRespondedChanged(nodeView.NativeObject);
                     }
                 }
             };
@@ -217,7 +249,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     continue;
                 }
-                module.Load(this, wrapper);
+                module.Load(inspectorToolWindow, wrapper);
             }
 
             //===================
@@ -296,8 +328,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             };
              
             toolbarView.ShowOnlyImages(true);
-            splitView.SetPositionOfDivider(300,0);
-
+           
             this.tabView.DidSelect += TabView_DidSelect;
         }
 
@@ -523,7 +554,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         {
             if (outlineView.SelectedNode is TreeNodeView nodeView)
             {
-                RaiseDeleteItem?.Invoke(this, nodeView.NativeObject);
+                inspectorToolWindow.RaiseItemDeleted(nodeView.NativeObject);
             }
         }
 

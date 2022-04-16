@@ -192,12 +192,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
         class ToolbarImageButton : ImageButton
 		{
-			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolWindow.ButtonWidth, base.IntrinsicContentSize.Height);
+			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
 		}
 
         class ToolbarToogleButton : ToggleButton
 		{
-			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolWindow.ButtonWidth, base.IntrinsicContentSize.Height);
+			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
         }
 
 		ToolbarImageButton CreateImageButton(string resourceName, string tooltip)
