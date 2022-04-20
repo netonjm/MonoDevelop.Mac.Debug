@@ -100,39 +100,31 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
     class InspectorToolContentViewController : NSViewController
     {
-        const ushort DeleteKey = 51;
-
-        public const int ButtonWidth = 30;
-        const int margin = 10;
-        readonly PropertyEditorProvider editorProvider;
-
-        PropertyEditorPanel propertyEditorPanel;
-
-        MethodListView methodListView;
-        public InspectorOutlineView outlineView { get; private set; }
-
-        NSTabView tabView;
-
-        readonly IInspectDelegate inspectorDelegate;
-        MacInspectorToolbarView toolbarView;
-
         public event EventHandler<ToolbarView> RaiseInsertItem;
         public event EventHandler<Tuple<string, string, string, string>> LoadFigma;
+
+        const ushort DeleteKey = 51;
+        const int margin = 10;
+
+        public const int ButtonWidth = 30;
+       
+        readonly PropertyEditorProvider editorProvider;
+        readonly IInspectDelegate inspectorDelegate;
 
         readonly NSSplitView splitView;
         readonly HostResource hostResourceProvider;
 
-        public override void ViewWillAppear()
-        {
-            base.ViewWillAppear();
+        PropertyEditorPanel propertyEditorPanel;
+        
+        EventListView eventListView;
+        MethodListView methodListView;
 
-            var defaultSize = new CGSize(400, 650);
-            inspectorToolWindow.SetContentSize(defaultSize);
-            splitView.SetPositionOfDivider(defaultSize.Height/2, 0);
-        }
+        public InspectorOutlineView outlineView { get; private set; }
 
+        NSTabView tabView;
+        MacInspectorToolbarView toolbarView;
         InspectorToolWindow inspectorToolWindow => (InspectorToolWindow)View.Window;
-
+        ToggleButton compactModeToggleButton;
 
         public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
@@ -164,32 +156,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             outlineViewScrollView.BackgroundColor = NSColor.Clear;
             outlineViewScrollView.DrawsBackground = false;
 
-            outlineView.SelectionNodeChanged += (s, e) =>
-            {
-                if (outlineView.SelectedNode is TreeNode treeNode)
-                {
-                    if (treeNode.NativeObject is IView view)
-                    {
-                        inspectorToolWindow.RaiseFirstRespondedChanged(view);
-                    }
-                    else 
-                    {
-                        Select(treeNode.NativeObject, viewModeSelected);
-                    }
-                }
-            };
-
-            outlineView.KeyPress += (sender, e) =>
-            {
-                if (e == DeleteKey)
-                {
-                    if (outlineView.SelectedNode is TreeNode nodeView)
-                    {
-                        inspectorToolWindow.RaiseFirstRespondedChanged(nodeView.NativeObject);
-                    }
-                }
-            };
-
             //TOOLBAR
             var tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
             splitView.AddArrangedSubview(tabView);
@@ -210,13 +176,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             toolbarStackView.AddArrangedSubview(toolbarHorizontalStackView);
           
             toolbarSearchTextField = new NSSearchField() { TranslatesAutoresizingMaskIntoConstraints = false };
-            toolbarSearchTextField.Changed += (object sender, EventArgs e) =>
-            {
-                Search();
-            };
+           
             toolbarHorizontalStackView.AddArrangedSubview(toolbarSearchTextField);
 
-            var compactModeToggleButton = new ToggleButton();
+            compactModeToggleButton = new ToggleButton();
             compactModeToggleButton.Image = inspectorDelegate.GetImageResource("compact-display-16.png").NativeObject as NSImage;
             compactModeToggleButton.ToolTip = "Use compact display";
             toolbarHorizontalStackView.AddArrangedSubview(compactModeToggleButton);
@@ -227,17 +190,16 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             toolbarStackView.AddArrangedSubview(toolbarViewScrollView);
 
             toolbarTabItem.View = toolbarStackView;
-            toolbarView.ActivateSelectedItem += (sender, e) =>
-            {
-                RaiseInsertItem?.Invoke(this, toolbarView.SelectedItem.TypeOfView);
-            };
-
+           
             var outlineTabItem = new NSTabViewItem();
             outlineTabItem.Label = "View Hierarchy";
             outlineTabItem.View = outlineViewScrollView;
 
             tabView.Add(outlineTabItem);
             tabView.Add(toolbarTabItem);
+
+
+            //Bottom TabView ==================================================
 
             var wrapper = new TabViewWrapper(tabView);
             foreach (var module in InspectorContext.Current.Modules)
@@ -249,15 +211,154 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 module.Load(inspectorToolWindow, wrapper);
             }
 
-            //===================
+            //Properties tab
+            var tabProperties = new NSTabViewItem() {
+                Label = PropertiesTabName,
+                View = propertyEditorPanel
+            };
 
             //Method list view
+            var methodsStackPanel = CreateMethodTabView();
+            var tabMethod = new NSTabViewItem() {
+                Label = MethodsTabName
+            };
+
+            tabMethod.View.AddSubview(methodsStackPanel);
+            methodsStackPanel.LeftAnchor.ConstraintEqualTo(tabMethod.View.LeftAnchor, 0).Active = true;
+            methodsStackPanel.RightAnchor.ConstraintEqualTo(tabMethod.View.RightAnchor, 0).Active = true;
+            methodsStackPanel.TopAnchor.ConstraintEqualTo(tabMethod.View.TopAnchor, 0).Active = true;
+            methodsStackPanel.BottomAnchor.ConstraintEqualTo(tabMethod.View.BottomAnchor, 0).Active = true;
+
+
+            //Events
+            var eventsStackPanel = CreateEventsTabView();
+            var tabEvents = new NSTabViewItem() {
+                Label = EventsTabName,
+            };
+            tabEvents.View.AddSubview(eventsStackPanel);
+            eventsStackPanel.LeftAnchor.ConstraintEqualTo(tabEvents.View.LeftAnchor, 0).Active = true;
+            eventsStackPanel.RightAnchor.ConstraintEqualTo(tabEvents.View.RightAnchor, 0).Active = true;
+            eventsStackPanel.TopAnchor.ConstraintEqualTo(tabEvents.View.TopAnchor, 0).Active = true;
+            eventsStackPanel.BottomAnchor.ConstraintEqualTo(tabEvents.View.BottomAnchor, 0).Active = true;
+
+            this.tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            this.tabView.Add(tabProperties);
+            this.tabView.Add(tabMethod);
+            this.tabView.Add(tabEvents);
+
+            splitView.AddArrangedSubview(this.tabView);
+
+            toolbarView.ShowOnlyImages(true);
+        }
+
+        public override void ViewWillAppear()
+        {
+            base.ViewWillAppear();
+
+            var defaultSize = new CGSize(400, 650);
+            inspectorToolWindow.SetContentSize(defaultSize);
+            splitView.SetPositionOfDivider(defaultSize.Height / 2, 0);
+
+
+            toolbarView.ActivateSelectedItem += ToolbarView_ActivateSelectedItem;
+            outlineView.SelectionNodeChanged += OutlineView_SelectionNodeChanged;
+            outlineView.KeyPress += OutlineView_KeyPress;
+
+            methodSearchView.Activated += MethodSearchView_Activated;
+            compactModeToggleButton.Activated += CompactModeToggleButton_Activated;
+            this.tabView.DidSelect += TabView_DidSelect;
+            toolbarSearchTextField.Changed += ToolbarSearchTextField_Changed;
+        }
+
+        public override void ViewWillDisappear()
+        {
+            toolbarView.ActivateSelectedItem -= ToolbarView_ActivateSelectedItem;
+            outlineView.SelectionNodeChanged -= OutlineView_SelectionNodeChanged;
+            outlineView.KeyPress -= OutlineView_KeyPress;
+
+            methodSearchView.Activated -= MethodSearchView_Activated;
+            compactModeToggleButton.Activated -= CompactModeToggleButton_Activated;
+            this.tabView.DidSelect -= TabView_DidSelect;
+            toolbarSearchTextField.Changed -= ToolbarSearchTextField_Changed;
+
+            base.ViewWillDisappear();
+        }
+
+        private void OutlineView_SelectionNodeChanged(object sender, EventArgs e)
+        {
+            if (outlineView.SelectedNode is TreeNode treeNode)
+            {
+                if (treeNode.NativeObject is IView view)
+                {
+                    inspectorToolWindow.RaiseFirstRespondedChanged(view);
+                }
+                else
+                {
+                    Select(treeNode.NativeObject, viewModeSelected);
+                }
+            }
+        }
+
+        private void OutlineView_KeyPress(object sender, ushort e)
+        {
+            if (e == DeleteKey)
+            {
+                if (outlineView.SelectedNode is TreeNode nodeView)
+                {
+                    inspectorToolWindow.RaiseFirstRespondedChanged(nodeView.NativeObject);
+                }
+            }
+        }
+
+        private void ToolbarView_ActivateSelectedItem(object sender, EventArgs e)
+        {
+            RaiseInsertItem?.Invoke(this, toolbarView.SelectedItem.TypeOfView);
+        }
+
+        private void ToolbarSearchTextField_Changed(object sender, EventArgs e)
+        {
+            Search();
+        }
+
+        private void CompactModeToggleButton_Activated(object sender, EventArgs e)
+        {
+            toolbarView.ShowOnlyImages(!toolbarView.IsImageMode);
+        }
+
+        private void MethodSearchView_Activated(object sender, EventArgs e)
+        {
+            if (viewSelected != null)
+            {
+                methodListView.SetObject(viewSelected.NativeObject, methodSearchView.StringValue);
+            }
+        }
+
+        NSStackView CreateEventsTabView()
+        {
+            eventListView = new EventListView();
+            eventListView.AddColumn(new NSTableColumn("col") { Title = "Events" });
+            //eventListView.DoubleClick += MethodListView_DoubleClick;
+
+            eventScrollView = new ScrollContainerView(eventListView);
+            eventScrollView.TranslatesAutoresizingMaskIntoConstraints = false;
+
+            var eventsStackPanel = NativeViewHelper.CreateVerticalStackView();
+            eventsStackPanel.TranslatesAutoresizingMaskIntoConstraints = false;
+            eventsStackPanel.AddArrangedSubview(eventScrollView);
+
+            return eventsStackPanel;
+        }
+
+        ScrollContainerView eventScrollView;
+
+        NSStackView CreateMethodTabView()
+        {
             methodListView = new MethodListView();
             methodListView.AddColumn(new NSTableColumn("col") { Title = "Methods" });
             methodListView.DoubleClick += MethodListView_DoubleClick;
 
-            scrollView = new ScrollContainerView(methodListView);
-            scrollView.TranslatesAutoresizingMaskIntoConstraints = false;
+            methodScrollView = new ScrollContainerView(methodListView);
+            methodScrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
             var titleContainter = NativeViewHelper.CreateHorizontalStackView();
             titleContainter.EdgeInsets = new NSEdgeInsets(0, margin, 0, margin);
@@ -289,48 +390,16 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             titleContainter.LeftAnchor.ConstraintEqualTo(methodStackPanel.LeftAnchor, 0).Active = true;
             titleContainter.RightAnchor.ConstraintEqualTo(methodStackPanel.RightAnchor, 0).Active = true;
 
-            methodStackPanel.AddArrangedSubview(scrollView);
-            /////
+            methodStackPanel.AddArrangedSubview(methodScrollView);
 
-            var tabPropertyPanel = new NSTabViewItem();
-            tabPropertyPanel.View = propertyEditorPanel;
-            tabPropertyPanel.Label = PropertiesTabName;
+            methodListView.WidthAnchor.ConstraintEqualTo(methodStackPanel.WidthAnchor).Active = true;
 
-            var tabMethod = new NSTabViewItem();
-
-            tabMethod.View.AddSubview(methodStackPanel);
-            methodStackPanel.LeftAnchor.ConstraintEqualTo(tabMethod.View.LeftAnchor, 0).Active = true;
-            methodStackPanel.RightAnchor.ConstraintEqualTo(tabMethod.View.RightAnchor, 0).Active = true;
-            methodStackPanel.TopAnchor.ConstraintEqualTo(tabMethod.View.TopAnchor, 0).Active = true;
-            methodStackPanel.BottomAnchor.ConstraintEqualTo(tabMethod.View.BottomAnchor, 0).Active = true;
-
-            tabMethod.Label = MethodsTabName;
-
-            this.tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            this.tabView.Add(tabPropertyPanel);
-            this.tabView.Add(tabMethod);
-            splitView.AddArrangedSubview(this.tabView);
-
-            methodSearchView.Activated += (sender, e) =>
-            {
-                if (viewSelected != null)
-                {
-                    methodListView.SetObject(viewSelected.NativeObject, methodSearchView.StringValue);
-                }
-            };
-          
-            compactModeToggleButton.Activated += (sender, e) =>
-            {
-                toolbarView.ShowOnlyImages(!toolbarView.IsImageMode);
-            };
-             
-            toolbarView.ShowOnlyImages(true);
-           
-            this.tabView.DidSelect += TabView_DidSelect;
+            return methodStackPanel;
         }
 
         const string PropertiesTabName = "Properties";
         const string MethodsTabName = "Methods";
+        const string EventsTabName = "Events";
 
         private void TabView_DidSelect(object sender, NSTabViewItemEventArgs e)
         {
@@ -342,10 +411,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 RefreshMethodList();
             }
+            else if (e.Item.Label == EventsTabName)
+            {
+                RefreshMethodList();
+            }
         }
 
         NSSearchField methodSearchView;
-        ScrollContainerView scrollView;
+        ScrollContainerView methodScrollView;
         TreeNode data;
 
         List<CollectionHeaderItem> toolbarData = new List<CollectionHeaderItem>();
@@ -520,19 +593,28 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 }
             }
 
-            if (tabView.Selected.Label == PropertiesTabName)
+            switch (tabView.Selected.Label)
             {
-                RefreshPropertyEditor();
-            }
-            else if (tabView.Selected.Label == MethodsTabName)
-            {
-                RefreshMethodList();
+                case PropertiesTabName:
+                    RefreshPropertyEditor();
+                    break;
+                case MethodsTabName:
+                    RefreshMethodList();
+                    break;
+                case EventsTabName:
+                    RefreshEventsList();
+                    break;
             }
         }
 
         void RefreshMethodList()
         {
             methodListView.SetObject(viewSelected?.NativeObject, methodSearchView.StringValue);
+        }
+
+        void RefreshEventsList()
+        {
+            eventListView.SetObject(viewSelected?.NativeObject, methodSearchView.StringValue);
         }
 
         void RefreshPropertyEditor()

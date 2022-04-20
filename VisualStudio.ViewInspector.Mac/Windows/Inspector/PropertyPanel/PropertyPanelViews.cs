@@ -155,6 +155,60 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => textView.StringValue = value;
 		}
 
+		public string PlaceholderString
+		{
+			get => textView.PlaceholderString;
+			set => textView.PlaceholderString = value;
+		}
+
+		public NSLineBreakMode LineBreakMode
+		{
+			get => textView.LineBreakMode;
+			set => textView.LineBreakMode = value;
+		}
+
+		public NSLineBreakStrategy LineBreakStrategy
+		{
+			get => textView.LineBreakStrategy;
+			set => textView.LineBreakStrategy = value;
+		}
+
+		public string ToolTip
+		{
+			get => textView.ToolTip;
+			set => textView.ToolTip = value;
+		}
+
+		public bool DrawsBackground
+		{
+			get => textView.DrawsBackground;
+			set => textView.DrawsBackground = value;
+		}
+
+		public bool Editable
+		{
+			get => textView.Editable;
+			set => textView.Editable = value;
+		}
+
+		public NSTextContentType ContentType
+		{
+			get => textView.ContentType;
+			set => textView.ContentType = value;
+		}
+
+		public bool Bordered
+		{
+			get => textView.Bordered;
+			set => textView.Bordered = value;
+		}
+
+		public NSTextAlignment Alignment
+		{
+			get => textView.Alignment;
+			set => textView.Alignment = value;
+		}
+
 		public NSFont Font
 		{
 			get => textView.Font;
@@ -166,6 +220,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			get => textView.TextColor.ToCommonColor();
 			set => textView.TextColor = value.ToNSColor();
 		}
+
 		public CommonColor BackgroundColor
 		{
 			get => textView.BackgroundColor.ToCommonColor();
@@ -518,6 +573,18 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 	class PropertyPanelNSView : PropertyPanelNSResponder
 	{
 		protected NSView view => (NSView) responder;
+
+		public bool NeedsLayout
+		{
+			get => view.NeedsLayout;
+			set => view.NeedsLayout = value;
+		}
+
+		public bool NeedsDisplay
+		{
+			get => view.NeedsDisplay;
+			set => view.NeedsDisplay = value;
+		}
 
 		public bool IsFlipped
 		{
