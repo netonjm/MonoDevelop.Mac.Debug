@@ -191,12 +191,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => textView.Editable = value;
 		}
 
-		public NSTextContentType ContentType
-		{
-			get => textView.ContentType;
-			set => textView.ContentType = value;
-		}
-
 		public bool Bordered
 		{
 			get => textView.Bordered;
@@ -215,17 +209,17 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => textView.Font = value;
 		}
 
-		public CommonColor TextColor
-		{
-			get => textView.TextColor.ToCommonColor();
-			set => textView.TextColor = value.ToNSColor();
-		}
+		//public CommonColor TextColor
+		//{
+		//	get => textView.TextColor.ToCommonColor();
+		//	set => textView.TextColor = value.ToNSColor();
+		//}
 
-		public CommonColor BackgroundColor
-		{
-			get => textView.BackgroundColor.ToCommonColor();
-			set => textView.BackgroundColor = value.ToNSColor();
-		}
+		//public CommonColor BackgroundColor
+		//{
+		//	get => textView.BackgroundColor.ToCommonColor();
+		//	set => textView.BackgroundColor = value.ToNSColor();
+		//}
 
 		//public NSAttributedString AttributedStringValue
 		//{
