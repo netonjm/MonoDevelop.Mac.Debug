@@ -134,19 +134,19 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		NSStackView CreateFirstRow()
         {
 			var stack = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
-			var keyViewLoopButton = CreateToogleButton("overlay-actual.png", "Shows current focused item");
+			var keyViewLoopButton = CreateToogleButton("overlay-actual@2x.png", "Shows current focused item");
 			stack.AddArrangedSubview(keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
-			var prevKeyViewLoopButton = CreateToogleButton("overlay-previous.png", "Shows previous focused item");
+			var prevKeyViewLoopButton = CreateToogleButton("overlay-previous@2x.png", "Shows previous focused item");
 			stack.AddArrangedSubview(prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
-			var nextKeyViewLoopButton = CreateToogleButton("overlay-next.png", "Shows next focused item");
+			var nextKeyViewLoopButton = CreateToogleButton("overlay-next@2x.png", "Shows next focused item");
 			stack.AddArrangedSubview(nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
@@ -155,11 +155,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			stack.AddVerticalSeparator();
 
 			//widnows ===========================================================================================
-			showAccessibilityButton = CreateImageButton("rescan-16.png", "Show/Hide Accessibility Window");
+			showAccessibilityButton = CreateToogleButton("window-accessibility.png", "Show/Hide Accessibility Window");
 			stack.AddArrangedSubview(showAccessibilityButton);
 			showAccessibilityButton.Activated += (s, e) => ShowAccessibilityPressed?.Invoke(this, EventArgs.Empty);
 
-			showInspectorButton = CreateImageButton("rescan-16.png", "Show/Hide Inspector Window");
+			showInspectorButton = CreateToogleButton("window-properties.png", "Show/Hide Inspector Window");
 			stack.AddArrangedSubview(showInspectorButton);
 
 			showInspectorButton.Activated += (s,e) => ShowInspectorButtonPressed?.Invoke(this, EventArgs.Empty);
