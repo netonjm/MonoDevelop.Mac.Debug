@@ -164,6 +164,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			showInspectorButton = CreateToogleButton("window-properties.png", "Show/Hide Inspector Window");
 			stack.AddArrangedSubview(showInspectorButton);
 
+			showInspectorButton.IsToggled = true;
+
 			showInspectorButton.Activated += (s,e) => ShowInspectorButtonPressed?.Invoke(this, EventArgs.Empty);
 
 			//======================================================================================================
