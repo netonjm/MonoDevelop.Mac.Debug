@@ -135,6 +135,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
         {
 			var stack = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
 			var keyViewLoopButton = CreateToogleButton("overlay-actual@2x.png", "Shows current focused item");
+			keyViewLoopButton.IsToggled = true;
+
 			stack.AddArrangedSubview(keyViewLoopButton);
 			keyViewLoopButton.Activated += (s, e) => {
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
