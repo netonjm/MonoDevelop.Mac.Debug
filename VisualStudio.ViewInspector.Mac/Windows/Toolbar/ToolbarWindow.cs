@@ -24,7 +24,9 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
-		
+
+		public event EventHandler<IColor> ViewBackgroundColorChanged;
+
 		public event EventHandler<FontData> FontChanged;
         public event EventHandler<CultureInfo> CultureChanged;
 
@@ -63,7 +65,9 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		bool fontButtonsVisible;
 		bool imageButtonVisible;
-		bool isCurrentItemLayer;
+		bool backgroundColorVisible;
+
+		bool removeButtonVisible;
 
 		public void RegenerateButtons ()
         {
@@ -78,6 +82,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			backgroundColorButton.RemoveFromSuperview();
 			backgrounColorSectionSeparator.RemoveFromSuperview();
 
+			deleteButton.RemoveFromSuperview();
+
 
 			if (ShowToolKitButton)
 			{
@@ -88,7 +94,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			if (imageButtonVisible)
 				firstRowStackView.AddArrangedSubview(changeImageButton);
 
-			if (isCurrentItemLayer)
+			if (removeButtonVisible)
+				firstRowStackView.AddArrangedSubview(deleteButton);
+
+			if (backgroundColorVisible)
             {
 				firstRowStackView.AddArrangedSubview(backgroundColorButton);
 				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
@@ -189,16 +198,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				ItemImageChanged?.Invoke(this, EventArgs.Empty);
 			};
 
-			backgroundColorButton = new NSButton()
-			{
-				TranslatesAutoresizingMaskIntoConstraints = false,
-				Title = "", ToolTip = "Change background color"
-			};
+			backgroundColorButton = new ColorWell() { ToolTip = "Change background color from layer", TranslatesAutoresizingMaskIntoConstraints = false };
+			backgroundColorButton.Activated += ColorButton_Activated;
+
 			backgrounColorSectionSeparator = stack.AddVerticalSeparator();
 
 			//Visual issues view
 			languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
 			languagesComboBox.ToolTip = "Change font from selected item";
+			languagesComboBox.WidthAnchor.ConstraintEqualTo(200).Active = true;
 
 			cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
 			var culturesStr = new NSString[cultureInfos.Length];
@@ -214,7 +222,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			}
 
 			languagesComboBox.Add(culturesStr);
-			
 			languagesComboBox.Select(selected);
 
 			languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
@@ -224,7 +231,17 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stack;
 		}
 
-        private void RefreshButton_Activated(object sender, EventArgs e)
+		class ColorWell : NSColorWell
+		{
+			public override CGSize IntrinsicContentSize => new CGSize(50, 21);
+
+			public ColorWell()
+			{
+				TranslatesAutoresizingMaskIntoConstraints = false;
+			}
+		}
+
+		private void RefreshButton_Activated(object sender, EventArgs e)
         {
 			RefreshTreeViewRequested?.Invoke(this, EventArgs.Empty);
 		}
@@ -257,8 +274,50 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stackView;
 		}
 
-		NSButton backgroundColorButton;
+		const string ColorSelectorName = "colorDidChange:";
+		const string ColorPopoverDidCloseSelectorName = "popoverDidClose:";
+
+		NSColorWell selectedColorButton;
+
+		void ColorButton_Activated(object sender, EventArgs e)
+		{
+			var button = selectedColorButton = (NSColorWell)sender;
+			var panelButton = NSColorPanel.SharedColorPanel;
+			panelButton.Color = button.Color;
+
+			NSNotificationCenter.DefaultCenter.AddObserver(this, new ObjCRuntime.Selector(ColorPopoverDidCloseSelectorName), NSPopover.DidCloseNotification, panelButton);
+			NSNotificationCenter.DefaultCenter.AddObserver(this, new ObjCRuntime.Selector(ColorSelectorName), NSColorPanel.ColorChangedNotification, panelButton);
+
+			panelButton.MakeKeyAndOrderFront(panelButton);
+		}
+
+		ColorWell backgroundColorButton;
 		VerticalSeparator backgrounColorSectionSeparator;
+
+		[Export(ColorPopoverDidCloseSelectorName)]
+		void OnWindowColorDidClose(NSObject target)
+		{
+			NSNotificationCenter.DefaultCenter.RemoveObserver(this, NSPopover.DidCloseNotification, NSColorPanel.SharedColorPanel);
+			NSNotificationCenter.DefaultCenter.RemoveObserver(this, NSColorPanel.ColorChangedNotification, NSColorPanel.SharedColorPanel);
+
+			selectedColorButton = null;
+		}
+
+		[Export(ColorSelectorName)]
+		void OnColorDidChange(NSObject target)
+		{
+			var selectedColorButton = this.selectedColorButton;
+			if (selectedColorButton == null)
+			{
+				return;
+			}
+			if (target is NSNotification not && not.Object is NSColorPanel colorPanel)
+			{
+				var color = colorPanel.Color;
+				selectedColorButton.Color = color;
+				ViewBackgroundColorChanged?.Invoke(this, color.ToColor());
+			}
+		}
 
 		class ToolbarImageButton : ImageButton
 		{
@@ -291,6 +350,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		public ToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
         {
             this.inspectDelegate = inspectDelegate;
+
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
 			TitlebarAppearsTransparent = true;
@@ -301,16 +361,21 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			main = NativeViewHelper.CreateVerticalStackView(MenuItemSeparation);
 			ContentView = main;
 
-			main.EdgeInsets = new NSEdgeInsets(Margin, Margin, Margin, Margin);
+			main.EdgeInsets = new NSEdgeInsets(Margin, 0, Margin, 0);
 
 			firstRowStackView = CreateFirstRow();
 			main.AddArrangedSubview (firstRowStackView);
+			firstRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
+
 
 			secondRowStackView = CreateSecondRow(); ;
             main.AddArrangedSubview(secondRowStackView);
+			secondRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
 
 			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
-        }
+
+			RegenerateButtons();
+		}
 
 		int GetSelectedLanguage ()
         {
@@ -334,43 +399,56 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
             }
         }
 
-        public void ChangeView (InspectorManager manager, IView viewWrapper)
+        public void ChangeView (InspectorManager manager, INativeObject nativeObject)
         {
 			handleChange = true;
+
+			//close color panel if visible
+			var panelButton = NSColorPanel.SharedColorPanel;
+			if (panelButton.IsVisible)
+				panelButton.Close();
 
 			bool showImage = false;
             bool showFont = false;
             //NSPopUpButton
-            var fontData = manager.Delegate.GetFont(viewWrapper);
-            if (fontData?.Font != null)
+			bool showLayer = false;
+
+			if (nativeObject is IView viewWrapper)
             {
-                var currentFontName = ((NSFont)fontData.Font.NativeObject).FontName;
-                if (currentFontName == ".AppleSystemUIFont")
-                {
-                    currentFontName = "HelveticaNeue";
-                }
-                var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
-				if (name == null)
-                {
-					name = fonts.FirstOrDefault(s => s.ToString() == "HelveticaNeue");
+				var fontData = manager.Delegate.GetFont(viewWrapper);
+				if (fontData?.Font != null)
+				{
+					var currentFontName = ((NSFont)fontData.Font.NativeObject).FontName;
+					if (currentFontName == ".AppleSystemUIFont")
+					{
+						currentFontName = "HelveticaNeue";
+					}
+					var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
+					if (name == null)
+					{
+						name = fonts.FirstOrDefault(s => s.ToString() == "HelveticaNeue");
+					}
+
+					fontsCombobox.Select(name);
+
+					fontSizeTextView.IntValue = (int)fontData.Size;
+					showFont = true;
 				}
 
-                fontsCombobox.Select(name);
+				if (viewWrapper.NativeObject is NSImageView || viewWrapper.NativeObject is NSButton)
+				{
+					showImage = true;
+				}
 
-                fontSizeTextView.IntValue = (int)fontData.Size;
-                showFont = true;
-            }
+				showLayer = true;
 
-            imageButtonVisible = showImage;
-            fontButtonsVisible = showFont;
-
-
-			if (viewWrapper?.NativeObject is NSImageView || viewWrapper?.NativeObject is NSButton)
-			{
-				showImage = true;
 			}
 
-			isCurrentItemLayer = viewWrapper?.NativeObject is NSView view && view.WantsLayer;
+			imageButtonVisible = showImage;
+            fontButtonsVisible = showFont;
+			backgroundColorVisible = showLayer;
+
+			removeButtonVisible = nativeObject != null;
 
 			RegenerateButtons();
 

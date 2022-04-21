@@ -37,6 +37,7 @@ namespace VisualStudio.ViewInspector
         void SetButton(IButton button, IImage image);
 		void SetButton(IImageView imageview, IImage image);
 		Task InvokeImageChanged(IView view, IWindow selectedWindow);
+        bool IsAllowedWindow(IWindow w);
         IWindowWatcher CreateWatcher();
         IBorderedWindow CreateErrorWindow (IView view);
         IFont GetFromName(string selected, int fontSize);
@@ -54,5 +55,6 @@ namespace VisualStudio.ViewInspector
         void CreateItem(IView view, ToolbarView e);
         void SetCultureInfo(CultureInfo cultureInfo);
         bool IsDarkTheme();
+        void SetBackgroundColor(IView selectedView, IColor e);
     }
 }

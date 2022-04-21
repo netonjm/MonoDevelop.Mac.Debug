@@ -309,7 +309,12 @@ namespace VisualStudio.ViewInspector
 				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
-            toolbarWindow.CultureChanged += (sender, e) =>
+			toolbarWindow.ViewBackgroundColorChanged += (sender, e) =>
+			{
+				Delegate.SetBackgroundColor(SelectedView, e);
+			};
+
+			toolbarWindow.CultureChanged += (sender, e) =>
             {
                 Delegate.SetCultureInfo (e);
             };
@@ -432,6 +437,7 @@ namespace VisualStudio.ViewInspector
 
 		public void ShowInspectorWindow (bool value)
 		{
+			ShowsInspectorWindow = value;
 			if (value) {
 				if (inspectorWindow.ParentWindow?.NativeObject != selectedWindow?.NativeObject) {
 
@@ -446,7 +452,8 @@ namespace VisualStudio.ViewInspector
 
         public void ShowAccessibilityWindow(bool value)
         {
-            if (value)
+			ShowsAccessibilityWindow = value;
+			if (value)
             {
                 if (accessibilityWindow.ParentWindow?.NativeObject != selectedWindow?.NativeObject)
                 {
@@ -518,7 +525,7 @@ namespace VisualStudio.ViewInspector
 
 		internal void ChangeFocusedView (INativeObject nextView)
 		{
-			if (selectedWindow == null || SelectedView == nextView) {
+			if (selectedWindow == null || SelectedView?.NativeObject == nextView?.NativeObject) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
@@ -531,7 +538,7 @@ namespace VisualStudio.ViewInspector
             RefreshOverlaysVisibility();
 
 			var selectedView = SelectedView;
-			toolbarWindow.ChangeView(this, selectedView);
+			toolbarWindow.ChangeView(this, nextView);
 
 			if (selectedView != null)
             {

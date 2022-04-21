@@ -292,6 +292,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     inspectorToolWindow.RaiseFirstRespondedChanged(view);
                 }
+                else if (treeNode.NativeObject is IConstrain constrain)
+                {
+                    inspectorToolWindow.RaiseFirstRespondedChanged(constrain);
+                    Select(treeNode.NativeObject, viewModeSelected);
+                }
                 else
                 {
                     inspectorToolWindow.RaiseFirstRespondedChanged(null);
@@ -306,7 +311,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 if (outlineView.SelectedNode is TreeNode nodeView)
                 {
-                    inspectorToolWindow.RaiseFirstRespondedChanged(nodeView.NativeObject);
+                    inspectorToolWindow.RaiseItemDeleted(nodeView.NativeObject);
                 }
             }
         }

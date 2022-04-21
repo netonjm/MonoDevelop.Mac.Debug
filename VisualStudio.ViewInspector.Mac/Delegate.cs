@@ -158,7 +158,7 @@ namespace VisualStudio.ViewInspector
             var previous = new BorderedWindow(CGRect.Empty, NSColor.Blue);
             var acc = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
-            var tool = new ToolbarWindow(this, new CGRect(10, 10, 100, 700));
+            var tool = new ToolbarWindow(this, new CGRect(10, 10, 600, 50));
             tool.ShowToolkitButton(false);
 
             var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
@@ -711,6 +711,23 @@ namespace VisualStudio.ViewInspector
         public bool IsDarkTheme()
         {
             return !IsLightAppearance(NSApplication.SharedApplication.EffectiveAppearance);
+        }
+
+        public void SetBackgroundColor(IView selectedView, IColor e)
+        {
+            if (selectedView?.NativeObject is NSView v)
+            {
+                if (!v.WantsLayer)
+                    v.WantsLayer = true;
+                v.Layer.BackgroundColor = ((NSColor)e.NativeObject).CGColor;
+            }
+        }
+
+        public bool IsAllowedWindow(IWindow w)
+        {
+            if (w.NativeObject is NSColorPanel)
+                return false;
+            return true;
         }
     }
 }

@@ -20,6 +20,9 @@ namespace AppKit
 			return !nSTextField.DrawsBackground && !nSTextField.Editable && !nSTextField.Bezeled;
 		}
 
+		internal static VisualStudio.ViewInspector.Mac.Abstractions.Color ToColor(this NSColor color)
+			=> new VisualStudio.ViewInspector.Mac.Abstractions.Color(color);
+
 		public static CGColor ToCGColor(this CommonColor color)
 			=> new CGColor(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
 

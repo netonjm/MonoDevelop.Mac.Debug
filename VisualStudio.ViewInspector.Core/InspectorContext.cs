@@ -46,7 +46,7 @@ namespace VisualStudio.ViewInspector
             StopWatcher();
 
             Watcher = this.Delegate.CreateWatcher();
-            Watcher.IsWindowAllowedFunc = w => Manager.IsAllowedWindow(w);
+            Watcher.IsWindowAllowedFunc = w => this.Delegate.IsAllowedWindow(w) && Manager.IsAllowedWindow(w);
 
             //IMainWindow currentWindow = Delegate.GetTopWindow();
 
