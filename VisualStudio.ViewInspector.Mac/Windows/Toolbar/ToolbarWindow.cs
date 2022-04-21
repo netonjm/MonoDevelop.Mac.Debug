@@ -48,7 +48,9 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		//public override bool CanBecomeKeyWindow => false;
 		//public override bool CanBecomeMainWindow => false;
 
-		ImageButton deleteButton, changeImageButton, refreshButton, showInspectorButton, showAccessibilityButton;
+		ToggleButton showInspectorButton, showAccessibilityButton;
+
+		ImageButton deleteButton, changeImageButton, refreshButton;
 		ToggleButton toolkitButton;
 
 		NSStackView main;
@@ -417,6 +419,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
             //NSPopUpButton
 			bool showLayer = false;
 
+			NSColor backgroundColor = null;
+
 			if (nativeObject is IView viewWrapper)
             {
 				var fontData = manager.Delegate.GetFont(viewWrapper);
@@ -445,8 +449,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				}
 
 				showLayer = true;
-
+				if (viewWrapper.NativeObject is NSView vi && vi.Layer?.BackgroundColor != null)
+                {
+					backgroundColor = NSColor.FromCGColor(vi.Layer.BackgroundColor);
+				}
 			}
+
+			backgroundColorButton.Color = backgroundColor ?? NSColor.White;
 
 			imageButtonVisible = showImage;
             fontButtonsVisible = showFont;
