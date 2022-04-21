@@ -79,6 +79,17 @@
     <EmbeddedResource Include="Resources\error-16.png">
       <LogicalName>error-16.png</LogicalName>
     </EmbeddedResource>
+
+    <EmbeddedResource Include="Resources\window-accessibility.png">
+      <LogicalName>window-accessibility.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\window-properties.png">
+      <LogicalName>window-properties.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\window-handlers.png">
+      <LogicalName>window-handlers.png</LogicalName>
+    </EmbeddedResource>
+
     <EmbeddedResource Include="Resources\execute-16.png">
       <LogicalName>execute-16.png</LogicalName>
     </EmbeddedResource>
