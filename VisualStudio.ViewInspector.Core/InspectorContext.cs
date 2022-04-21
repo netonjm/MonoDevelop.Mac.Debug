@@ -9,6 +9,7 @@ namespace VisualStudio.ViewInspector
 {
 	public class InspectorContext : IDisposable
 	{
+        //refresh bar
         public event EventHandler<IView> FocusedViewChanged;
 
         public readonly List<IInspectorTabModule> Modules = new List<IInspectorTabModule>();
@@ -47,9 +48,9 @@ namespace VisualStudio.ViewInspector
             Watcher = this.Delegate.CreateWatcher();
             Watcher.IsWindowAllowedFunc = w => Manager.IsAllowedWindow(w);
 
-            IMainWindow currentWindow = Delegate.GetTopWindow();
+            //IMainWindow currentWindow = Delegate.GetTopWindow();
 
-            Attach(currentWindow);
+            //Attach(currentWindow);
 
             Watcher.ResponderChanged += Watcher_ResponderChanged;
             Watcher.WindowChanged += Watcher_WindowChanged;
@@ -76,6 +77,11 @@ namespace VisualStudio.ViewInspector
 
         void Watcher_ResponderChanged(object sender, INativeObject e)
         {
+            if (e == null)
+            {
+                ChangeFocusedView(null);
+                return;
+            }
             if (Delegate.TryGetView(e, out var view))
             {
                 ChangeFocusedView(view);

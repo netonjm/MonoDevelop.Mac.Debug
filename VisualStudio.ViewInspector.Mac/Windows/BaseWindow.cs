@@ -98,11 +98,26 @@ namespace VisualStudio.ViewInspector.Mac.Windows
 		{
 			if (borderer.NativeObject is NSWindow currentWindow)
             {
-				if (currentWindow.ParentWindow != null && currentWindow.ParentWindow != this)
-                {
+				if (currentWindow.ParentWindow != null)
+				{
 					currentWindow.ParentWindow.RemoveChildWindow(currentWindow);
 				}
-				base.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+				//add only if is not already
+				if (!this.ContainsChildWindow(borderer))
+                {
+					base.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+				}
+			}
+		}
+
+		public void RemoveChildWindow(IWindow borderer)
+		{
+			if (borderer.NativeObject is NSWindow currentWindow)
+			{
+				if (this.ContainsChildWindow(borderer))
+				{
+					base.RemoveChildWindow(currentWindow);
+				}
 			}
 		}
 

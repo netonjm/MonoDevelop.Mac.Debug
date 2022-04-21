@@ -65,6 +65,7 @@ namespace VisualStudio.ViewInspector
 			get => isPreviousResponderOverlayVisible;
 			set {
 				isPreviousResponderOverlayVisible = value;
+
 				if (debugPreviousOverlayWindow != null && selectedWindow != null) {
 					debugPreviousOverlayWindow.SetParentWindow (selectedWindow);
 					debugPreviousOverlayWindow.Visible = value;
@@ -81,11 +82,13 @@ namespace VisualStudio.ViewInspector
 		public bool IsFirstResponderOverlayVisible {
 			get => isFirstResponderOverlayVisible;
 			set {
-				isFirstResponderOverlayVisible = value;
+				isFirstResponderOverlayVisible = true;
 
 				if (debugOverlayWindow != null && selectedWindow != null) {
-					debugOverlayWindow.SetParentWindow (selectedWindow);
+
+					debugOverlayWindow.SetParentWindow(selectedWindow);
 					debugOverlayWindow.Visible = value;
+
 					if (SelectedView != null) {
 						debugOverlayWindow.AlignWith (SelectedView);
 					}
@@ -153,7 +156,7 @@ namespace VisualStudio.ViewInspector
                 return;
             }
 
-			var needsReattach = selectedWindow != this.selectedWindow;
+			var needsReattach = selectedWindow != null && selectedWindow != this.selectedWindow;
 
 			if (this.selectedWindow != null) {
 				Delegate.RemoveAllErrorWindows (this.selectedWindow);
@@ -170,6 +173,11 @@ namespace VisualStudio.ViewInspector
 
 			this.selectedWindow = selectedWindow;
 			if (this.selectedWindow == null) {
+				IsPreviousResponderOverlayVisible = false;
+				IsNextResponderOverlayVisible = false;
+				IsFirstResponderOverlayVisible = false;
+
+				ShowToolBarWindow(false);
 				ShowAccessibilityWindow(false);
 				ShowInspectorWindow(false);
 				return;
@@ -183,12 +191,14 @@ namespace VisualStudio.ViewInspector
 			this.selectedWindow.MovedRequested += OnRespositionViews;
 			this.selectedWindow.LostFocus += OnRespositionViews;
 
+			ShowToolBarWindow(ShowsToolBarWindow);
 			ShowAccessibilityWindow(ShowsAccessibilityWindow);
 			ShowInspectorWindow(ShowsInspectorWindow);
 		}
 
         public bool ShowsAccessibilityWindow { get; set; }
 		public bool ShowsInspectorWindow { get; set; }
+		public bool ShowsToolBarWindow { get; set; }
 
 		void RefreshOverlaysVisibility ()
 		{
@@ -203,6 +213,17 @@ namespace VisualStudio.ViewInspector
         {
 			inspectorWindow.GenerateTree(selectedWindow, ViewMode);
 			selectedWindow.RecalculateKeyViewLoop();
+		}
+
+		void MakeFrontWindow(IBorderedWindow window)
+        {
+			if (window?.ParentWindow == null || selectedWindow == null)
+				return;
+
+			if (window.ParentWindow.NativeObject == this.selectedWindow.NativeObject)
+            {
+				selectedWindow.AddChildWindow(window);
+			}
 		}
 
 		public InspectorManager (IInspectDelegate inspectorDelegate, 
@@ -244,12 +265,12 @@ namespace VisualStudio.ViewInspector
             inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
 			inspectorWindow.Title = "Inspector Panel";
 			inspectorWindow.FirstRespondedChanged += (s, e) => {
-                if (selectedWindow.ContainsChildWindow(debugOverlayWindow))
-                    debugOverlayWindow.Close();
-                selectedWindow.AddChildWindow(debugOverlayWindow);
+				MakeFrontWindow(debugOverlayWindow);
+				MakeFrontWindow(debugNextOverlayWindow);
+				MakeFrontWindow(debugPreviousOverlayWindow);
 
-                //IsFirstResponderOverlayVisible = true;
-                ChangeFocusedView(e);
+				//IsFirstResponderOverlayVisible = true;
+				ChangeFocusedView(e);
             };
 			inspectorWindow.ItemDeleted += (s, e) =>
 			{
@@ -312,6 +333,10 @@ namespace VisualStudio.ViewInspector
 				IsPreviousResponderOverlayVisible = e;
 				ChangeFocusedView (selectedWindow.FirstResponder);
 			};
+
+			//windows
+			toolbarWindow.ShowInspectorButtonPressed += (s,e) => ShowInspectorWindow(!ShowsInspectorWindow);
+			toolbarWindow.ShowAccessibilityPressed += (s, e) => ShowAccessibilityWindow(!ShowsAccessibilityWindow);
 
 			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
 			{
@@ -387,18 +412,34 @@ namespace VisualStudio.ViewInspector
 			RefreshOverlaysVisibility();
 		}
 
-        public void ShowInspectorWindow (bool value)
+
+		public void ShowToolBarWindow(bool value)
+		{
+			if (value)
+			{
+				if (toolbarWindow.ParentWindow?.NativeObject != selectedWindow?.NativeObject)
+				{
+
+					selectedWindow.AddChildWindow(toolbarWindow);
+					RefreshWindows();
+				}
+			}
+			else
+			{
+				toolbarWindow?.Close();
+			}
+		}
+
+		public void ShowInspectorWindow (bool value)
 		{
 			if (value) {
 				if (inspectorWindow.ParentWindow?.NativeObject != selectedWindow?.NativeObject) {
 
 					selectedWindow.AddChildWindow (inspectorWindow);
-					selectedWindow.AddChildWindow(toolbarWindow);
 					RefreshWindows ();
 				}
 			}
 			else {
-				toolbarWindow?.Close();
 				inspectorWindow?.Close ();
 			}
 		}
@@ -477,7 +518,7 @@ namespace VisualStudio.ViewInspector
 
 		internal void ChangeFocusedView (INativeObject nextView)
 		{
-			if (selectedWindow == null || nextView == null || SelectedView == nextView) {
+			if (selectedWindow == null || SelectedView == nextView) {
 				//FocusedViewChanged?.Invoke(this, nextView);
 				return;
 			}
@@ -490,9 +531,10 @@ namespace VisualStudio.ViewInspector
             RefreshOverlaysVisibility();
 
 			var selectedView = SelectedView;
+			toolbarWindow.ChangeView(this, selectedView);
+
 			if (selectedView != null)
             {
-                toolbarWindow.ChangeView(this, selectedView);
 				FocusedViewChanged?.Invoke(this, selectedView);
             }
 		}

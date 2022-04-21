@@ -30,7 +30,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
         public event EventHandler<InspectorViewMode> InspectorViewModeChanged;
 
-        const int MenuItemSeparation = 3;
+		public event EventHandler ShowInspectorButtonPressed;
+		public event EventHandler ShowAccessibilityPressed;
+
+		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
 
 		readonly NSStackView firstRowStackView;
@@ -43,7 +46,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		//public override bool CanBecomeKeyWindow => false;
 		//public override bool CanBecomeMainWindow => false;
 
-		ImageButton deleteButton, changeImageButton, refreshButton;
+		ImageButton deleteButton, changeImageButton, refreshButton, showInspectorButton, showAccessibilityButton;
 		ToggleButton toolkitButton;
 
 		NSStackView main;
@@ -55,6 +58,56 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		CultureInfo[] cultureInfos;
 		NSComboBox languagesComboBox;
+
+		bool ShowToolKitButton { get; set; }
+
+		bool fontButtonsVisible;
+		bool imageButtonVisible;
+		bool isCurrentItemLayer;
+
+		public void RegenerateButtons ()
+        {
+			//first bar
+			toolkitButton.RemoveFromSuperview();
+			rescanSeparator.RemoveFromSuperview();
+
+			changeImageButton.RemoveFromSuperview();
+
+			languagesComboBox.RemoveFromSuperview();
+
+			backgroundColorButton.RemoveFromSuperview();
+			backgrounColorSectionSeparator.RemoveFromSuperview();
+
+
+			if (ShowToolKitButton)
+			{
+				firstRowStackView.AddArrangedSubview(toolkitButton);
+				firstRowStackView.AddArrangedSubview(rescanSeparator);
+			}
+
+			if (imageButtonVisible)
+				firstRowStackView.AddArrangedSubview(changeImageButton);
+
+			if (isCurrentItemLayer)
+            {
+				firstRowStackView.AddArrangedSubview(backgroundColorButton);
+				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
+			}
+
+			firstRowStackView.AddArrangedSubview(languagesComboBox);
+
+
+			//second row
+			fontSizeTextView.RemoveFromSuperview();
+			fontsCombobox.RemoveFromSuperview();
+
+
+			if (fontButtonsVisible)
+            {
+				secondRowStackView.AddArrangedSubview(fontsCombobox);
+				secondRowStackView.AddArrangedSubview(fontSizeTextView);
+			}
+		}
 
 		public void ShowToolkitButton (bool value)
         {
@@ -92,6 +145,19 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			stack.AddVerticalSeparator();
 
+			//widnows ===========================================================================================
+			showAccessibilityButton = CreateImageButton("rescan-16.png", "Show/Hide Accessibility Window");
+			stack.AddArrangedSubview(showAccessibilityButton);
+			showAccessibilityButton.Activated += (s, e) => ShowAccessibilityPressed?.Invoke(this, EventArgs.Empty);
+
+			showInspectorButton = CreateImageButton("rescan-16.png", "Show/Hide Inspector Window");
+			stack.AddArrangedSubview(showInspectorButton);
+
+			showInspectorButton.Activated += (s,e) => ShowInspectorButtonPressed?.Invoke(this, EventArgs.Empty);
+
+			//======================================================================================================
+
+			stack.AddVerticalSeparator();
 
 			refreshButton = CreateImageButton("rescan-16.png", "Refresh View Tree");
 			stack.AddArrangedSubview(refreshButton);
@@ -112,21 +178,23 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			stack.AddVerticalSeparator();
 
 			deleteButton = CreateImageButton("delete-16.png", "Delete selected item");
-			stack.AddArrangedSubview(deleteButton);
 			deleteButton.Activated += (s, e) =>
 			{
 				ItemDeleted?.Invoke(this, EventArgs.Empty);
 			};
 
 			changeImageButton = CreateImageButton("image-16.png", "Change image from selected item");
-			stack.AddArrangedSubview(changeImageButton);
-
 			changeImageButton.Activated += (s, e) =>
 			{
 				ItemImageChanged?.Invoke(this, EventArgs.Empty);
 			};
 
-			stack.AddVerticalSeparator();
+			backgroundColorButton = new NSButton()
+			{
+				TranslatesAutoresizingMaskIntoConstraints = false,
+				Title = "", ToolTip = "Change background color"
+			};
+			backgrounColorSectionSeparator = stack.AddVerticalSeparator();
 
 			//Visual issues view
 			languagesComboBox = new NSComboBox() { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -146,8 +214,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			}
 
 			languagesComboBox.Add(culturesStr);
-			stack.AddArrangedSubview(languagesComboBox);
-
+			
 			languagesComboBox.Select(selected);
 
 			languagesComboBox.Activated += LanguagesComboBox_SelectionChanged;
@@ -190,7 +257,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stackView;
 		}
 
-        class ToolbarImageButton : ImageButton
+		NSButton backgroundColorButton;
+		VerticalSeparator backgrounColorSectionSeparator;
+
+		class ToolbarImageButton : ImageButton
 		{
 			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
 		}
@@ -280,71 +350,36 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
                     currentFontName = "HelveticaNeue";
                 }
                 var name = fonts.FirstOrDefault(s => s.ToString() == currentFontName);
+				if (name == null)
+                {
+					name = fonts.FirstOrDefault(s => s.ToString() == "HelveticaNeue");
+				}
+
                 fontsCombobox.Select(name);
 
                 fontSizeTextView.IntValue = (int)fontData.Size;
                 showFont = true;
             }
 
-            if (viewWrapper.NativeObject is NSImageView || viewWrapper.NativeObject is NSButton)
-            {
-                showImage = true;
-            }
-
             imageButtonVisible = showImage;
             fontButtonsVisible = showFont;
 
-			handleChange = false;
 
+			if (viewWrapper?.NativeObject is NSImageView || viewWrapper?.NativeObject is NSButton)
+			{
+				showImage = true;
+			}
+
+			isCurrentItemLayer = viewWrapper?.NativeObject is NSView view && view.WantsLayer;
+
+			RegenerateButtons();
+
+			handleChange = false;
 		}
 
         void ToolkitButton_Activated (object sender, EventArgs e)
 		{
 			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
-		}
-
-		bool fontButtonsVisible
-		{
-			get => firstRowStackView.Subviews.Contains(fontsCombobox);
-			set
-			{
-				if (fontButtonsVisible == value)
-				{
-					return;
-				}
-
-				if (value)
-				{
-					secondRowStackView.AddArrangedSubview(fontsCombobox);
-                    secondRowStackView.AddArrangedSubview(fontSizeTextView);
-				}
-				else
-				{
-					fontSizeTextView.RemoveFromSuperview();
-					fontsCombobox.RemoveFromSuperview();
-                }
-			}
-		}
-
-		bool imageButtonVisible
-		{
-			get => firstRowStackView.Subviews.Contains(changeImageButton);
-			set
-			{
-				if (imageButtonVisible == value)
-				{
-					return;
-				}
-
-				if (value)
-				{
-					firstRowStackView.AddArrangedSubview(changeImageButton);
-				}
-				else
-				{
-					changeImageButton.RemoveFromSuperview();
-				}
-			}
 		}
 
 		void OnFontChanged ()

@@ -348,16 +348,16 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			get => (float)buttonView.BoundsRotation;
 			set => buttonView.BoundsRotation = value;
 		}
-		public CommonColor BorderColor
-		{
-			get => buttonView.BorderColor.ToCommonColor();
-			set => buttonView.BorderColor = value.ToNSColor();
-		}
+		//public CommonColor BorderColor
+		//{
+		//	get => buttonView.BorderColor.ToCommonColor();
+		//	set => buttonView.BorderColor = value.ToNSColor();
+		//}
 
-		public CommonRectangle BorderRect
-		{
-			get => buttonView.BorderRect.ToCommonRectangle();
-		}
+		//public CommonRectangle BorderRect
+		//{
+		//	get => buttonView.BorderRect.ToCommonRectangle();
+		//}
 	}
 
 	class PropertyPanelNSStackView : PropertyPanelNSView
@@ -701,6 +701,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 		{
 			get => view.Hidden;
 			set => view.Hidden = value;
+		}
+
+		public bool WantsLayer
+		{
+			get => view.WantsLayer;
+			set => view.WantsLayer = value;
 		}
 
 		public CommonRectangle VisibleRect {

@@ -294,6 +294,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 }
                 else
                 {
+                    inspectorToolWindow.RaiseFirstRespondedChanged(null);
                     Select(treeNode.NativeObject, viewModeSelected);
                 }
             }

@@ -56,6 +56,7 @@ namespace MonoDevelop.Inspector.Mac.HostWindow
             }
         }
 
+        //refresh bar
         void Context_FocusedViewChanged(object sender, IView e)
         {
             if (e.NativeObject is NSView view)

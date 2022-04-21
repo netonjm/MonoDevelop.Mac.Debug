@@ -13,45 +13,33 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
 
         public ObservableWindow(NSWindow window) : base(window)
         {
+            this.responder = window;
             this.windowDelegate = new ObservableWindowDelegate(this);
-            Window = window;
-            //Observer to check window close and deatach
-
+            this.window.Delegate = windowDelegate;
         }
 
         class ObservableWindowDelegate : NSWindowDelegate
         {
-            WeakReference<ObservableWindow> weakWindow;
+            ObservableWindow target;
 
             public ObservableWindowDelegate(ObservableWindow window)
             {
-                this.weakWindow = new WeakReference<ObservableWindow>(window);
+                this.target = window;
             }
 
             public override void DidResize(NSNotification notification)
             {
-                if (weakWindow.TryGetTarget(out var target))
-                {
-                    target.RaiseResizeRequested();
-                    return;
-                }
+                target.RaiseResizeRequested();
             }
 
             public override void DidMove(NSNotification notification)
             {
-                if (weakWindow.TryGetTarget(out var target))
-                {
-                    target.RaiseMovedRequested();
-                }
+                target.RaiseMovedRequested();
             }
 
             public override void DidResignKey(NSNotification notification)
             {
-                if (weakWindow.TryGetTarget(out var target))
-                {
-                    target.RaiseLostFocus();
-                    return;
-                }
+                target.RaiseLostFocus();
             }
         }
 
@@ -60,20 +48,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public override NSWindow Window
         {
             get => window;
-            set
-            {
-                if (value == null)
-                {
-                    return;
-                }
-
-                if (window?.Delegate != null)
-                {
-                    window.Delegate = null;
-                }
-                this.responder = value;
-                this.window.Delegate = windowDelegate;
-            }
+           
         }
     }
 
@@ -142,10 +117,6 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public virtual NSWindow Window
         {
             get => window;
-            set
-            {
-                this.responder = value;
-            }
         }
 
         public IWindow ParentWindow
@@ -172,11 +143,26 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         {
             if (borderer.NativeObject is NSWindow currentWindow)
             {
-                if (currentWindow.ParentWindow != null && currentWindow.ParentWindow != window)
+                if (currentWindow.ParentWindow != null)
                 {
                     currentWindow.ParentWindow.RemoveChildWindow(currentWindow);
                 }
-                window.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+                //add only if is not already
+                if (!ContainsChildWindow(borderer))
+                {
+                    window.AddChildWindow(currentWindow, NSWindowOrderingMode.Above);
+                }
+            }
+        }
+
+        public void RemoveChildWindow(IWindow borderer)
+        {
+            if (borderer.NativeObject is NSWindow currentWindow)
+            {
+                if (ContainsChildWindow(borderer))
+                {
+                    window.RemoveChildWindow(currentWindow);
+                }
             }
         }
 
@@ -228,6 +214,7 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         {
             window.SetContentSize(new CGSize(toolbarWindowWidth, toolbarWindowHeight));
         }
+
     }
 
     internal class Color : IColor

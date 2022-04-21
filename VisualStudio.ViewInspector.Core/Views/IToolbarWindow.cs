@@ -12,6 +12,9 @@ namespace VisualStudio.ViewInspector.Abstractions
 
     interface IToolbarWindow : IWindow
 	{
+        event EventHandler ShowInspectorButtonPressed;
+        event EventHandler ShowAccessibilityPressed;
+
         void ShowToolkitButton(bool value);
         event EventHandler<bool> KeyViewLoop;
 		event EventHandler<bool> NextKeyViewLoop;

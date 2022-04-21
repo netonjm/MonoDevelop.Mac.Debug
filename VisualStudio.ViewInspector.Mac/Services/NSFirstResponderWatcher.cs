@@ -30,15 +30,17 @@ namespace VisualStudio.ViewInspector.Mac.Services
             m_Timer.Elapsed += TickHandleAction;
         }
 
+
         NSWindow window;
         public NSWindow CurrentWindow
         {
             get => window;
             private set
             {
-                if (window == value)
+                if (window == value || value == null)
                     return;
                 window = value;
+
                 WindowChanged?.Invoke(this, new ObservableWindow(window));
 
                 CurrentResponder = window.NextResponder;
@@ -54,7 +56,11 @@ namespace VisualStudio.ViewInspector.Mac.Services
                 if (responder == value)
                     return;
                 responder = value;
-                ResponderChanged?.Invoke(this, new ResponderWrapper(responder));
+
+                if (responder == null)
+                    ResponderChanged?.Invoke(this, null);
+                else
+                    ResponderChanged?.Invoke(this, new ResponderWrapper(responder));
             }
         }
 
@@ -83,13 +89,17 @@ namespace VisualStudio.ViewInspector.Mac.Services
                     return;
                 }
 
-                if (focusedWindow != null)
+                if (focusedWindow != null && this.window != focusedWindow)
                 {
                     CurrentWindow = focusedWindow;
                 }
 
                 if (window == null)
+                {
+                    CurrentResponder = null;
                     return;
+                }
+                   
 
                 var currentResponder = GetRealResponder(window.FirstResponder);
                 CurrentResponder = currentResponder;

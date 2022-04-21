@@ -199,12 +199,12 @@ namespace VisualStudio.ViewInspector
             //window controller node
             var nsWindow = (NSWindow)window.NativeObject;
             
-            if (nsWindow.WindowController != null)
-            {
-                var windowController = new WindowControllerWrapper(nsWindow.WindowController);
-                var windowControllerNodeView = new NodeView(new TreeNode(windowController));
-                windowNodeView.AddChild(windowControllerNodeView);
-            }
+            //if (nsWindow.WindowController != null)
+            //{
+            //    var windowController = new WindowControllerWrapper(nsWindow.WindowController);
+            //    var windowControllerNodeView = new NodeView(new TreeNode(windowController));
+            //    windowNodeView.AddChild(windowControllerNodeView);
+            //}
 
             if (nsWindow.ContentViewController != null)
             {
@@ -320,6 +320,7 @@ namespace VisualStudio.ViewInspector
 
         public FontData GetFont(IView view)
         {
+            if (view == null)return null;
             return NativeViewHelper.GetFont(view.NativeObject as NSView);
         }
 
@@ -677,7 +678,7 @@ namespace VisualStudio.ViewInspector
 
         public bool TryGetView(INativeObject e, out IView view)
         {
-            if (e.NativeObject is NSView v)
+            if (e?.NativeObject is NSView v)
             {
                 view = new ViewWrapper(v);
                 return true;

@@ -24,6 +24,8 @@ namespace VisualStudio.ViewInspector.Abstractions
 		event EventHandler MovedRequested;
 
 		void AddChildWindow (IWindow borderer);
+		void RemoveChildWindow(IWindow borderer);
+
 		void RecalculateKeyViewLoop ();
 		bool ContainsChildWindow(IWindow debugOverlayWindow);
 

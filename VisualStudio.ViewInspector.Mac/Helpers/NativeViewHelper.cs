@@ -55,7 +55,7 @@ namespace VisualStudio.ViewInspector.Mac
 
         public static FontData GetFont (NSView view)
 		{
-			NSFont result = DefaultFont;
+			NSFont result = null;
 			float size = DefaultSize;
 			if (view is NSTextField textField && textField.Font != null)
 			{
@@ -74,7 +74,11 @@ namespace VisualStudio.ViewInspector.Mac
 				result = secureTextField.Font;
 				size = (float)secureTextField.Font.PointSize;
 			}
-			return new FontData(new FontWrapper (result), size);
+			if (result != null)
+            {
+				return new FontData(new FontWrapper(result), size);
+			}
+			return null;
 		}
 
 		public static void SetFont (NSView view, NSFont font)
