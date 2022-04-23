@@ -52,12 +52,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		const int LeftPadding = 5;
 		const int Margin = 5;
 
-		readonly NSStackView firstRowStackView;
-        readonly NSStackView secondRowStackView;
-        readonly IInspectDelegate inspectDelegate;
-
-		bool ShowToolKitButton { get; set; }
-
 		bool handleChange;
 		bool fontButtonsVisible;
 		bool imageButtonVisible;
@@ -65,10 +59,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		bool removeButtonVisible;
 
+        IInspectDelegate inspectDelegate;
+
 		NSString[] fonts;
 		CultureInfo[] cultureInfos;
 
 		NSStackView main;
+		NSStackView firstRowStackView;
+		NSStackView secondRowStackView;
 
 		NSView rescanSeparator;
 		NSComboBox fontsCombobox, languagesComboBox;
@@ -79,12 +77,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		ImageButton deleteButton, changeImageButton, refreshButton;
 		ToggleButton toolkitButton, showInspectorButton, showAccessibilityButton;
-
-		public bool ImageChangedEnabled
-		{
-			get => changeImageButton.Enabled;
-			set => changeImageButton.Enabled = value;
-		}
 
 		public ToolbarWindow(IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
 		{
@@ -263,12 +255,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			deleteButton.RemoveFromSuperview();
 
-
-			if (ShowToolKitButton)
-			{
-				firstRowStackView.AddArrangedSubview(toolkitButton);
-				firstRowStackView.AddArrangedSubview(rescanSeparator);
-			}
+			//if (ShowToolKitButton)
+			//{
+			//	firstRowStackView.AddArrangedSubview(toolkitButton);
+			//	firstRowStackView.AddArrangedSubview(rescanSeparator);
+			//}
 
 			if (imageButtonVisible)
 				firstRowStackView.AddArrangedSubview(changeImageButton);
@@ -454,20 +445,3 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		}
 	}
 }
-
-//public void ShowToolkitButton(bool value)
-//{
-//	if (!value)
-//	{
-//		toolkitButton.RemoveFromSuperview();
-//		rescanSeparator.RemoveFromSuperview();
-//	}
-//	else
-//	{
-//		if (!firstRowStackView.Subviews.Contains(toolkitButton))
-//		{
-//			firstRowStackView.AddArrangedSubview(toolkitButton);
-//			firstRowStackView.AddArrangedSubview(rescanSeparator);
-//		}
-//	}
-//}
