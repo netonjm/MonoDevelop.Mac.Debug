@@ -11,20 +11,17 @@ namespace VisualStudio.ViewInspector
 {
     internal class InspectorManager : IDisposable
 	{
+		public event EventHandler<IView> FocusedViewChanged;
+
 		const string Name = "Accessibility .NET Inspector";
+
 		const int ToolbarWindowWidth = 400;
 		const int ToolbarWindowHeight = 50;
 		const int WindowMargin = 10;
 
-        internal IView SelectedView => nativeObject as IView;
-        INativeObject nativeObject;
-        IView nextKeyView, previousKeyView;
-		IMainWindow selectedWindow;
-		InspectorViewMode ViewMode
-        {
-			get => selectedWindow.ViewMode;
-			set => selectedWindow.ViewMode = value;
-		}
+		public bool ShowsAccessibilityWindow { get; set; }
+		public bool ShowsInspectorWindow { get; set; }
+		public bool ShowsToolBarWindow { get; set; }
 
 		readonly IBorderedWindow debugOverlayWindow;
 		readonly IBorderedWindow debugNextOverlayWindow;
@@ -32,12 +29,20 @@ namespace VisualStudio.ViewInspector
 		readonly IInspectorWindow inspectorWindow;
 		readonly IAccessibilityWindow accessibilityWindow;
 
-	 	readonly List<IMenuItem> menuItems = new List<IMenuItem>();
+		readonly List<IMenuItem> menuItems = new List<IMenuItem>();
 
+		internal IInspectDelegate Delegate;
+
+		internal IView SelectedView => nativeObject as IView;
+
+        INativeObject nativeObject;
+        IView nextKeyView, previousKeyView;
+		IMainWindow selectedWindow;
+		
 		IToolbarWindow toolbarWindow;
 
 		//IMenuItem inspectorMenuItem, accessibilityMenuItem, firstOverlayMenuItem, nextOverlayMenuItem, previousOverlayMenuItem;
-        readonly AccessibilityService accessibilityService;
+		readonly AccessibilityService accessibilityService;
 		List<IBorderedWindow> detectedErrors = new List<IBorderedWindow> ();
 
 		#region Properties
@@ -97,7 +102,13 @@ namespace VisualStudio.ViewInspector
 			}
 		}
 
-        IMenu Submenu {
+		InspectorViewMode ViewMode
+		{
+			get => selectedWindow.ViewMode;
+			set => selectedWindow.ViewMode = value;
+		}
+
+		IMenu Submenu {
 			get {
                 return Delegate.GetSubMenu(); ;
 			}
@@ -105,9 +116,141 @@ namespace VisualStudio.ViewInspector
 
 		#endregion
 
+		public InspectorManager(IInspectDelegate inspectorDelegate,
+		IBorderedWindow overlay,
+		IBorderedWindow next,
+		IBorderedWindow previous, IAccessibilityWindow accWindow, IInspectorWindow inWindow, IToolbarWindow toolWindow)
+		{
+			Delegate = inspectorDelegate;
+			accessibilityService = AccessibilityService.Current;
+			accessibilityService.ScanFinished += (s, e) => {
+
+				Delegate.RemoveAllErrorWindows(selectedWindow);
+				detectedErrors.Clear();
+
+				foreach (var error in accessibilityService.DetectedErrors)
+				{
+					var borderer = Delegate.CreateErrorWindow(error.View);
+					detectedErrors.Add(borderer);
+					selectedWindow.AddChildWindow(borderer);
+				}
+
+				if (showDetectedErrors)
+					ShowErrors(true);
+
+				RefreshTreeView();
+			};
+
+			debugOverlayWindow = overlay; //new MacBorderedWindow (CGRect.Empty, NSColor.Green);
+			debugNextOverlayWindow = next; // new MacBorderedWindow (CGRect.Empty, NSColor.Red);
+			debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
+
+			accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
+			accessibilityWindow.Title = "Accessibility Panel";
+			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
+				ShowDetectedErrors = !ShowDetectedErrors;
+			};
+
+			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
+
+			inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
+			inspectorWindow.Title = "Inspector Panel";
+			inspectorWindow.FirstRespondedChanged += (s, e) => {
+				MakeFrontWindow(debugOverlayWindow);
+				MakeFrontWindow(debugNextOverlayWindow);
+				MakeFrontWindow(debugPreviousOverlayWindow);
+
+				//IsFirstResponderOverlayVisible = true;
+				ChangeFocusedView(e);
+			};
+			inspectorWindow.ItemDeleted += (s, e) =>
+			{
+				RemoveView(e);
+			};
+
+			inspectorWindow.ItemInserted += InspectorWindow_RaiseInsertItem;
+
+			toolbarWindow = toolWindow; //new MacToolbarWindow (this);
+
+			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
+
+			toolbarWindow.ThemeChanged += (sender, isDark) => {
+				SetStyle(isDark);
+			};
+
+			inspectorWindow.Initialize();
+
+			toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
+				ViewMode = e;
+				RefreshNeeded();
+			};
+
+			toolbarWindow.RefreshTreeViewRequested += (s, e) => {
+				RefreshTreeView();
+			};
+
+			toolbarWindow.ItemDeleted += (sender, e) =>
+			{
+				RemoveView(SelectedView);
+			};
+
+			toolbarWindow.FontChanged += (sender, e) =>
+			{
+				Delegate.SetFont(SelectedView, e.Font);
+				//NativeViewHelper.SetFont(view, e.Font);
+			};
+
+			toolbarWindow.ViewBackgroundColorChanged += (sender, e) =>
+			{
+				Delegate.SetBackgroundColor(SelectedView, e);
+			};
+
+			toolbarWindow.CultureChanged += (sender, e) =>
+			{
+				Delegate.SetCultureInfo(e);
+			};
+
+			toolbarWindow.ItemImageChanged += async (sender, e) =>
+			{
+				await Delegate.InvokeImageChanged(SelectedView, selectedWindow);
+			};
+
+			toolbarWindow.KeyViewLoop += (sender, e) => {
+				IsFirstResponderOverlayVisible = e;
+				ChangeFocusedView(selectedWindow.FirstResponder);
+			};
+
+			toolbarWindow.NextKeyViewLoop += (sender, e) => {
+				IsNextResponderOverlayVisible = e;
+				ChangeFocusedView(selectedWindow.FirstResponder);
+			};
+
+			toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
+				IsPreviousResponderOverlayVisible = e;
+				ChangeFocusedView(selectedWindow.FirstResponder);
+			};
+
+			//windows
+			toolbarWindow.ShowInspectorButtonPressed += (s, e) => ShowInspectorWindow(!ShowsInspectorWindow);
+			toolbarWindow.ShowAccessibilityPressed += (s, e) => ShowAccessibilityWindow(!ShowsAccessibilityWindow);
+
+			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
+			{
+				if (e == null)
+				{
+					return;
+				}
+				IsFirstResponderOverlayVisible = true;
+				e.Focus();
+			};
+
+			SetStyle(Delegate.IsDarkTheme());
+		}
+
 		#region Error Detector
 
 		bool showDetectedErrors;
+
 		internal bool ShowDetectedErrors 
 		{
 			get => showDetectedErrors;
@@ -196,18 +339,12 @@ namespace VisualStudio.ViewInspector
 			ShowInspectorWindow(ShowsInspectorWindow);
 		}
 
-        public bool ShowsAccessibilityWindow { get; set; }
-		public bool ShowsInspectorWindow { get; set; }
-		public bool ShowsToolBarWindow { get; set; }
-
 		void RefreshOverlaysVisibility ()
 		{
 			IsPreviousResponderOverlayVisible = IsPreviousResponderOverlayVisible;
 			IsNextResponderOverlayVisible = IsNextResponderOverlayVisible;
 			IsFirstResponderOverlayVisible = IsFirstResponderOverlayVisible;
 		}
-
-		internal IInspectDelegate Delegate;
 
 		void RefreshTreeView()
         {
@@ -224,135 +361,6 @@ namespace VisualStudio.ViewInspector
             {
 				selectedWindow.AddChildWindow(window);
 			}
-		}
-
-		public InspectorManager (IInspectDelegate inspectorDelegate, 
-        IBorderedWindow overlay, 
-        IBorderedWindow next, 
-        IBorderedWindow previous, IAccessibilityWindow accWindow, IInspectorWindow inWindow, IToolbarWindow toolWindow)
-		{
-			Delegate = inspectorDelegate;
-			accessibilityService = AccessibilityService.Current;
-			accessibilityService.ScanFinished += (s, e) => {
-
-				Delegate.RemoveAllErrorWindows (selectedWindow);
-				detectedErrors.Clear();
-
-				foreach (var error in accessibilityService.DetectedErrors) {
-					var borderer = Delegate.CreateErrorWindow(error.View);
-					detectedErrors.Add(borderer);
-					selectedWindow.AddChildWindow (borderer);
-				}
-
-				if (showDetectedErrors)
-					ShowErrors(true);
-
-				RefreshTreeView();
-			};
-
-            debugOverlayWindow = overlay; //new MacBorderedWindow (CGRect.Empty, NSColor.Green);
-            debugNextOverlayWindow = next; // new MacBorderedWindow (CGRect.Empty, NSColor.Red);
-            debugPreviousOverlayWindow = previous; // new MacBorderedWindow (CGRect.Empty, NSColor.Blue);
-
-            accessibilityWindow = accWindow; // new MacAccessibilityWindow(new CGRect(10, 10, 600, 700));
-			accessibilityWindow.Title = "Accessibility Panel";
-			accessibilityWindow.ShowErrorsRequested += (sender, e) => {
-				ShowDetectedErrors = !ShowDetectedErrors;
-			};
-
-			accessibilityWindow.AuditRequested += (sender, e) => accessibilityService.ScanErrors(inspectorDelegate, selectedWindow, ViewMode);
-
-            inspectorWindow = inWindow; //new InspectorWindow (inspectorDelegate, new CGRect(10, 10, 600, 700));
-			inspectorWindow.Title = "Inspector Panel";
-			inspectorWindow.FirstRespondedChanged += (s, e) => {
-				MakeFrontWindow(debugOverlayWindow);
-				MakeFrontWindow(debugNextOverlayWindow);
-				MakeFrontWindow(debugPreviousOverlayWindow);
-
-				//IsFirstResponderOverlayVisible = true;
-				ChangeFocusedView(e);
-            };
-			inspectorWindow.ItemDeleted += (s, e) =>
-			{
-				  RemoveView(e);
-			};
-
-			inspectorWindow.ItemInserted += InspectorWindow_RaiseInsertItem;
-
-            toolbarWindow = toolWindow; //new MacToolbarWindow (this);
-
-			toolbarWindow.SetContentSize(ToolbarWindowWidth, ToolbarWindowHeight);
-		
-			toolbarWindow.ThemeChanged += (sender, isDark) => {
-				SetStyle(isDark);
-            };
-
-            inspectorWindow.Initialize();
-
-            toolbarWindow.InspectorViewModeChanged += (object sender, InspectorViewMode e) => {
-				ViewMode = e;
-                RefreshNeeded();
-            };
-
-			toolbarWindow.RefreshTreeViewRequested += (s,e) => {
-				RefreshTreeView();
-			};
-
-			toolbarWindow.ItemDeleted += (sender, e) =>
-			{
-				RemoveView(SelectedView);
-			};
-
-			toolbarWindow.FontChanged += (sender, e) =>
-			{
-				Delegate.SetFont(SelectedView, e.Font);
-				//NativeViewHelper.SetFont(view, e.Font);
-			};
-
-			toolbarWindow.ViewBackgroundColorChanged += (sender, e) =>
-			{
-				Delegate.SetBackgroundColor(SelectedView, e);
-			};
-
-			toolbarWindow.CultureChanged += (sender, e) =>
-            {
-                Delegate.SetCultureInfo (e);
-            };
-
-            toolbarWindow.ItemImageChanged += async (sender, e) =>
-			{
-				await Delegate.InvokeImageChanged(SelectedView, selectedWindow);
-			};
-
-			toolbarWindow.KeyViewLoop += (sender, e) => {
-				IsFirstResponderOverlayVisible = e;
-				ChangeFocusedView (selectedWindow.FirstResponder);
-			};
-
-			toolbarWindow.NextKeyViewLoop += (sender, e) => {
-				IsNextResponderOverlayVisible = e;
-				ChangeFocusedView (selectedWindow.FirstResponder);
-			};
-
-			toolbarWindow.PreviousKeyViewLoop += (sender, e) => {
-				IsPreviousResponderOverlayVisible = e;
-				ChangeFocusedView (selectedWindow.FirstResponder);
-			};
-
-			//windows
-			toolbarWindow.ShowInspectorButtonPressed += (s,e) => ShowInspectorWindow(!ShowsInspectorWindow);
-			toolbarWindow.ShowAccessibilityPressed += (s, e) => ShowAccessibilityWindow(!ShowsAccessibilityWindow);
-
-			accessibilityWindow.RaiseAccessibilityIssueSelected += (s, e) =>
-			{
-				if (e == null) {
-					return;
-				}
-				IsFirstResponderOverlayVisible = true;
-				e.Focus();
-			};
-
-			SetStyle(Delegate.IsDarkTheme());
 		}
 
         void InspectorWindow_RaiseInsertItem(object sender, ToolbarView e)
@@ -416,7 +424,6 @@ namespace VisualStudio.ViewInspector
 			toolbarWindow.AlignTop(selectedWindow, WindowMargin);
 			RefreshOverlaysVisibility();
 		}
-
 
 		public void ShowToolBarWindow(bool value)
 		{
@@ -520,8 +527,6 @@ namespace VisualStudio.ViewInspector
   //      }
 
         //string ToMenuAction (bool value) => value ? "Show" : "Hide";
-
-		public event EventHandler<IView> FocusedViewChanged;
 
 		internal void ChangeFocusedView (INativeObject nextView)
 		{
