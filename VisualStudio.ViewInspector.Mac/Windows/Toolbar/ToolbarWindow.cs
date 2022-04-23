@@ -13,8 +13,21 @@ using VisualStudio.ViewInspector.Mac.Windows.Inspector;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 {
+	class ToolbarImageButton : ImageButton
+	{
+		public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
+	}
+
+	class ToolbarToogleButton : ToggleButton
+	{
+		public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
+	}
+
 	class ToolbarWindow : BaseWindow, IToolbarWindow
 	{
+		const string ColorSelectorName = "colorDidChange:";
+		const string ColorPopoverDidCloseSelectorName = "popoverDidClose:";
+
 		public event EventHandler<bool> KeyViewLoop;
 		public event EventHandler<bool> NextKeyViewLoop;
 		public event EventHandler<bool> PreviousKeyViewLoop;
@@ -37,106 +50,76 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		const int MenuItemSeparation = 3;
 		const int LeftPadding = 5;
+		const int Margin = 5;
 
 		readonly NSStackView firstRowStackView;
         readonly NSStackView secondRowStackView;
         readonly IInspectDelegate inspectDelegate;
 
-		NSString[] fonts;
-		NSComboBox fontsCombobox;
-		NSTextField fontSizeTextView;
-		//public override bool CanBecomeKeyWindow => false;
-		//public override bool CanBecomeMainWindow => false;
-
-		ToggleButton showInspectorButton, showAccessibilityButton;
-
-		ImageButton deleteButton, changeImageButton, refreshButton;
-		ToggleButton toolkitButton;
-
-		NSStackView main;
-
-		NSView rescanSeparator;
-		const int Margin = 5;
-
-		bool handleChange;
-
-		CultureInfo[] cultureInfos;
-		NSComboBox languagesComboBox;
-
 		bool ShowToolKitButton { get; set; }
 
+		bool handleChange;
 		bool fontButtonsVisible;
 		bool imageButtonVisible;
 		bool backgroundColorVisible;
 
 		bool removeButtonVisible;
 
-		public void RegenerateButtons ()
-        {
-			//first bar
-			toolkitButton.RemoveFromSuperview();
-			rescanSeparator.RemoveFromSuperview();
+		NSString[] fonts;
+		CultureInfo[] cultureInfos;
 
-			changeImageButton.RemoveFromSuperview();
+		NSStackView main;
 
-			languagesComboBox.RemoveFromSuperview();
+		NSView rescanSeparator;
+		NSComboBox fontsCombobox, languagesComboBox;
+		NSTextField fontSizeTextView;
+		NSColorWell selectedColorButton, backgroundColorButton;
 
-			backgroundColorButton.RemoveFromSuperview();
-			backgrounColorSectionSeparator.RemoveFromSuperview();
+		VerticalSeparator backgrounColorSectionSeparator;
 
-			deleteButton.RemoveFromSuperview();
+		ImageButton deleteButton, changeImageButton, refreshButton;
+		ToggleButton toolkitButton, showInspectorButton, showAccessibilityButton;
 
-
-			if (ShowToolKitButton)
-			{
-				firstRowStackView.AddArrangedSubview(toolkitButton);
-				firstRowStackView.AddArrangedSubview(rescanSeparator);
-			}
-
-			if (imageButtonVisible)
-				firstRowStackView.AddArrangedSubview(changeImageButton);
-
-			if (removeButtonVisible)
-				firstRowStackView.AddArrangedSubview(deleteButton);
-
-			if (backgroundColorVisible)
-            {
-				firstRowStackView.AddArrangedSubview(backgroundColorButton);
-				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
-			}
-
-			firstRowStackView.AddArrangedSubview(languagesComboBox);
-
-
-			//second row
-			fontSizeTextView.RemoveFromSuperview();
-			fontsCombobox.RemoveFromSuperview();
-
-
-			if (fontButtonsVisible)
-            {
-				secondRowStackView.AddArrangedSubview(fontsCombobox);
-				secondRowStackView.AddArrangedSubview(fontSizeTextView);
-			}
+		public bool ImageChangedEnabled
+		{
+			get => changeImageButton.Enabled;
+			set => changeImageButton.Enabled = value;
 		}
 
-		public void ShowToolkitButton (bool value)
-        {
-            if (!value) {
-                toolkitButton.RemoveFromSuperview();
-                rescanSeparator.RemoveFromSuperview();
-            } else {
-                if (!firstRowStackView.Subviews.Contains (toolkitButton)){
-                    firstRowStackView.AddArrangedSubview(toolkitButton);
-                    firstRowStackView.AddArrangedSubview(rescanSeparator);
-                } 
-            }
-        }
+		public ToolbarWindow(IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
+		{
+			this.inspectDelegate = inspectDelegate;
+
+			//BackgroundColor = NSColor.Clear;
+			IsOpaque = false;
+			TitlebarAppearsTransparent = true;
+			TitleVisibility = NSWindowTitleVisibility.Hidden;
+			ShowsToolbarButton = false;
+			MovableByWindowBackground = false;
+
+			main = NativeViewHelper.CreateVerticalStackView(MenuItemSeparation);
+			ContentView = main;
+
+			main.EdgeInsets = new NSEdgeInsets(Margin, 0, Margin, 0);
+
+			firstRowStackView = CreateFirstRow();
+			main.AddArrangedSubview(firstRowStackView);
+			firstRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
+
+
+			secondRowStackView = CreateSecondRow(); ;
+			main.AddArrangedSubview(secondRowStackView);
+			secondRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
+
+			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+
+			RegenerateButtons();
+		}
 
 		NSStackView CreateFirstRow()
         {
 			var stack = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
-			var keyViewLoopButton = CreateToogleButton("overlay-actual@2x.png", "Shows current focused item");
+			var keyViewLoopButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "overlay-actual@2x.png", "Shows current focused item");
 			keyViewLoopButton.IsToggled = true;
 
 			stack.AddArrangedSubview(keyViewLoopButton);
@@ -144,13 +127,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				KeyViewLoop?.Invoke(this, keyViewLoopButton.IsToggled);
 			};
 
-			var prevKeyViewLoopButton = CreateToogleButton("overlay-previous@2x.png", "Shows previous focused item");
+			var prevKeyViewLoopButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "overlay-previous@2x.png", "Shows previous focused item");
 			stack.AddArrangedSubview(prevKeyViewLoopButton);
 			prevKeyViewLoopButton.Activated += (s, e) => {
 				PreviousKeyViewLoop?.Invoke(this, prevKeyViewLoopButton.IsToggled);
 			};
 
-			var nextKeyViewLoopButton = CreateToogleButton("overlay-next@2x.png", "Shows next focused item");
+			var nextKeyViewLoopButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "overlay-next@2x.png", "Shows next focused item");
 			stack.AddArrangedSubview(nextKeyViewLoopButton);
 			nextKeyViewLoopButton.Activated += (s, e) => {
 				NextKeyViewLoop?.Invoke(this, nextKeyViewLoopButton.IsToggled);
@@ -159,11 +142,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			stack.AddVerticalSeparator();
 
 			//widnows ===========================================================================================
-			showAccessibilityButton = CreateToogleButton("window-accessibility.png", "Show/Hide Accessibility Window");
+			showAccessibilityButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "window-accessibility.png", "Show/Hide Accessibility Window");
 			stack.AddArrangedSubview(showAccessibilityButton);
 			showAccessibilityButton.Activated += (s, e) => ShowAccessibilityPressed?.Invoke(this, EventArgs.Empty);
 
-			showInspectorButton = CreateToogleButton("window-properties.png", "Show/Hide Inspector Window");
+			showInspectorButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "window-properties.png", "Show/Hide Inspector Window");
 			stack.AddArrangedSubview(showInspectorButton);
 
 			showInspectorButton.IsToggled = true;
@@ -174,31 +157,31 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			stack.AddVerticalSeparator();
 
-			refreshButton = CreateImageButton("rescan-16.png", "Refresh View Tree");
+			refreshButton = NativeViewHelper.CreateToolbarImageButton(inspectDelegate, "rescan-16.png", "Refresh View Tree");
 			stack.AddArrangedSubview(refreshButton);
             refreshButton.Activated += RefreshButton_Activated;
 
 			stack.AddVerticalSeparator();
 
-			toolkitButton = CreateToogleButton("rescan-16.png", "Change beetween Toolkits");
+			toolkitButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "rescan-16.png", "Change beetween Toolkits");
 			stack.AddArrangedSubview(toolkitButton);
 			toolkitButton.Activated += ToolkitButton_Activated; ;
 
 			rescanSeparator = stack.AddVerticalSeparator();
 
-			var themeButton = CreateToogleButton("style-16.png", "Change Style Theme");
+			var themeButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "style-16.png", "Change Style Theme");
 			stack.AddArrangedSubview(themeButton);
 			themeButton.Activated += ThemeButton_Activated;
 
 			stack.AddVerticalSeparator();
 
-			deleteButton = CreateImageButton("delete-16.png", "Delete selected item");
+			deleteButton = NativeViewHelper.CreateToolbarImageButton(inspectDelegate, "delete-16.png", "Delete selected item");
 			deleteButton.Activated += (s, e) =>
 			{
 				ItemDeleted?.Invoke(this, EventArgs.Empty);
 			};
 
-			changeImageButton = CreateImageButton("image-16.png", "Change image from selected item");
+			changeImageButton = NativeViewHelper.CreateToolbarImageButton(inspectDelegate, "image-16.png", "Change image from selected item");
 			changeImageButton.Activated += (s, e) =>
 			{
 				ItemImageChanged?.Invoke(this, EventArgs.Empty);
@@ -237,21 +220,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stack;
 		}
 
-		class ColorWell : NSColorWell
-		{
-			public override CGSize IntrinsicContentSize => new CGSize(50, 21);
-
-			public ColorWell()
-			{
-				TranslatesAutoresizingMaskIntoConstraints = false;
-			}
-		}
-
-		private void RefreshButton_Activated(object sender, EventArgs e)
-        {
-			RefreshTreeViewRequested?.Invoke(this, EventArgs.Empty);
-		}
-
         NSStackView CreateSecondRow()
 		{
 			var stackView = NativeViewHelper.CreateHorizontalStackView(MenuItemSeparation);
@@ -280,10 +248,108 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			return stackView;
 		}
 
-		const string ColorSelectorName = "colorDidChange:";
-		const string ColorPopoverDidCloseSelectorName = "popoverDidClose:";
+		void RegenerateButtons()
+		{
+			//first bar
+			toolkitButton.RemoveFromSuperview();
+			rescanSeparator.RemoveFromSuperview();
 
-		NSColorWell selectedColorButton;
+			changeImageButton.RemoveFromSuperview();
+
+			languagesComboBox.RemoveFromSuperview();
+
+			backgroundColorButton.RemoveFromSuperview();
+			backgrounColorSectionSeparator.RemoveFromSuperview();
+
+			deleteButton.RemoveFromSuperview();
+
+
+			if (ShowToolKitButton)
+			{
+				firstRowStackView.AddArrangedSubview(toolkitButton);
+				firstRowStackView.AddArrangedSubview(rescanSeparator);
+			}
+
+			if (imageButtonVisible)
+				firstRowStackView.AddArrangedSubview(changeImageButton);
+
+			if (removeButtonVisible)
+				firstRowStackView.AddArrangedSubview(deleteButton);
+
+			if (backgroundColorVisible)
+			{
+				firstRowStackView.AddArrangedSubview(backgroundColorButton);
+				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
+			}
+
+			firstRowStackView.AddArrangedSubview(languagesComboBox);
+
+
+			//second row
+			fontSizeTextView.RemoveFromSuperview();
+			fontsCombobox.RemoveFromSuperview();
+
+
+			if (fontButtonsVisible)
+			{
+				secondRowStackView.AddArrangedSubview(fontsCombobox);
+				secondRowStackView.AddArrangedSubview(fontSizeTextView);
+			}
+		}
+
+		void RefreshButton_Activated(object sender, EventArgs e) => RefreshTreeViewRequested?.Invoke(this, EventArgs.Empty);
+
+		int GetSelectedLanguage ()
+        {
+            for (int i = 0; i < cultureInfos.Length; i++)
+            {
+                if (cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+		void OnFontChanged()
+		{
+			if (handleChange)
+			{
+				return;
+			}
+			var currentIndex = (int)fontsCombobox.SelectedIndex;
+			if (currentIndex >= -1)
+			{
+				var selected = fonts[currentIndex].ToString();
+				var fontSize = fontSizeTextView.IntValue;
+				IFont font = inspectDelegate.GetFromName(selected, fontSize);
+				FontChanged?.Invoke(this, new FontData(font, fontSize));
+			}
+		}
+
+		void ToolkitButton_Activated (object sender, EventArgs e)
+		{
+			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
+		}
+
+		void LanguagesComboBox_SelectionChanged(object sender, EventArgs e)
+		{
+			var currentIndex = (int)languagesComboBox.SelectedIndex;
+			if (currentIndex > -1)
+			{
+				var selected = cultureInfos[currentIndex];
+				CultureChanged?.Invoke(this, selected);
+			}
+		}
+
+		void ThemeButton_Activated (object sender, EventArgs e)
+		{
+			if (sender is ToggleButton btn) {
+				ThemeChanged?.Invoke (this, btn.IsToggled);
+			}
+		}
+
+		#region Color Panel
 
 		void ColorButton_Activated(object sender, EventArgs e)
 		{
@@ -296,9 +362,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			panelButton.MakeKeyAndOrderFront(panelButton);
 		}
-
-		ColorWell backgroundColorButton;
-		VerticalSeparator backgrounColorSectionSeparator;
 
 		[Export(ColorPopoverDidCloseSelectorName)]
 		void OnWindowColorDidClose(NSObject target)
@@ -325,88 +388,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			}
 		}
 
-		class ToolbarImageButton : ImageButton
+		#endregion
+
+		public void ChangeView(InspectorManager manager, INativeObject nativeObject)
 		{
-			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
-		}
-
-        class ToolbarToogleButton : ToggleButton
-		{
-			public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
-        }
-
-		ToolbarImageButton CreateImageButton(string resourceName, string tooltip)
-        {
-			var deleteButton = new ToolbarImageButton()
-			{
-				Image = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject,
-				ToolTip = tooltip
-			};
-			return deleteButton;
-		}
-
-		ToolbarToogleButton CreateToogleButton(string resourceName, string tooltip)
-        {
-			var previousImage = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject;
-			var prevKeyViewLoopButton = new ToolbarToogleButton() { Image = previousImage };
-			prevKeyViewLoopButton.ToolTip = tooltip;
-			return prevKeyViewLoopButton;
-		}
-
-		public ToolbarWindow (IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
-        {
-            this.inspectDelegate = inspectDelegate;
-
-			//BackgroundColor = NSColor.Clear;
-			IsOpaque = false;
-			TitlebarAppearsTransparent = true;
-			TitleVisibility = NSWindowTitleVisibility.Hidden;
-			ShowsToolbarButton = false;
-			MovableByWindowBackground = false;
-
-			main = NativeViewHelper.CreateVerticalStackView(MenuItemSeparation);
-			ContentView = main;
-
-			main.EdgeInsets = new NSEdgeInsets(Margin, 0, Margin, 0);
-
-			firstRowStackView = CreateFirstRow();
-			main.AddArrangedSubview (firstRowStackView);
-			firstRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
-
-
-			secondRowStackView = CreateSecondRow(); ;
-            main.AddArrangedSubview(secondRowStackView);
-			secondRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
-
-			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
-
-			RegenerateButtons();
-		}
-
-		int GetSelectedLanguage ()
-        {
-            for (int i = 0; i < cultureInfos.Length; i++)
-            {
-                if (cultureInfos[i] == Thread.CurrentThread.CurrentUICulture)
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
-
-        void LanguagesComboBox_SelectionChanged(object sender, EventArgs e)
-        {
-            var currentIndex = (int)languagesComboBox.SelectedIndex;
-            if (currentIndex > -1)
-            {
-                var selected = cultureInfos[currentIndex];
-                CultureChanged?.Invoke(this, selected);
-            }
-        }
-
-        public void ChangeView (InspectorManager manager, INativeObject nativeObject)
-        {
 			handleChange = true;
 
 			//close color panel if visible
@@ -415,14 +400,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				panelButton.Close();
 
 			bool showImage = false;
-            bool showFont = false;
-            //NSPopUpButton
+			bool showFont = false;
+			//NSPopUpButton
 			bool showLayer = false;
 
 			NSColor backgroundColor = null;
 
 			if (nativeObject is IView viewWrapper)
-            {
+			{
 				var fontData = manager.Delegate.GetFont(viewWrapper);
 				if (fontData?.Font != null)
 				{
@@ -450,7 +435,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 				showLayer = true;
 				if (viewWrapper.NativeObject is NSView vi && vi.Layer?.BackgroundColor != null)
-                {
+				{
 					backgroundColor = NSColor.FromCGColor(vi.Layer.BackgroundColor);
 				}
 			}
@@ -458,7 +443,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			backgroundColorButton.Color = backgroundColor ?? NSColor.White;
 
 			imageButtonVisible = showImage;
-            fontButtonsVisible = showFont;
+			fontButtonsVisible = showFont;
 			backgroundColorVisible = showLayer;
 
 			removeButtonVisible = nativeObject != null;
@@ -467,38 +452,22 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			handleChange = false;
 		}
-
-        void ToolkitButton_Activated (object sender, EventArgs e)
-		{
-			InspectorViewModeChanged?.Invoke (this, toolkitButton.State == NSCellStateValue.On ? InspectorViewMode.Xwt : InspectorViewMode.Native);
-		}
-
-		void OnFontChanged ()
-		{
-			if (handleChange) {
-				return;
-			}
-			var currentIndex = (int)fontsCombobox.SelectedIndex;
-			if (currentIndex >= -1)
-			{
-				var selected = fonts[currentIndex].ToString();
-				var fontSize = fontSizeTextView.IntValue;
-                IFont font = inspectDelegate.GetFromName(selected, fontSize);
-                FontChanged?.Invoke(this, new FontData (font, fontSize));
-			}
-		}
-
-		public bool ImageChangedEnabled
-		{
-			get => changeImageButton.Enabled;
-			set => changeImageButton.Enabled = value;
-		}
-
-		void ThemeButton_Activated (object sender, EventArgs e)
-		{
-			if (sender is ToggleButton btn) {
-				ThemeChanged?.Invoke (this, btn.IsToggled);
-			}
-		}
 	}
 }
+
+//public void ShowToolkitButton(bool value)
+//{
+//	if (!value)
+//	{
+//		toolkitButton.RemoveFromSuperview();
+//		rescanSeparator.RemoveFromSuperview();
+//	}
+//	else
+//	{
+//		if (!firstRowStackView.Subviews.Contains(toolkitButton))
+//		{
+//			firstRowStackView.AddArrangedSubview(toolkitButton);
+//			firstRowStackView.AddArrangedSubview(rescanSeparator);
+//		}
+//	}
+//}

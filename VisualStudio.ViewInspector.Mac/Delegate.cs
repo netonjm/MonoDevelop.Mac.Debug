@@ -159,7 +159,6 @@ namespace VisualStudio.ViewInspector
             var acc = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
             var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
             var tool = new ToolbarWindow(this, new CGRect(10, 10, 600, 50));
-            tool.ShowToolkitButton(false);
 
             var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
             return manager;

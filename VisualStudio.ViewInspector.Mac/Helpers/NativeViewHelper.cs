@@ -5,11 +5,31 @@ using CoreGraphics;
 using Foundation;
 using ObjCRuntime;
 using VisualStudio.ViewInspector.Mac.Abstractions;
+using VisualStudio.ViewInspector.Mac.Windows.Toolbar;
 
 namespace VisualStudio.ViewInspector.Mac
 {
 	public static class NativeViewHelper
 	{
+		internal static ToolbarImageButton CreateToolbarImageButton(IInspectDelegate inspectDelegate, string resourceName, string tooltip)
+		{
+			var deleteButton = new ToolbarImageButton()
+			{
+				Image = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject,
+				ToolTip = tooltip
+			};
+			return deleteButton;
+		}
+
+		internal static ToolbarToogleButton CreateToolbarToogleButton(IInspectDelegate inspectDelegate, string resourceName, string tooltip)
+		{
+			var previousImage = (NSImage)inspectDelegate.GetImageResource(resourceName).NativeObject;
+			var prevKeyViewLoopButton = new ToolbarToogleButton() { Image = previousImage };
+			prevKeyViewLoopButton.ToolTip = tooltip;
+			return prevKeyViewLoopButton;
+		}
+
+
 		public static NSImage GetManifestImageResource(string resource)
         {
 			return GetManifestImageResource(typeof(NativeViewHelper).Assembly, resource);
