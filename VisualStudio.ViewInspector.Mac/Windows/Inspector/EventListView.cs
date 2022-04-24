@@ -302,6 +302,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public Func<NSEvent, NSMenu> CreateMenuHandler { get; set; }
 
+        public static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
         public override NSMenu MenuForEvent(NSEvent theEvent)
         {
             var point = ConvertPointFromView(theEvent.LocationInWindow, null);
@@ -310,6 +319,34 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             var menu = new NSMenu();
             if (item is AssociedEventMethodNode associedEventMethodNode)
             {
+                menu.AddItem(new NSMenuItem("Execute", (s, e) =>
+                {
+                    try
+                    {
+                        var assocDelegate = associedEventMethodNode.associedDelegate;
+
+                        List<object> parametersValues = new List<object>();
+
+                        var parameters = assocDelegate.Method.GetParameters();
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            var paramType = parameters[i].ParameterType;
+                            var defaultValue = GetDefault(paramType);
+
+                            parametersValues.Add(defaultValue);
+                        }
+
+                        assocDelegate.Method.Invoke(assocDelegate.Target, parametersValues.ToArray());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                   
+                }));
+
+                menu.AddItem(NSMenuItem.SeparatorItem);
+
                 var menuItem = new NSMenuItem("Delete", (s, e) =>
                 {
                     //associedEventMethodNode.eventDelegate
