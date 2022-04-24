@@ -364,7 +364,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 	{
 		NSStackView stackView => (NSStackView)view;
 
-        public NSUserInterfaceLayoutOrientation Orientation
+		public float Spacing
+		{
+			get => (float) stackView.Spacing;
+			set => stackView.Spacing = value;
+		}
+
+		public NSUserInterfaceLayoutOrientation Orientation
 		{
 			get => stackView.Orientation;
 			set => stackView.Orientation = value;
@@ -382,9 +388,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => stackView.Distribution = value;
 		}
 
+		public NSEdgeInsets EdgeInsets
+		{
+			get => stackView.EdgeInsets;
+			set => stackView.EdgeInsets = value;
+		}
+
 		public PropertyPanelNSStackView(NSStackView view) : base(view)
 		{
-			
+
 		}
 	}
 
