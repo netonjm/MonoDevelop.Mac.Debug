@@ -153,29 +153,16 @@ namespace VisualStudio.ViewInspector
 
         public InspectorManager CreateInspectorManager()
         {
-            var over = new BorderedWindow(CGRect.Empty, NSColor.Green);
-            var next = new BorderedWindow(CGRect.Empty, NSColor.Red);
-            var previous = new BorderedWindow(CGRect.Empty, NSColor.Blue);
-            var acc = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
-            var ins = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
-            var tool = new ToolbarWindow(this, new CGRect(10, 10, 600, 50));
+            var overWindow = new BorderedWindow(CGRect.Empty, NSColor.Green);
+            var nextWindow = new BorderedWindow(CGRect.Empty, NSColor.Red);
+            var prevWindow = new BorderedWindow(CGRect.Empty, NSColor.Blue);
+            var accWindow = new AccessibilityToolWindow(new CGRect(10, 10, 600, 700));
+            var inspectorWindow = new InspectorToolWindow(this, new CGRect(10, 10, 600, 700)); ;
+            var toolWindow = new ToolbarWindow(this, new CGRect(10, 10, 600, 50));
 
-            var manager = new InspectorManager(this, over, next, previous, acc, ins, tool);
+            var manager = new InspectorManager(this, overWindow, nextWindow, prevWindow, accWindow, inspectorWindow, toolWindow);
             return manager;
         }
-
-        //public void InitializeManager (InspectorContext context, ToolbarService service = null, bool loadModules = false)
-        //{
-        //    if (loadModules)
-        //    {
-        //        LoadModules(context);
-        //    }
-          
-         
-        //    context.Initialize(manager, false);
-
-        //    service?.SetDelegate(this);
-        //}
 
         public void SetCultureInfo(CultureInfo e)
         {
@@ -403,7 +390,6 @@ namespace VisualStudio.ViewInspector
         {
             NativeViewHelper.SetFont(view.NativeObject as NSView, font.NativeObject as NSFont);
         }
-
 
         ColorResult BackColorSearch(IView view)
         {
@@ -725,6 +711,10 @@ namespace VisualStudio.ViewInspector
         public bool IsAllowedWindow(IWindow w)
         {
             if (w.NativeObject is NSColorPanel)
+                return false;
+            if (w.NativeObject is EventWindow)
+                return false;
+            if (w.NativeObject is NSPanel)
                 return false;
             return true;
         }

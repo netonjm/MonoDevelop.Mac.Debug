@@ -4,7 +4,6 @@ using AppKit;
 using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
-using Foundation;
 using System.Linq;
 using MonoDevelop.Inspector.Mac.Abstractions;
 using VisualStudio;
@@ -12,66 +11,10 @@ using VisualStudio.ViewInspector;
 using VisualStudio.ViewInspector.Mac.Views;
 using VisualStudio.ViewInspector.Abstractions;
 using VisualStudio.ViewInspector.Mac.Abstractions;
+using Foundation;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 {
-    class InspectorOutlineView : OutlineView
-    {
-        class InspectorImageNode : ImageRowSubView
-        {
-            public void SetData(TreeNode node, string imageName)
-            {
-                image = NativeViewHelper.GetManifestImageResource(imageName);
-                textField.StringValue = node.Name;
-                RefreshStates();
-            }
-        }
-
-        class InspectorOutlineViewDelegate : OutlineViewDelegate
-        {
-            public override ObjCRuntime.nfloat GetRowHeight(NSOutlineView outlineView, NSObject item)
-            {
-                return 22;
-            }
-
-            protected const string imageNodeName = "InspectorImageNode";
-            public override NSView GetView(NSOutlineView outlineView, NSTableColumn tableColumn, NSObject item)
-            {
-                var data = (TreeNode)item;
-                if (data.TryGetImageName(out var imageValue))
-                {
-                    var view = (InspectorImageNode)outlineView.MakeView(imageNodeName, this);
-                    if (view == null)
-                    {
-                        view = new InspectorImageNode();
-                    }
-                    view.SetData(data, imageValue);
-                    return view;
-                }
-                else
-                {
-                    var view = (NSTextField)outlineView.MakeView(identifer, this);
-                    if (view == null)
-                    {
-                        view = NativeViewHelper.CreateLabel(((Node)item).Name);
-                    }
-                    return view;
-                }
-            }
-        }
-
-        public InspectorOutlineView ()
-        {
-            HeaderView = null;
-            BackgroundColor = NSColor.Clear;
-        }
-
-        public override NSOutlineViewDelegate GetDelegate()
-        {
-            return new InspectorOutlineViewDelegate();
-        }
-    }
-
     class InspectorToolWindow : BaseWindow, IInspectorWindow
     {
         public event EventHandler<INativeObject> FirstRespondedChanged;
@@ -116,7 +59,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         PropertyEditorPanel propertyEditorPanel;
         
-        EventListView eventListView;
+        EventListView eventOutlineView;
         MethodListView methodListView;
 
         public InspectorOutlineView outlineView { get; private set; }
@@ -249,6 +192,47 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             splitView.AddArrangedSubview(this.tabView);
 
             toolbarView.ShowOnlyImages(true);
+
+            outlineView.CreateMenuHandler = (theEvent) =>
+            {
+                var point = outlineView.ConvertPointFromView(theEvent.LocationInWindow, null);
+                var item = outlineView.ItemAtRow(outlineView.GetRow(point));
+
+                var menu = new NSMenu();
+                if (item is TreeNode treeNode)
+                {
+                    bool hasOptions = false;
+
+                    if (treeNode.NativeObject is IView view && view.NativeObject is NSView nSView)
+                    {
+                        hasOptions = true;
+
+                        if (nSView is NSControl control)
+                        {
+                            menu.AddItem(new NSMenuItem(control.Enabled ? "Disable" : "Enable", (s, e) =>
+                            {
+                                control.Enabled = !control.Enabled;
+                            }));
+                        }
+
+                        menu.AddItem(new NSMenuItem(nSView.Hidden ? "Show" : "Hide", (s, e) =>
+                        {
+                            nSView.Hidden = !nSView.Hidden;
+                        }));
+                    }
+
+                    if (hasOptions)
+                    {
+                        menu.AddItem(NSMenuItem.SeparatorItem);
+                    }
+
+                    menu.AddItem(new NSMenuItem("Delete", (s, e) =>
+                    {
+                        inspectorToolWindow.RaiseItemDeleted(treeNode.NativeObject);
+                    }));
+                }
+                return menu;
+            };
         }
 
         public override void ViewWillAppear()
@@ -339,13 +323,16 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             }
         }
 
+        EventDelegate eventDelegate;
+        MainNode eventMainNode;
+
         NSStackView CreateEventsTabView()
         {
-            eventListView = new EventListView();
-            eventListView.AddColumn(new NSTableColumn("col") { Title = "Events" });
-            //eventListView.DoubleClick += MethodListView_DoubleClick;
+            eventOutlineView = new EventListView();
 
-            eventScrollView = new ScrollContainerView(eventListView);
+            eventMainNode = new MainNode();
+           
+            eventScrollView = new ScrollContainerView(eventOutlineView);
             eventScrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
             var eventsStackPanel = NativeViewHelper.CreateVerticalStackView();
@@ -522,6 +509,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                     return false;
                 if (nsView is NSImageView)
                     return false;
+                if (nsView is NSView v && v.Hidden)
+                    return false;
             }
 
             return true;
@@ -620,7 +609,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         void RefreshEventsList()
         {
-            eventListView.SetObject(viewSelected?.NativeObject, methodSearchView.StringValue);
+            eventOutlineView.SetObject(viewSelected?.NativeObject, methodSearchView.StringValue);
         }
 
         void RefreshPropertyEditor()

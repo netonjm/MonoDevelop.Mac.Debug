@@ -528,6 +528,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			get => layoutConstraint.Relation;
 		}
 
+		public bool Active
+		{
+			get => layoutConstraint.Active;
+		}
+
 		public object FirstItem
 		{
 			get => layoutConstraint.FirstItem;

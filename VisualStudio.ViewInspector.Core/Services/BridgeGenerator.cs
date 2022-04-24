@@ -105,14 +105,14 @@ namespace VisualStudio.ViewInspector.Services
 
             FieldInfo type = GetFieldInfoByName(handlerObject.GetType(), handlerEventHandlerName);
 
-            if (IsFunc(type.FieldType))
+            if (EventsHelper.IsFunc(type.FieldType))
             {
                 var genericTypeArguments = type.FieldType.GenericTypeArguments.ToList();
                 var returnType = genericTypeArguments.LastOrDefault();
                 genericTypeArguments.Remove(returnType);
                 return new BridgeParameters(genericTypeArguments.ToArray(), returnType);
             }
-            else if (IsAction(type.FieldType))
+            else if (EventsHelper.IsAction(type.FieldType))
             {
                 var arguments = new List<Type>();
                 arguments.AddRange(type.FieldType.GenericTypeArguments);
@@ -129,22 +129,6 @@ namespace VisualStudio.ViewInspector.Services
                     arguments.Add(typeof(System.EventArgs));
                 return new BridgeParameters(arguments.ToArray(), null);
             }
-        }
-
-        static bool IsAction(Type type)
-        {
-            if (type == typeof(System.Action))
-                return true;
-            if (type.Name.StartsWith("Action`"))
-                return true;
-            return false;
-        }
-
-        static bool IsFunc(Type type)
-        {
-            if (type.Name.StartsWith("Func`"))
-                return true;
-            return false;
         }
 
         static TypeInfo CompileBridgeClassTypeInfo(BridgeParameters parameters)

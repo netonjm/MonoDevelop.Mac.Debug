@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
 using VisualStudio.ViewInspector.Abstractions;
 using VisualStudio.ViewInspector.Services;
 
@@ -13,7 +11,7 @@ namespace VisualStudio.ViewInspector
 	{
 		public event EventHandler<IView> FocusedViewChanged;
 
-		const string Name = "Accessibility .NET Inspector";
+		internal const string Name = "Accessibility .NET Inspector";
 
 		const int ToolbarWindowWidth = 400;
 		const int ToolbarWindowHeight = 50;

@@ -8,7 +8,7 @@ using VisualStudio.ViewInspector.Mac.Views;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 {
-	class MethodTableViewItem : TableViewItem
+    class MethodTableViewItem : TableViewItem
 	{
 		public MethodInfo MethodInfo;
 
@@ -17,52 +17,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			MethodInfo = method;
 		}
 	}
-
-    class EventTableViewItem : TableViewItem
-    {
-        public EventInfo MethodInfo;
-
-        public EventTableViewItem(EventInfo method, string name) : base(name)
-        {
-            MethodInfo = method;
-        }
-    }
-
-    class EventListView : TableView
-    {
-        public bool ShowAllEvents { get; set; }
-        public void SetObject(object element, string filter)
-        {
-            List<EventInfo> methodInfos;
-            TranslatesAutoresizingMaskIntoConstraints = false;
-
-            if (element != null)
-            {
-                methodInfos = element.GetType()
-                       .GetEvents(BindingFlags.Public | BindingFlags.Instance)
-
-        //}
-        //else
-        //{
-        //methodInfos = element.GetType()
-        //.GetRuntimeMethods()
-        .ToList();
-            }
-            else
-            {
-                methodInfos = new List<EventInfo>();
-            }
-
-            var tableItems = new List<TableViewItem>();
-            foreach (var method in methodInfos)
-            {
-                var name = method.ToString();
-                if (string.IsNullOrEmpty(filter) || name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) > -1)
-                    tableItems.Add(new EventTableViewItem(method, name));
-            }
-            SetData(tableItems);
-        }
-    }
 
     class MethodListView : TableView
 	{

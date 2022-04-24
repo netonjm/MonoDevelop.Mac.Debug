@@ -83,7 +83,7 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		{
 			ContentInsets = new NSEdgeInsets(0, 0, 0, 0);
 			HasVerticalScroller = true;
-			HasHorizontalScroller = false;
+			HasHorizontalScroller = true;
 			DocumentView = content;
 		}
 	}

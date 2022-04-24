@@ -397,6 +397,27 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		}
 	}
 
+	public abstract class LabelRowSubView : NSView
+	{
+		internal const string IdentifierId = "PreferencesLabelCategoriesCell";
+
+		protected NSTextField textField;
+
+		public LabelRowSubView()
+		{
+			Identifier = IdentifierId;
+
+			textField = NSTextField.CreateLabel(string.Empty);
+			textField.TranslatesAutoresizingMaskIntoConstraints = false;
+			textField.UsesSingleLineMode = true;
+			textField.LineBreakMode = NSLineBreakMode.TruncatingTail;
+
+			this.AddSubview(textField);
+			textField.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
+			textField.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 3).Active = true;
+		}
+	}
+
 	public class OutlineViewDelegate : NSOutlineViewDelegate
 	{
 		public OutlineViewDelegate()

@@ -13,7 +13,7 @@ using VisualStudio.ViewInspector.Mac.Windows.Inspector;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 {
-	class ToolbarImageButton : ImageButton
+    class ToolbarImageButton : ImageButton
 	{
 		public override CGSize IntrinsicContentSize => new CGSize(InspectorToolContentViewController.ButtonWidth, base.IntrinsicContentSize.Height);
 	}
@@ -78,9 +78,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		ImageButton deleteButton, changeImageButton, refreshButton;
 		ToggleButton toolkitButton, showInspectorButton, showAccessibilityButton;
 
+		NSTextField labelText;
+
 		public ToolbarWindow(IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
 		{
 			this.inspectDelegate = inspectDelegate;
+
+			labelText = NSTextField.CreateLabel(InspectorManager.Name);
+			labelText.Alignment = NSTextAlignment.Center;
 
 			//BackgroundColor = NSColor.Clear;
 			IsOpaque = false;
@@ -89,10 +94,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			ShowsToolbarButton = false;
 			MovableByWindowBackground = false;
 
-			main = NativeViewHelper.CreateVerticalStackView(MenuItemSeparation);
+			main = NativeViewHelper.CreateVerticalStackView(5);
 			ContentView = main;
 
-			main.EdgeInsets = new NSEdgeInsets(Margin, 0, Margin, 0);
+			main.EdgeInsets = new NSEdgeInsets(Margin, 0, 0, 0);
 
 			firstRowStackView = CreateFirstRow();
 			main.AddArrangedSubview(firstRowStackView);
@@ -106,6 +111,48 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 
 			RegenerateButtons();
+		}
+
+		void ShowRestart()
+		{
+			var alert = new NSAlert()
+            {
+				MessageText = "Information",
+				InformativeText = "This configuration needs restart the app",
+				AlertStyle = NSAlertStyle.Informational
+			};
+			alert.AddButton("OK");
+			alert.RunModal();
+		}
+
+		bool ShowAllViews
+		{
+			get
+			{
+				var bo = NSUserDefaults.StandardUserDefaults.BoolForKey("NSShowAllViews");
+				return bo;
+			}
+			set
+			{
+				NSUserDefaults.StandardUserDefaults.SetBool(value, "NSShowAllViews");
+				NSUserDefaults.StandardUserDefaults.Synchronize();
+				ShowRestart();
+			}
+		}
+
+		bool ConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints
+		{
+			get
+			{
+				var value = NSUserDefaults.StandardUserDefaults.BoolForKey("NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
+				return value;
+			}
+			set
+			{
+				NSUserDefaults.StandardUserDefaults.SetBool(value, "NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
+				NSUserDefaults.StandardUserDefaults.Synchronize();
+				ShowRestart();
+			}
 		}
 
 		NSStackView CreateFirstRow()
@@ -160,6 +207,22 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			toolkitButton.Activated += ToolkitButton_Activated; ;
 
 			rescanSeparator = stack.AddVerticalSeparator();
+
+			// =====================================
+
+			var showAllViewsButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "menu-views.png", "Show/Hide All Views");
+			stack.AddArrangedSubview(showAllViewsButton);
+
+			showAllViewsButton.IsToggled = ShowAllViews;
+			showAllViewsButton.Activated += (s, e) => ShowAllViews = showAllViewsButton.IsToggled;
+
+			var showConstraintsButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "menu-constraints.png", "Visualize/Hide Exclusive Constraints");
+			stack.AddArrangedSubview(showConstraintsButton);
+
+			showConstraintsButton.IsToggled = ConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints;
+			showConstraintsButton.Activated += (s, e) => ConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints = showConstraintsButton.IsToggled;
+
+			// =====================================
 
 			var themeButton = NativeViewHelper.CreateToolbarToogleButton(inspectDelegate, "style-16.png", "Change Style Theme");
 			stack.AddArrangedSubview(themeButton);
@@ -248,13 +311,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			changeImageButton.RemoveFromSuperview();
 
-			languagesComboBox.RemoveFromSuperview();
+			//languagesComboBox.RemoveFromSuperview();
 
 			backgroundColorButton.RemoveFromSuperview();
 			backgrounColorSectionSeparator.RemoveFromSuperview();
 
 			deleteButton.RemoveFromSuperview();
 
+			labelText.RemoveFromSuperview();
 			//if (ShowToolKitButton)
 			//{
 			//	firstRowStackView.AddArrangedSubview(toolkitButton);
@@ -273,9 +337,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
 			}
 
-			firstRowStackView.AddArrangedSubview(languagesComboBox);
-
-
 			//second row
 			fontSizeTextView.RemoveFromSuperview();
 			fontsCombobox.RemoveFromSuperview();
@@ -285,6 +346,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			{
 				secondRowStackView.AddArrangedSubview(fontsCombobox);
 				secondRowStackView.AddArrangedSubview(fontSizeTextView);
+			}
+			else
+            {
+				secondRowStackView.AddArrangedSubview(labelText);
+				labelText.LeadingAnchor.ConstraintEqualTo(secondRowStackView.LeadingAnchor).Active = true;
+				labelText.TrailingAnchor.ConstraintEqualTo(secondRowStackView.TrailingAnchor).Active = true;
 			}
 		}
 
@@ -392,7 +459,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			bool showImage = false;
 			bool showFont = false;
-			//NSPopUpButton
 			bool showLayer = false;
 
 			NSColor backgroundColor = null;
@@ -431,8 +497,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				}
 			}
 
-			backgroundColorButton.Color = backgroundColor ?? NSColor.White;
 
+			backgroundColorButton.Color = backgroundColor ?? NSColor.White;
 			imageButtonVisible = showImage;
 			fontButtonsVisible = showFont;
 			backgroundColorVisible = showLayer;

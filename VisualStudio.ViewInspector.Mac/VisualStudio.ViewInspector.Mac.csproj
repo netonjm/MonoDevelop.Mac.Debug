@@ -80,6 +80,15 @@
       <LogicalName>error-16.png</LogicalName>
     </EmbeddedResource>
 
+
+    <EmbeddedResource Include="Resources\menu-views.png">
+      <LogicalName>menu-views.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\menu-constraints.png">
+      <LogicalName>menu-constraints.png</LogicalName>
+    </EmbeddedResource>
+
+
     <EmbeddedResource Include="Resources\window-accessibility.png">
       <LogicalName>window-accessibility.png</LogicalName>
     </EmbeddedResource>
@@ -176,6 +185,39 @@
     </EmbeddedResource>
 
     <Content Include="LICENSE.txt" Pack="True" PackagePath="\" />
+    <EmbeddedResource Include="Resources\treeview\Method.png">
+      <LogicalName>Method.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\E_EventHandler.png">
+      <LogicalName>E_EventHandler.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\E_Action.png">
+      <LogicalName>E_Action.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\E_Func.png">
+      <LogicalName>E_Func.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\P_EventHandler.png">
+      <LogicalName>P_EventHandler.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\P_Action.png">
+      <LogicalName>P_Action.png</LogicalName>
+    </EmbeddedResource>
+     <EmbeddedResource Include="Resources\treeview\P_Func.png">
+      <LogicalName>P_Func.png</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="Resources\treeview\Events.png">
+      <LogicalName>Events.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\treeview\Properties.png">
+      <LogicalName>Properties.png</LogicalName>
+    </EmbeddedResource>
+
+
+    <EmbeddedResource Include="Resources\treeview\Event.png">
+      <LogicalName>Event.png</LogicalName>
+    </EmbeddedResource>
 
     <EmbeddedResource Include="Resources\treeview\Button.png">
       <LogicalName>Button.png</LogicalName>
