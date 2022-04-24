@@ -43,7 +43,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
     class InspectorToolContentViewController : NSViewController
     {
-        public event EventHandler<ToolbarView> RaiseInsertItem;
         public event EventHandler<Tuple<string, string, string, string>> LoadFigma;
 
         const ushort DeleteKey = 51;
@@ -302,7 +301,10 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         private void ToolbarView_ActivateSelectedItem(object sender, EventArgs e)
         {
-            RaiseInsertItem?.Invoke(this, toolbarView.SelectedItem.TypeOfView);
+            if (View.Window is InspectorToolWindow insWindow)
+            {
+                insWindow?.RaiseItemInserted(toolbarView.SelectedItem.TypeOfView);
+            }
         }
 
         private void ToolbarSearchTextField_Changed(object sender, EventArgs e)
