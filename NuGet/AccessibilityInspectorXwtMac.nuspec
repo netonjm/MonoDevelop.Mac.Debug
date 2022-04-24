@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>VisualStudio.ViewInspector.Xwt.Mac</id>
-    <version>0.2.3</version>
+    <version>0.8.4</version>
     <title>View Inspector for Xamarin.Xwt (Mac)</title>
     <authors>Jose Medrano</authors>
     <owners>Microsoft</owners>
