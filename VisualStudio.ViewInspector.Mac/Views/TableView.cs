@@ -35,8 +35,13 @@ namespace VisualStudio.ViewInspector.Mac.Views
 			};
 
 			var item = data[(int)row];
-			result.AddArrangedSubview (NativeViewHelper.CreateLabel(item.Name));
-			result.AddArrangedSubview (new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
+
+			var text = NativeViewHelper.CreateLabel(item.Name);
+			text.TranslatesAutoresizingMaskIntoConstraints = false;
+			text.Cell.UsesSingleLineMode = true;
+			text.LineBreakMode = NSLineBreakMode.TruncatingTail;
+			result.AddArrangedSubview (text);
+
 			return result;
 		}
 
