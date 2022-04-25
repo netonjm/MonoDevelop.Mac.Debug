@@ -27,6 +27,11 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
                 this.target = window;
             }
 
+            public override void WillClose(NSNotification notification)
+            {
+                target.RaiseClosing();
+            }
+
             public override void DidResize(NSNotification notification)
             {
                 target.RaiseResizeRequested();
@@ -68,10 +73,12 @@ namespace VisualStudio.ViewInspector.Mac.Abstractions
         public event EventHandler LostFocus;
         public event EventHandler ResizeRequested;
         public event EventHandler MovedRequested;
+        public event EventHandler Closing;
 
         protected void RaiseLostFocus() => LostFocus?.Invoke(this, EventArgs.Empty);
         protected void RaiseResizeRequested() => ResizeRequested?.Invoke(this, EventArgs.Empty);
         protected void RaiseMovedRequested() => MovedRequested?.Invoke(this, EventArgs.Empty);
+        protected void RaiseClosing() => Closing?.Invoke(this, EventArgs.Empty);
 
         IView IWindow.ContentView
         {

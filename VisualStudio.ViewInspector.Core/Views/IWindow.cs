@@ -21,6 +21,7 @@ namespace VisualStudio.ViewInspector.Abstractions
 
         event EventHandler LostFocus;
 		event EventHandler ResizeRequested;
+		event EventHandler Closing;
 		event EventHandler MovedRequested;
 
 		void AddChildWindow (IWindow borderer);

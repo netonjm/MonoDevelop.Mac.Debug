@@ -56,6 +56,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows
 				this.weakWindow = new WeakReference<BaseWindow>(window);
             }
 
+            public override void WillClose(NSNotification notification)
+            {
+				if (weakWindow.TryGetTarget(out var target))
+				{
+					target.Closing?.Invoke(this, EventArgs.Empty);
+					return;
+				}
+            }
+
             public override void DidResize(NSNotification notification)
             {
 				if (weakWindow.TryGetTarget(out var target))
@@ -207,5 +216,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows
         public event EventHandler ResizeRequested;
 		public event EventHandler MovedRequested;
 		public event EventHandler LostFocus;
-	}
+        public event EventHandler Closing;
+    }
 }
