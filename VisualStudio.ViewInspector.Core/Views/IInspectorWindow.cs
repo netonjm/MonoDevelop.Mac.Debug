@@ -17,6 +17,8 @@ namespace VisualStudio.ViewInspector.Abstractions
 
     public interface IInspectorWindow : IWindow
 	{
+        public event EventHandler RefreshTreeViewRequested;
+
         event EventHandler<INativeObject> FirstRespondedChanged;
 		event EventHandler<INativeObject> ItemDeleted;
         event EventHandler<ToolbarView> ItemInserted;

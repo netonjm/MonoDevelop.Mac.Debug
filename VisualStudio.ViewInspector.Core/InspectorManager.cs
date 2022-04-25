@@ -187,6 +187,10 @@ namespace VisualStudio.ViewInspector
 				RefreshTreeView();
 			};
 
+			inspectorWindow.RefreshTreeViewRequested += (s, e) => {
+				RefreshTreeView();
+			};
+
 			toolbarWindow.ItemDeleted += (sender, e) =>
 			{
 				RemoveView(SelectedView);

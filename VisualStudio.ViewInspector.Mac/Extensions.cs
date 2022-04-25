@@ -84,7 +84,7 @@ namespace AppKit
 
 		internal static TreeNode Search (this TreeNode nodeView, INativeObject view)
 		{
-			if (nodeView.NativeObject != null && nodeView.NativeObject.NativeObject == view.NativeObject) {
+			if (nodeView.Content != null && nodeView.Content.NativeObject == view.NativeObject) {
 				return nodeView;
 			}
 

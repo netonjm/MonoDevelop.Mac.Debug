@@ -5,13 +5,9 @@ using System.Collections.Generic;
 using Xamarin.PropertyEditing.Mac;
 using Xamarin.PropertyEditing;
 using System.Linq;
-using MonoDevelop.Inspector.Mac.Abstractions;
-using VisualStudio;
-using VisualStudio.ViewInspector;
 using VisualStudio.ViewInspector.Mac.Views;
 using VisualStudio.ViewInspector.Abstractions;
 using VisualStudio.ViewInspector.Mac.Abstractions;
-using Foundation;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 {
@@ -20,6 +16,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         public event EventHandler<INativeObject> FirstRespondedChanged;
         public event EventHandler<INativeObject> ItemDeleted;
         public event EventHandler<ToolbarView> ItemInserted;
+
+        public event EventHandler RefreshTreeViewRequested;
 
         internal void RaiseFirstRespondedChanged(INativeObject nativeObject) => FirstRespondedChanged?.Invoke(this, nativeObject);
         internal void RaiseItemDeleted(INativeObject nativeObject) => ItemDeleted?.Invoke(this, nativeObject);
@@ -39,6 +37,11 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             ContentViewController = contentViewController = new InspectorToolContentViewController(inspectorDelegate);
         }
+
+        internal void RequestRefreshTreeView()
+        {
+            RefreshTreeViewRequested?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     class InspectorToolContentViewController : NSViewController
@@ -56,17 +59,22 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         readonly NSSplitView splitView;
         readonly HostResource hostResourceProvider;
 
+        public InspectorOutlineView outlineView { get; private set; }
+
         PropertyEditorPanel propertyEditorPanel;
         
         EventListView eventOutlineView;
         MethodListView methodListView;
 
-        public InspectorOutlineView outlineView { get; private set; }
-
         NSTabView tabView;
         MacInspectorToolbarView toolbarView;
         InspectorToolWindow inspectorToolWindow => (InspectorToolWindow)View.Window;
         ToggleButton compactModeToggleButton;
+
+        EventDelegate eventDelegate;
+        MainNode eventMainNode;
+
+        ScrollContainerView eventScrollView;
 
         public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
@@ -202,7 +210,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     bool hasOptions = false;
 
-                    if (treeNode.NativeObject is IView view && view.NativeObject is NSView nSView)
+                    if (treeNode.Content is IView view && view.NativeObject is NSView nSView)
                     {
                         hasOptions = true;
 
@@ -227,7 +235,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
                     menu.AddItem(new NSMenuItem("Delete", (s, e) =>
                     {
-                        inspectorToolWindow.RaiseItemDeleted(treeNode.NativeObject);
+                        inspectorToolWindow.RaiseItemDeleted(treeNode.Content);
                     }));
                 }
                 return menu;
@@ -251,7 +259,13 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             compactModeToggleButton.Activated += CompactModeToggleButton_Activated;
             this.tabView.DidSelect += TabView_DidSelect;
             toolbarSearchTextField.Changed += ToolbarSearchTextField_Changed;
+
+            outlineView.DragOperationCompleted += OutlineView_DragOperationCompleted;
         }
+
+        void ReescanViews () => inspectorToolWindow?.RequestRefreshTreeView();
+
+        private void OutlineView_DragOperationCompleted(object sender, EventArgs e)  => ReescanViews ();
 
         public override void ViewWillDisappear()
         {
@@ -264,6 +278,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             this.tabView.DidSelect -= TabView_DidSelect;
             toolbarSearchTextField.Changed -= ToolbarSearchTextField_Changed;
 
+            outlineView.DragOperationCompleted -= OutlineView_DragOperationCompleted;
+
             base.ViewWillDisappear();
         }
 
@@ -271,19 +287,19 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         {
             if (outlineView.SelectedNode is TreeNode treeNode)
             {
-                if (treeNode.NativeObject is IView view)
+                if (treeNode.Content is IView view)
                 {
                     inspectorToolWindow.RaiseFirstRespondedChanged(view);
                 }
-                else if (treeNode.NativeObject is IConstrain constrain)
+                else if (treeNode.Content is IConstrain constrain)
                 {
                     inspectorToolWindow.RaiseFirstRespondedChanged(constrain);
-                    Select(treeNode.NativeObject, viewModeSelected);
+                    Select(treeNode.Content, viewModeSelected);
                 }
                 else
                 {
                     inspectorToolWindow.RaiseFirstRespondedChanged(null);
-                    Select(treeNode.NativeObject, viewModeSelected);
+                    Select(treeNode.Content, viewModeSelected);
                 }
             }
         }
@@ -294,7 +310,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 if (outlineView.SelectedNode is TreeNode nodeView)
                 {
-                    inspectorToolWindow.RaiseItemDeleted(nodeView.NativeObject);
+                    inspectorToolWindow.RaiseItemDeleted(nodeView.Content);
                 }
             }
         }
@@ -325,9 +341,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             }
         }
 
-        EventDelegate eventDelegate;
-        MainNode eventMainNode;
-
         NSStackView CreateEventsTabView()
         {
             eventOutlineView = new EventListView();
@@ -343,8 +356,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             return eventsStackPanel;
         }
-
-        ScrollContainerView eventScrollView;
 
         NSStackView CreateMethodTabView()
         {
@@ -408,7 +419,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             }
             else if (e.Item.Label == EventsTabName)
             {
-                RefreshMethodList();
+                RefreshEventsList();
             }
         }
 
@@ -492,12 +503,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         bool IsExpandibleNode(TreeNode nodeView)
         {
-            if (nodeView.NativeObject is IConstrainContainer)
+            if (nodeView.Content is IConstrainContainer)
             {
                 return false;
             }
 
-            if (nodeView.NativeObject is IView view && view.NativeObject is NSView nsView)
+            if (nodeView.Content is IView view && view.NativeObject is NSView nsView)
             {
                 if (nsView is NSTextField)
                     return false;
@@ -631,7 +642,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         {
             if (outlineView.SelectedNode is TreeNode nodeView)
             {
-                inspectorToolWindow.RaiseItemDeleted(nodeView.NativeObject);
+                inspectorToolWindow.RaiseItemDeleted(nodeView.Content);
             }
         }
 

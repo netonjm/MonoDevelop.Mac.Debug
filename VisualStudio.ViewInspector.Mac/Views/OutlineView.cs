@@ -169,22 +169,22 @@ namespace VisualStudio.ViewInspector.Mac.Views
 
 		public bool TryGetImageName(out string value)
         {
-			var nativeObject = NativeObject.NativeObject as NSObject;
+			var nativeObject = Content.NativeObject as NSObject;
 			value = null;
 
-			if (NativeObject is IConstrainContainer)
+			if (Content is IConstrainContainer)
             {
 				value = "Constraints.png";
 				return true;
             }
 
-			if (NativeObject is ITabItem)
+			if (Content is ITabItem)
 			{
 				value = "Tab.png";
 				return true;
 			}
 
-			if (NativeObject is IConstrain && nativeObject is NSLayoutConstraint constraint)
+			if (Content is IConstrain && nativeObject is NSLayoutConstraint constraint)
 			{
                 switch (constraint.FirstAttribute)
                 {
@@ -261,46 +261,46 @@ namespace VisualStudio.ViewInspector.Mac.Views
 			return name;
 		}
 
-		public readonly INativeObject NativeObject;
+		public readonly INativeObject Content;
 
 		public TreeNode(IViewControllerContainer view) : base(view.NodeName)
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
 		public TreeNode(IViewController view) : base(view.NodeName)
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
 		public TreeNode(IWindowController view) : base(view.NodeName)
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
 		public TreeNode(ITabItem view) : base(view.NodeName)
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
 		public TreeNode(IWindow view) : base(GetName(view))
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
 		public TreeNode (IView view) : base (GetName (view))
 		{
-			this.NativeObject = view;
+			this.Content = view;
 		}
 
         public TreeNode(IConstrainContainer text) : base(text.NodeName)
         {
-            this.NativeObject = text;
+            this.Content = text;
         }
 
         public TreeNode(IConstrain constrain) : base(GetName(constrain))
         {
-            this.NativeObject = constrain;
+            this.Content = constrain;
         }
     }
 

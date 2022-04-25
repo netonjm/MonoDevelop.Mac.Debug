@@ -288,16 +288,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             TranslatesAutoresizingMaskIntoConstraints = false;
             HeaderView = null;
             BackgroundColor = NSColor.Clear;
-
-            DoubleClick += EventListView_DoubleClick;
-        }
-
-        private void EventListView_DoubleClick(object sender, EventArgs e)
-        {
-            if (SelectedNode is EventNode node)
-            {
-                //ShowEventWindow(node);
-            }
         }
 
         public Func<NSEvent, NSMenu> CreateMenuHandler { get; set; }
