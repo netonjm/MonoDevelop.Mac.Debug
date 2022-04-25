@@ -76,6 +76,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         ScrollContainerView eventScrollView;
 
+        IButton invokeButton;
+
         public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
@@ -257,15 +259,20 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             methodSearchView.Activated += MethodSearchView_Activated;
             compactModeToggleButton.Activated += CompactModeToggleButton_Activated;
-            this.tabView.DidSelect += TabView_DidSelect;
+            tabView.DidSelect += TabView_DidSelect;
             toolbarSearchTextField.Changed += ToolbarSearchTextField_Changed;
+
+
+            methodListView.DoubleClick += MethodListView_DoubleClick;
+
+            invokeButton.Pressed += InvokeButton_Pressed;
 
             outlineView.DragOperationCompleted += OutlineView_DragOperationCompleted;
         }
 
-        void ReescanViews () => inspectorToolWindow?.RequestRefreshTreeView();
+        void RescanViews () => inspectorToolWindow?.RequestRefreshTreeView();
 
-        private void OutlineView_DragOperationCompleted(object sender, EventArgs e)  => ReescanViews ();
+        private void OutlineView_DragOperationCompleted(object sender, EventArgs e)  => RescanViews ();
 
         public override void ViewWillDisappear()
         {
@@ -273,15 +280,20 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             outlineView.SelectionNodeChanged -= OutlineView_SelectionNodeChanged;
             outlineView.KeyPress -= OutlineView_KeyPress;
 
+            methodListView.DoubleClick -= MethodListView_DoubleClick;
+
             methodSearchView.Activated -= MethodSearchView_Activated;
             compactModeToggleButton.Activated -= CompactModeToggleButton_Activated;
-            this.tabView.DidSelect -= TabView_DidSelect;
+            tabView.DidSelect -= TabView_DidSelect;
             toolbarSearchTextField.Changed -= ToolbarSearchTextField_Changed;
 
             outlineView.DragOperationCompleted -= OutlineView_DragOperationCompleted;
+            invokeButton.Pressed -= InvokeButton_Pressed;
 
             base.ViewWillDisappear();
         }
+
+        private void InvokeButton_Pressed(object sender, EventArgs e) => InvokeSelectedView();
 
         private void OutlineView_SelectionNodeChanged(object sender, EventArgs e)
         {
@@ -361,8 +373,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
         {
             methodListView = new MethodListView();
             methodListView.AddColumn(new NSTableColumn("col") { Title = "Methods" });
-            methodListView.DoubleClick += MethodListView_DoubleClick;
-
+         
             methodScrollView = new ScrollContainerView(methodListView);
             methodScrollView.TranslatesAutoresizingMaskIntoConstraints = false;
 
@@ -376,17 +387,18 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             methodSearchView.WidthAnchor.ConstraintEqualTo(180).Active = true;
 
             IImage invokeImage = inspectorDelegate.GetImageResource("execute-16.png");
-            IButton invokeButton = inspectorDelegate.GetImageButton(invokeImage);
+
+            invokeButton = inspectorDelegate.GetImageButton(invokeImage);
             invokeButton.SetTooltip("Invoke Method!");
             invokeButton.SetWidth(ButtonWidth);
 
             titleContainter.AddArrangedSubview((NSView)invokeButton.NativeObject);
-            invokeButton.Pressed += (s, e) => InvokeSelectedView();
 
             titleContainter.AddArrangedSubview(NativeViewHelper.CreateLabel("Result: "));
 
             resultMessage = NativeViewHelper.CreateLabel("");
-            resultMessage.LineBreakMode = NSLineBreakMode.ByWordWrapping;
+            resultMessage.LineBreakMode = NSLineBreakMode.TruncatingTail;
+            resultMessage.Cell.UsesSingleLineMode = true;
 
             titleContainter.AddArrangedSubview(resultMessage);
 
@@ -644,12 +656,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             {
                 inspectorToolWindow.RaiseItemDeleted(nodeView.Content);
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            methodListView.DoubleClick -= MethodListView_DoubleClick;
-            base.Dispose(disposing);
         }
     }
 }
