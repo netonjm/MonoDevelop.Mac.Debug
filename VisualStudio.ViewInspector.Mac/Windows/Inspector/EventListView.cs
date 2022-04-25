@@ -343,6 +343,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                     var currentDelete = System.Delegate.RemoveAll(associedEventMethodNode.sourceDelegate, associedEventMethodNode.associedDelegate);
                     associedEventMethodNode.eventFieldInfo.SetValue(associedEventMethodNode.element, currentDelete);
                     //inspectorToolWindow.RaiseItemDeleted(treeNode.NativeObject);
+                    ((InspectorToolWindow)Window).RequestRefreshTreeView();
                 });
                 menu.AddItem(menuItem);
             }

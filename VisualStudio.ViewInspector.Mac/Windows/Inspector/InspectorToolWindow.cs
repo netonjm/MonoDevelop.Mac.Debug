@@ -227,6 +227,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                         menu.AddItem(new NSMenuItem(nSView.Hidden ? "Show" : "Hide", (s, e) =>
                         {
                             nSView.Hidden = !nSView.Hidden;
+
+                            RescanViews();
                         }));
                     }
 
