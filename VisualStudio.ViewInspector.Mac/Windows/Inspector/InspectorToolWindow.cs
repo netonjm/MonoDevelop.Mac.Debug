@@ -78,6 +78,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         IButton invokeButton;
 
+        List<NSLayoutConstraint> visualizedConstraints = new List<NSLayoutConstraint>();
+
+        void ClearVisualizedConstraints()
+        {
+            visualizedConstraints.Clear();
+            CurrentWindow?.VisualizeConstraints(new NSLayoutConstraint[0]);
+        }
+
         public InspectorToolContentViewController (IInspectDelegate inspectorDelegate)
         {
             this.inspectorDelegate = inspectorDelegate;
@@ -212,7 +220,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                 {
                     bool hasOptions = false;
 
-                    if (treeNode.Content is IView view && view.NativeObject is NSView nSView)
+                    if (treeNode.Content.NativeObject is NSView nSView)
                     {
                         hasOptions = true;
 
@@ -230,6 +238,26 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
                             RescanViews();
                         }));
+                    }
+
+                    if (visualizedConstraints.Count > 0)
+                    {
+                        menu.AddItem(new NSMenuItem("Hide Constraints Visualized", (s, e) =>
+                        {
+                            ClearVisualizedConstraints();
+                        }));
+                    }
+
+                    if (treeNode.Content.NativeObject is NSLayoutConstraint constraint)
+                    {
+                        menu.AddItem(new NSMenuItem("Visualize Constraint", (s, e) =>
+                        {
+                            visualizedConstraints.Add(constraint);
+
+                            CurrentWindow?.VisualizeConstraints(visualizedConstraints.ToArray());
+                        }));
+
+                        hasOptions = true;
                     }
 
                     if (hasOptions)
@@ -598,6 +626,30 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         void MethodListView_DoubleClick(object sender, EventArgs e) => InvokeSelectedView();
 
+        NSWindow CurrentWindow
+        {
+            get
+            {
+                if (viewSelected != null)
+                {
+                    if (viewSelected.NativeObject is NSLayoutConstraint constraint)
+                    {
+                        return GetWindow(constraint);
+                    }
+                    if (viewSelected.NativeObject is NSView view)
+                    {
+                        return view.Window;
+                    }
+                }
+                return null;
+            }
+        }
+
+        NSWindow GetWindow(NSLayoutConstraint constraint)
+        {
+            return (constraint.FirstItem as NSView)?.Window ?? (constraint.SecondItem as NSView)?.Window;
+        }
+            
         INativeObject viewSelected;
         InspectorViewMode viewModeSelected;
 
