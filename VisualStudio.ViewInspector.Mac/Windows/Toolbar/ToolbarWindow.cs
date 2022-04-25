@@ -77,7 +77,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		ImageButton deleteButton, changeImageButton, refreshButton;
 		ToggleButton toolkitButton, showInspectorButton, showAccessibilityButton;
-
+		NSView firstRowFlexibleSpace;
 		NSTextField labelText;
 
 		public ToolbarWindow(IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
@@ -85,6 +85,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			this.inspectDelegate = inspectDelegate;
 
 			labelText = NSTextField.CreateLabel(InspectorManager.Name);
+			labelText.TranslatesAutoresizingMaskIntoConstraints = false;
 			labelText.Alignment = NSTextAlignment.Center;
 
 			//BackgroundColor = NSColor.Clear;
@@ -101,12 +102,15 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 			firstRowStackView = CreateFirstRow();
 			main.AddArrangedSubview(firstRowStackView);
-			firstRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
 
+			firstRowStackView.LeadingAnchor.ConstraintEqualTo(main.LeadingAnchor, Margin).Active = true;
+			firstRowStackView.TrailingAnchor.ConstraintEqualTo(main.TrailingAnchor, Margin).Active = true;
 
-			secondRowStackView = CreateSecondRow(); ;
+			secondRowStackView = CreateSecondRow();
 			main.AddArrangedSubview(secondRowStackView);
-			secondRowStackView.EdgeInsets = new NSEdgeInsets(0, Margin, 0, Margin);
+
+			secondRowStackView.LeadingAnchor.ConstraintEqualTo(main.LeadingAnchor, Margin).Active = true;
+			secondRowStackView.TrailingAnchor.ConstraintEqualTo(main.TrailingAnchor, Margin).Active = true;
 
 			main.AddArrangedSubview(new NSView() { TranslatesAutoresizingMaskIntoConstraints = false });
 
@@ -272,6 +276,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			languagesComboBox.SelectionChanged += LanguagesComboBox_SelectionChanged;
 			//languagesComboBox.WidthAnchor.ConstraintEqualTo(220).Active = true;
 
+			firstRowFlexibleSpace = new NSView() { TranslatesAutoresizingMaskIntoConstraints = false };
+
 			return stack;
 		}
 
@@ -319,6 +325,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			deleteButton.RemoveFromSuperview();
 
 			labelText.RemoveFromSuperview();
+			firstRowFlexibleSpace.RemoveFromSuperview();
 			//if (ShowToolKitButton)
 			//{
 			//	firstRowStackView.AddArrangedSubview(toolkitButton);
@@ -337,6 +344,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
 			}
 
+			firstRowStackView.AddArrangedSubview(firstRowFlexibleSpace);
+
 			//second row
 			fontSizeTextView.RemoveFromSuperview();
 			fontsCombobox.RemoveFromSuperview();
@@ -350,8 +359,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			else
             {
 				secondRowStackView.AddArrangedSubview(labelText);
-				labelText.LeadingAnchor.ConstraintEqualTo(secondRowStackView.LeadingAnchor).Active = true;
-				labelText.TrailingAnchor.ConstraintEqualTo(secondRowStackView.TrailingAnchor).Active = true;
 			}
 		}
 
