@@ -352,6 +352,8 @@ namespace VisualStudio.ViewInspector
         {
 			inspectorWindow.GenerateTree(selectedWindow, ViewMode);
 			selectedWindow.RecalculateKeyViewLoop();
+
+			RefreshOverlaysVisibility();
 		}
 
 		void MakeFrontWindow(IBorderedWindow window)
