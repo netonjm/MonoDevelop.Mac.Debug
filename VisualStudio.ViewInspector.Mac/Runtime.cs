@@ -2,7 +2,7 @@
 {
     public static class Runtime
     {
-        public static void Initialize(bool hasToolkit = false)
+        public static InspectorContext Initialize(bool hasToolkit = false)
         {
             var inspectorDelegate = new MacInspectorDelegate();
             var inspectorManager = inspectorDelegate.CreateInspectorManager();
@@ -10,6 +10,7 @@
             inspectorManager.ShowsToolBarWindow = true;
             inspectorManager.ShowsInspectorWindow = true;
             inspectorManager.IsFirstResponderOverlayVisible = true;
+            return InspectorContext.Current;
         }
     }
 }
