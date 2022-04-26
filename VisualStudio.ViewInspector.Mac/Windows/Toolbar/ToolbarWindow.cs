@@ -25,6 +25,24 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 	class ToolbarWindow : BaseWindow, IToolbarWindow
 	{
+		class ToolbarWindowDelegate : NSWindowDelegate
+		{
+			WeakReference<ToolbarWindow> weakWindow;
+
+			public ToolbarWindowDelegate(ToolbarWindow window)
+			{
+				weakWindow = new WeakReference<ToolbarWindow>(window);
+			}
+
+			public override void WillClose(NSNotification notification)
+			{
+				if (weakWindow.TryGetTarget(out var target))
+				{
+					target.OnWindowWillClose();
+				}
+			}
+		}
+
 		const string ColorSelectorName = "colorDidChange:";
 		const string ColorPopoverDidCloseSelectorName = "popoverDidClose:";
 
@@ -71,7 +89,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		NSView rescanSeparator;
 		NSComboBox fontsCombobox, languagesComboBox;
 		NSTextField fontSizeTextView;
-		NSColorWell selectedColorButton, backgroundColorButton;
+		NSColorWell backgroundColorButton;
 
 		VerticalSeparator backgrounColorSectionSeparator;
 
@@ -80,9 +98,23 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		NSView firstRowFlexibleSpace;
 		NSTextField labelText;
 
+		private void OnWindowWillClose()
+		{
+			var panel = NSColorPanel.SharedColorPanel;
+			if (panel.IsVisible)
+			{
+				panel.Close();
+			}
+		}
+
+		ToolbarWindowDelegate windowDelegate;
+
 		public ToolbarWindow(IInspectDelegate inspectDelegate, CGRect frame) : base(frame, NSWindowStyle.Titled | NSWindowStyle.FullSizeContentView, NSBackingStore.Buffered, false)
 		{
 			this.inspectDelegate = inspectDelegate;
+
+			this.windowDelegate = new ToolbarWindowDelegate(this);
+			Delegate = windowDelegate;
 
 			labelText = NSTextField.CreateLabel(InspectorManager.Name);
 			labelText.TranslatesAutoresizingMaskIntoConstraints = false;
@@ -418,39 +450,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		void ColorButton_Activated(object sender, EventArgs e)
 		{
-			var button = selectedColorButton = (NSColorWell)sender;
-			var panelButton = NSColorPanel.SharedColorPanel;
-			panelButton.Color = button.Color;
-
-			NSNotificationCenter.DefaultCenter.AddObserver(this, new ObjCRuntime.Selector(ColorPopoverDidCloseSelectorName), NSPopover.DidCloseNotification, panelButton);
-			NSNotificationCenter.DefaultCenter.AddObserver(this, new ObjCRuntime.Selector(ColorSelectorName), NSColorPanel.ColorChangedNotification, panelButton);
-
-			panelButton.MakeKeyAndOrderFront(panelButton);
-		}
-
-		[Export(ColorPopoverDidCloseSelectorName)]
-		void OnWindowColorDidClose(NSObject target)
-		{
-			NSNotificationCenter.DefaultCenter.RemoveObserver(this, NSPopover.DidCloseNotification, NSColorPanel.SharedColorPanel);
-			NSNotificationCenter.DefaultCenter.RemoveObserver(this, NSColorPanel.ColorChangedNotification, NSColorPanel.SharedColorPanel);
-
-			selectedColorButton = null;
-		}
-
-		[Export(ColorSelectorName)]
-		void OnColorDidChange(NSObject target)
-		{
-			var selectedColorButton = this.selectedColorButton;
-			if (selectedColorButton == null)
-			{
-				return;
-			}
-			if (target is NSNotification not && not.Object is NSColorPanel colorPanel)
-			{
-				var color = colorPanel.Color;
-				selectedColorButton.Color = color;
-				ViewBackgroundColorChanged?.Invoke(this, color.ToColor());
-			}
+			ViewBackgroundColorChanged?.Invoke(this, ((NSColorWell)sender).Color.ToColor());
 		}
 
 		#endregion
