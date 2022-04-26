@@ -328,8 +328,6 @@ namespace VisualStudio.ViewInspector
 				return;
 			}
 
-			RefreshOverlaysVisibility ();
-
             RefreshNeeded();
 
             this.selectedWindow.ResizeRequested += OnRespositionViews;
@@ -339,6 +337,8 @@ namespace VisualStudio.ViewInspector
 			ShowToolBarWindow(ShowsToolBarWindow);
 			ShowAccessibilityWindow(ShowsAccessibilityWindow);
 			ShowInspectorWindow(ShowsInspectorWindow);
+
+			RepositionView();
 		}
 
 		void RefreshOverlaysVisibility ()
@@ -544,7 +544,6 @@ namespace VisualStudio.ViewInspector
             previousKeyView = SelectedView?.PreviousValidKeyView;
 
 			RefreshWindows ();
-            RefreshOverlaysVisibility();
 
 			var selectedView = SelectedView;
 			toolbarWindow.ChangeView(this, nextView);
@@ -553,6 +552,8 @@ namespace VisualStudio.ViewInspector
             {
 				FocusedViewChanged?.Invoke(this, selectedView);
             }
+
+			RepositionView();
 		}
 
 		string GetAssemblyVersion ()
