@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>VisualStudio.ViewInspector.Xwt.Mac</id>
-    <version>0.8.5</version>
+    <version>0.8.6</version>
     <title>View Inspector for Xamarin.Xwt (Mac)</title>
     <authors>Jose Medrano</authors>
     <owners>Microsoft</owners>
