@@ -5,24 +5,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <TargetFramework>net6.0</TargetFramework>
     <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
-
-    <GeneratePackageOnBuild>$(Configuration.Contains('Release'))</GeneratePackageOnBuild>
-    <PackageId>VisualStudio.ViewInspector.Mac</PackageId>
-    <Version>0.3.14</Version>
-    <IsPackable>true</IsPackable>
-    <Authors>Jose Medrano</Authors>
-    <Company>Microsoft Corporation</Company>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageProjectUrl>https://github.com/netonjm/MonoDevelop.Mac.Debug</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Description>View Inspector for Xamarin.Mac allows you to inspect views in realtime and detect possible accessibility issues.</Description>
-    <PackageIconUrl>https://raw.githubusercontent.com/netonjm/MonoDevelop.Mac.Debug/master/icon/cocoa.png</PackageIconUrl>
-    <PackageTags>accessibility inspector xamarin mac</PackageTags>
-    <Title>Accessibility Inspector for Xamarin.Mac</Title>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <IncludeAllCopyLocal>true</IncludeAllCopyLocal>
-
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\VisualStudio.ViewInspector.Core\VisualStudio.ViewInspector.Core.csproj">
