@@ -43,7 +43,14 @@ namespace VisualStudio.ViewInspector.Mac.Services
 
                 WindowChanged?.Invoke(this, new ObservableWindow(window));
 
-                CurrentResponder = window.NextResponder;
+                try
+                {
+                    CurrentResponder = window.NextResponder;
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 
