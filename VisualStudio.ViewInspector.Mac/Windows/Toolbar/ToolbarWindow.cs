@@ -56,7 +56,8 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		public event EventHandler ItemDeleted;
 		public event EventHandler ItemImageChanged;
 
-		public event EventHandler<IColor> ViewBackgroundColorChanged;
+		public event EventHandler<IColor> ViewBackgroundColorRequested;
+		public event EventHandler ViewBackgroundColorClearRequested;
 
 		public event EventHandler<FontData> FontChanged;
         public event EventHandler<CultureInfo> CultureChanged;
@@ -90,6 +91,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 		NSComboBox fontsCombobox, languagesComboBox;
 		NSTextField fontSizeTextView;
 		NSColorWell backgroundColorButton;
+		NSButton backgroundColorClearButton;
 
 		VerticalSeparator backgrounColorSectionSeparator;
 
@@ -281,6 +283,9 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			backgroundColorButton = new ColorWell() { ToolTip = "Change background color from layer", TranslatesAutoresizingMaskIntoConstraints = false };
 			backgroundColorButton.Activated += ColorButton_Activated;
 
+			backgroundColorClearButton = NativeViewHelper.CreateToolbarImageButton(inspectDelegate, "image-16.png", "Clear background color");
+			backgroundColorClearButton.Activated += ColorClearButton_Activated;
+
 			backgrounColorSectionSeparator = stack.AddVerticalSeparator();
 
 			//Visual issues view
@@ -352,6 +357,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			//languagesComboBox.RemoveFromSuperview();
 
 			backgroundColorButton.RemoveFromSuperview();
+			backgroundColorClearButton.RemoveFromSuperview();
 			backgrounColorSectionSeparator.RemoveFromSuperview();
 
 			deleteButton.RemoveFromSuperview();
@@ -373,6 +379,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 			if (backgroundColorVisible)
 			{
 				firstRowStackView.AddArrangedSubview(backgroundColorButton);
+				firstRowStackView.AddArrangedSubview(backgroundColorClearButton);
 				firstRowStackView.AddArrangedSubview(backgrounColorSectionSeparator);
 			}
 
@@ -450,7 +457,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Toolbar
 
 		void ColorButton_Activated(object sender, EventArgs e)
 		{
-			ViewBackgroundColorChanged?.Invoke(this, ((NSColorWell)sender).Color.ToColor());
+			ViewBackgroundColorRequested?.Invoke(this, ((NSColorWell)sender).Color.ToColor());
+		}
+
+		void ColorClearButton_Activated(object sender, EventArgs e)
+		{
+			ViewBackgroundColorClearRequested?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion

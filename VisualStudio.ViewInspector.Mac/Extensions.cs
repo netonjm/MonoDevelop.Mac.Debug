@@ -6,6 +6,7 @@ using System.Reflection;
 using CoreGraphics;
 using MonoDevelop.Inspector;
 using MonoDevelop.Inspector.Mac;
+using ObjCRuntime;
 using VisualStudio.ViewInspector;
 using VisualStudio.ViewInspector.Abstractions;
 using VisualStudio.ViewInspector.Mac.Views;
@@ -31,6 +32,12 @@ namespace AppKit
 
 		public static CommonColor ToCommonColor(this NSColor color)
 			=> new CommonColor((byte)(color.RedComponent * 255), (byte)(color.GreenComponent * 255), (byte)(color.BlueComponent * 255), (byte)(color.AlphaComponent * 255), "sRGB");
+
+		public static CommonRectangle ToCommonRectangle(this NSEdgeInsets rect)
+		=> new CommonRectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
+
+		public static NSEdgeInsets ToEdgeInserts(this CommonRectangle rect)
+		=> new NSEdgeInsets((nfloat)rect.Y, (nfloat)rect.X, (nfloat)rect.Height, (nfloat)rect.Width);
 
 		public static CommonRectangle ToCommonRectangle(this CGRect rect)
 			=>  new CommonRectangle(rect.X, rect.Y, rect.Width, rect.Height);
@@ -82,7 +89,7 @@ namespace AppKit
 			return obj.GetType().GetProperty(propertyName);
 		}
 
-		internal static TreeNode Search (this TreeNode nodeView, INativeObject view)
+		internal static TreeNode Search (this TreeNode nodeView, VisualStudio.ViewInspector.Abstractions.INativeObject view)
 		{
 			if (nodeView.Content != null && nodeView.Content.NativeObject == view.NativeObject) {
 				return nodeView;

@@ -28,6 +28,7 @@ namespace VisualStudio.ViewInspector.Abstractions
 
         void ChangeView(InspectorManager manager, INativeObject nativeObject);
 
-        event EventHandler<IColor> ViewBackgroundColorChanged;
+        event EventHandler<IColor> ViewBackgroundColorRequested;
+        event EventHandler ViewBackgroundColorClearRequested;
     }
 }

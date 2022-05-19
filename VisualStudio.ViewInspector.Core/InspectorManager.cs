@@ -202,9 +202,14 @@ namespace VisualStudio.ViewInspector
 				//NativeViewHelper.SetFont(view, e.Font);
 			};
 
-			toolbarWindow.ViewBackgroundColorChanged += (sender, e) =>
+			toolbarWindow.ViewBackgroundColorRequested += (sender, e) =>
 			{
 				Delegate.SetBackgroundColor(SelectedView, e);
+			};
+
+			toolbarWindow.ViewBackgroundColorClearRequested += (sender, s) =>
+			{
+				Delegate.SetBackgroundColorClear(SelectedView);
 			};
 
 			toolbarWindow.CultureChanged += (sender, e) =>

@@ -56,5 +56,6 @@ namespace VisualStudio.ViewInspector
         void SetCultureInfo(CultureInfo cultureInfo);
         bool IsDarkTheme();
         void SetBackgroundColor(IView selectedView, IColor e);
+        void SetBackgroundColorClear(IView selectedView);
     }
 }
