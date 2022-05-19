@@ -6,10 +6,262 @@ using System.Text;
 using Foundation;
 using System.Linq;
 using Xamarin.PropertyEditing.Drawing;
+using System.Collections.Generic;
 
 namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 {
-    class PropertyPanelNSComboBox : PropertyPanelNSControl
+	class PropertyPanelNSTableView : PropertyPanelNSControl
+	{
+		NSTableView tableView => (NSTableView)view;
+
+		public int SelectedRow
+		{
+			get => (int)tableView.SelectedRow;
+			set => tableView.SelectRow(value, false);
+		}
+
+		public NSTableViewStyle Style
+		{
+			get => tableView.Style;
+			set => tableView.Style = value;
+		}
+
+		public NSTableViewColumnAutoresizingStyle ColumnAutoresizingStyle
+		{
+			get => tableView.ColumnAutoresizingStyle;
+			set => tableView.ColumnAutoresizingStyle = value;
+		}
+
+		public NSTableViewGridStyle GridStyleMask
+		{
+			get => tableView.GridStyleMask;
+			set => tableView.GridStyleMask = value;
+		}
+
+		public float RowHeight
+		{
+			get => (float)tableView.RowHeight;
+			set => tableView.RowHeight = value;
+		}
+
+		public int ColumnCount => (int)tableView.ColumnCount;
+
+		public NSTableViewRowSizeStyle EffectiveRowSizeStyle
+		{
+			get => tableView.EffectiveRowSizeStyle;
+		}
+
+		public NSTableViewStyle EffectiveStyle
+		{
+			get => tableView.EffectiveStyle;
+		}
+
+		public NSTableViewSelectionHighlightStyle SelectionHighlightStyle
+		{
+			get => tableView.SelectionHighlightStyle;
+			set => tableView.SelectionHighlightStyle = value;
+		}
+
+		public List<int> SelectedRows
+		{
+			get => tableView.SelectedRows.Select(s => (int)s).ToList();
+			set {
+				var array = value.Select(s => (nuint)s).ToArray();
+				tableView.SelectRows(NSIndexSet.FromArray(array), false);
+			}
+		}
+
+		public PropertyPanelNSTableView(NSTableView view) : base(view)
+		{
+
+		}
+	}
+
+    class PropertyPanelNSScrollView : PropertyPanelNSView
+	{
+		public bool HasHorizontalRuler
+		{
+			get => scrollView.HasHorizontalRuler;
+			set => scrollView.HasHorizontalRuler = value;
+		}
+
+		public bool HasVerticalRuler
+		{
+			get => scrollView.HasVerticalRuler;
+			set => scrollView.HasVerticalRuler = value;
+		}
+
+		public bool HasVerticalScroller
+		{
+			get => scrollView.HasVerticalScroller;
+			set => scrollView.HasVerticalScroller = value;
+		}
+
+		public bool HasHorizontalScroller
+		{
+			get => scrollView.HasHorizontalScroller;
+			set => scrollView.HasHorizontalScroller = value;
+		}
+
+		public float HorizontalLineScroll
+		{
+			get => (float) scrollView.HorizontalLineScroll;
+			set => scrollView.HorizontalLineScroll = value;
+		}
+
+		public float VerticalLineScroll
+		{
+			get => (float)scrollView.VerticalLineScroll;
+			set => scrollView.VerticalLineScroll = value;
+		}
+
+		public bool VerticalContentSizeConstraintActive
+		{
+			get => scrollView.VerticalContentSizeConstraintActive;
+			set => scrollView.VerticalContentSizeConstraintActive = value;
+		}
+
+		public NSUserInterfaceLayoutDirection UserInterfaceLayoutDirection
+		{
+			get => scrollView.UserInterfaceLayoutDirection;
+			set => scrollView.UserInterfaceLayoutDirection = value;
+		}
+
+		public bool UsesPredominantAxisScrolling
+		{
+			get => scrollView.UsesPredominantAxisScrolling;
+			set => scrollView.UsesPredominantAxisScrolling = value;
+		}
+
+		public bool ScrollsDynamically
+		{
+			get => scrollView.ScrollsDynamically;
+			set => scrollView.ScrollsDynamically = value;
+		}
+
+		public CommonRectangle AlignmentRectInsets
+		{
+			get => scrollView.AlignmentRectInsets.ToCommonRectangle();
+		}
+
+		public bool AllowsMagnification
+		{
+			get => scrollView.AllowsMagnification;
+			set => scrollView.AllowsMagnification = value;
+		}
+
+		public bool AutohidesScrollers
+		{
+			get => scrollView.AutohidesScrollers;
+			set => scrollView.AutohidesScrollers = value;
+		}
+
+		public bool AutomaticallyAdjustsContentInsets
+		{
+			get => scrollView.AutomaticallyAdjustsContentInsets;
+			set => scrollView.AutomaticallyAdjustsContentInsets = value;
+		}
+
+		public NSBorderType BorderType
+		{
+			get => scrollView.BorderType;
+			set => scrollView.BorderType = value;
+		}
+
+		public CommonRectangle ContentInsets
+		{
+			get => scrollView.ContentInsets.ToCommonRectangle();
+			set => scrollView.ContentInsets = value.ToEdgeInserts();
+		}
+
+		public CommonSize ContentSize
+		{
+			get => scrollView.ContentSize.ToCommonSize();
+		}
+
+		public float LineScroll
+		{
+			get => (float)scrollView.LineScroll;
+			set => scrollView.LineScroll = value;
+		}
+
+		public float Magnification
+		{
+			get => (float)scrollView.Magnification;
+			set => scrollView.Magnification = value;
+		}
+
+		public float MaxMagnification
+		{
+			get => (float)scrollView.MaxMagnification;
+			set => scrollView.MaxMagnification = value;
+		}
+
+		public float MinMagnification
+		{
+			get => (float) scrollView.MinMagnification;
+			set => scrollView.MinMagnification = value;
+		}
+
+		public CommonRectangle ScrollerInsets
+		{
+			get => scrollView.ScrollerInsets.ToCommonRectangle();
+			set => scrollView.ScrollerInsets = value.ToEdgeInserts();
+		}
+
+		public NSScrollerKnobStyle ScrollerKnobStyle
+		{
+			get => scrollView.ScrollerKnobStyle;
+			set => scrollView.ScrollerKnobStyle = value;
+		}
+
+		public NSScrollerStyle ScrollerStyle
+		{
+			get => scrollView.ScrollerStyle;
+			set => scrollView.ScrollerStyle = value;
+		}
+
+		public bool ShouldDrawColor
+		{
+			get => scrollView.ShouldDrawColor;
+		}
+
+		public bool DrawsBackground
+		{
+			get => scrollView.DrawsBackground;
+			set => scrollView.DrawsBackground = value;
+		}
+
+		public NSScrollElasticity VerticalScrollElasticity
+		{
+			get => scrollView.VerticalScrollElasticity;
+			set => scrollView.VerticalScrollElasticity = value;
+		}
+
+		NSScrollView scrollView;
+		public PropertyPanelNSScrollView(NSScrollView scrollView) : base (scrollView)
+        {
+			this.scrollView = scrollView;
+		}
+	}
+
+	class PropertyPanelNSOutlineView : PropertyPanelNSControl
+	{
+		NSOutlineView tableView => (NSOutlineView)view;
+
+		public int SelectedRow
+		{
+			get => (int)tableView.SelectedRow;
+			set => tableView.SelectRow(value, false);
+		}
+
+		public PropertyPanelNSOutlineView(NSOutlineView view) : base(view)
+		{
+
+		}
+	}
+
+	class PropertyPanelNSComboBox : PropertyPanelNSControl
 	{
 		NSComboBox combo => (NSComboBox)view;
 
@@ -388,15 +640,18 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => stackView.Distribution = value;
 		}
 
-		public NSEdgeInsets EdgeInsets
+		public CommonRectangle EdgeInsets
 		{
-			get => stackView.EdgeInsets;
-			set => stackView.EdgeInsets = value;
+			get => stackView.EdgeInsets.ToCommonRectangle();
+			set
+			{
+				stackView.EdgeInsets = value.ToEdgeInserts();
+			}
 		}
 
 		public PropertyPanelNSStackView(NSStackView view) : base(view)
 		{
-
+			
 		}
 	}
 
@@ -597,9 +852,20 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 			set => view.NeedsDisplay = value;
 		}
 
+		public bool AcceptsTouchEvents
+		{
+			get => view.AcceptsTouchEvents;
+			set => view.AcceptsTouchEvents = value;
+		}
+
 		public bool IsFlipped
 		{
 			get => view.IsFlipped;
+		}
+
+		public bool HasAmbiguousLayout
+		{
+			get => view.HasAmbiguousLayout;
 		}
 
 		public float AlphaValue
@@ -643,6 +909,12 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 		{
 			get => view.TranslatesAutoresizingMaskIntoConstraints;
 			set => view.TranslatesAutoresizingMaskIntoConstraints = value;
+		}
+
+		public string ToolTip
+		{
+			get => view.ToolTip;
+			set => view.ToolTip = value;
 		}
 
 		public CommonRectangle AccessibilityFrame {
@@ -701,12 +973,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 		{
 			get => view.FocusRingType;
 			set => view.FocusRingType = value;
-		}
-
-		public string ToolTip
-		{
-			get => view.ToolTip;
-			set => view.ToolTip = value;
 		}
 
 		public int Tag
