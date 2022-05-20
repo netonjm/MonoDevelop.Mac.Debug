@@ -11,14 +11,6 @@
        <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>-->
     </ProjectReference>
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing.Mac\Xamarin.PropertyEditing.Mac.csproj">
-       <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        <PrivateAssets>all</PrivateAssets>-->
-    </ProjectReference>
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">
-      <!--  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        <PrivateAssets>all</PrivateAssets>-->
-    </ProjectReference>
   </ItemGroup>
 
    <PropertyGroup>
@@ -27,8 +19,6 @@
 
     <Target Name="CopyInPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputPath)Xamarin.PropertyEditing.dll" TargetPath="Xamarin.PropertyEditing.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)Xamarin.PropertyEditing.Mac.dll" TargetPath="Xamarin.PropertyEditing.Mac.dll" />
       <BuildOutputInPackage Include="$(OutputPath)VisualStudio.ViewInspector.Core.dll" TargetPath="VisualStudio.ViewInspector.Core.dll" />
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" TargetPath="Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.Extensions.Logging.Abstractions.dll" TargetPath="Microsoft.Extensions.Logging.Abstractions.dll" />

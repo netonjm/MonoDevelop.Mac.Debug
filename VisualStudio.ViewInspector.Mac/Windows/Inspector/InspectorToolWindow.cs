@@ -2,8 +2,6 @@
 using CoreGraphics;
 using AppKit;
 using System.Collections.Generic;
-using Xamarin.PropertyEditing.Mac;
-using Xamarin.PropertyEditing;
 using System.Linq;
 using VisualStudio.ViewInspector.Mac.Views;
 using VisualStudio.ViewInspector.Abstractions;
@@ -53,15 +51,14 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public const int ButtonWidth = 30;
        
-        readonly PropertyEditorProvider editorProvider;
+   
         readonly IInspectDelegate inspectorDelegate;
 
         readonly NSSplitView splitView;
-        readonly HostResource hostResourceProvider;
 
         public InspectorOutlineView outlineView { get; private set; }
 
-        PropertyEditorPanel propertyEditorPanel;
+        IPropertyPanel propertyEditorPanel;
         
         EventListView eventOutlineView;
         MethodListView methodListView;
@@ -100,16 +97,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             splitView.TopAnchor.ConstraintEqualTo(View.TopAnchor, 7).Active = true;
             splitView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -7).Active = true;
 
-            hostResourceProvider = new HostResource();
-            propertyEditorPanel = new PropertyEditorPanel(hostResourceProvider);
-
-            editorProvider = new PropertyEditorProvider();
-
-            propertyEditorPanel.TargetPlatform = new TargetPlatform(editorProvider)
-            {
-                SupportsCustomExpressions = true,
-                SupportsMaterialDesign = true,
-            };
+            propertyEditorPanel = inspectorDelegate.CreatePropertyPanelView();
 
             outlineView = new InspectorOutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
@@ -174,7 +162,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             //Properties tab
             var tabProperties = new NSTabViewItem() {
                 Label = PropertiesTabName,
-                View = propertyEditorPanel
+                View = (NSView) propertyEditorPanel.NativeObject
             };
 
             //Method list view

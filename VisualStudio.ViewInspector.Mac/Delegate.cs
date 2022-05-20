@@ -310,68 +310,9 @@ namespace VisualStudio.ViewInspector
             return NativeViewHelper.GetFont(view.NativeObject as NSView);
         }
 
-        object GetNativePropertyPanelWrapper(INativeObject viewSelected)
-        {
-            object nativeObject = viewSelected.NativeObject;
-
-            if (nativeObject is NSComboBox comboBox)
-                return new PropertyPanelNSComboBox(comboBox);
-
-            if (nativeObject is NSScrollView scrollView)
-                return new PropertyPanelNSScrollView(scrollView);
-
-            if (nativeObject is NSOutlineView outlineView)
-                return new PropertyPanelNSOutlineView(outlineView);
-
-            if (nativeObject is NSTableView tableView)
-                return new PropertyPanelNSTableView(tableView);
-
-            if (nativeObject is NSPopUpButton popUpButton)
-                return new PropertyPanelNSPopupButton(popUpButton);
-
-            if (nativeObject is NSStackView stackView)
-                return new PropertyPanelNSStackView(stackView);
-
-            if (nativeObject is NSImageView img)
-                return new PropertyPanelNSImageView(img);
-
-            if (nativeObject is NSBox box)
-                return new PropertyPanelNSBox(box);
-
-            if (nativeObject is NSButton btn)
-                return new PropertyPanelNSButton(btn);
-
-            if (nativeObject is NSTextView text)
-                return new PropertyPanelNSTextView(text);
-
-            if (nativeObject is NSTextField textfield)
-                return new PropertyPanelNSTextField(textfield);
-
-            if (nativeObject is NSWindow window)
-                return new PropertyPanelNSWindow(window);
-
-            if (nativeObject is NSView view)
-                return new PropertyPanelNSView(view);
-
-            if (nativeObject is NSLayoutConstraint constraint)
-                return new PropertyPanelNSLayoutConstraint(constraint);
-
-            //return nativeObject;
-            return new PropertyPanelNSResponder(nativeObject as NSResponder);
-        }
-
         public object GetWrapper(INativeObject viewSelected, InspectorViewMode viewMode)
         {
-            //if (viewSelected is IView view) {
-                //if (viewMode == InspectorViewMode.Xwt)
-                //{
-                //    return view.View;
-                //}
-                return GetNativePropertyPanelWrapper(viewSelected);
-            //}
-            //if (viewSelected is IConstrain constrain)
-            //    return constrain;
-            //return viewSelected?.NativeObject;
+            return propertyPanelDelegate?.GetNativePropertyPanelWrapper(viewSelected);
         }
 
         public void SetFont(IView view, IFont font)
@@ -723,6 +664,18 @@ namespace VisualStudio.ViewInspector
         {
             if (w.NativeObject is NSBox stackView)
                 stackView.BorderColor = NSColor.Clear;
+        }
+
+        IPropertyPanelDelegate propertyPanelDelegate;
+
+        public void SetPropertyPanelDelegate(IPropertyPanelDelegate propertyPanelDelegate)
+        {
+            this.propertyPanelDelegate = propertyPanelDelegate;
+        }
+
+        public IPropertyPanel CreatePropertyPanelView()
+        {
+            return propertyPanelDelegate.CreatePropertyPanelView();
         }
     }
 }

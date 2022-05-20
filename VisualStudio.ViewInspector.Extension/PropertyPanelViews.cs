@@ -8,7 +8,7 @@ using System.Linq;
 using Xamarin.PropertyEditing.Drawing;
 using System.Collections.Generic;
 
-namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
+namespace VisualStudio.ViewInspector.Extension
 {
 	class PropertyPanelNSTableView : PropertyPanelNSControl
 	{

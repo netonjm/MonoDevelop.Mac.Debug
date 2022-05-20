@@ -47,6 +47,11 @@ namespace VisualStudio.ViewInspector.Abstractions
         string NodeName { get; }
     }
 
+    public interface IPropertyPanel : INativeObject
+    {
+        void Select(IEnumerable<object> data);
+    }
+
     public interface IView
         : INativeObject
     {

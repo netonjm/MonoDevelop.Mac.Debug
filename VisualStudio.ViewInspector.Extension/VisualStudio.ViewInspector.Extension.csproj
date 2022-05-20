@@ -3,20 +3,21 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>bin\</OutputPath>
     <TargetFramework>net6.0</TargetFramework>
     <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
     <AddinReference Include="MonoDevelop.DesignerSupport" />
+    <AddinReference Include="Xamarin.Designer" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VisualStudio.ViewInspector.Figma\VisualStudio.ViewInspector.Figma.csproj" />
     <ProjectReference Include="..\VisualStudio.ViewInspector.Mac\VisualStudio.ViewInspector.Mac.csproj" />
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing.Mac\Xamarin.PropertyEditing.Mac.csproj" />
-    <ProjectReference Include="..\external\Xamarin.PropertyEditing\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj" />
   </ItemGroup>
    <ItemGroup>
         <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0-preview.7955" />
+   </ItemGroup>
+   <ItemGroup>
+     <None Remove="Xamarin.Designer" />
    </ItemGroup>
 </Project>

@@ -23,8 +23,15 @@ namespace VisualStudio.ViewInspector
         void Stop();
     }
 
+    public interface IPropertyPanelDelegate
+    {
+        object GetNativePropertyPanelWrapper(INativeObject viewSelected);
+        IPropertyPanel CreatePropertyPanelView();
+    }
+
     public interface IInspectDelegate
 	{
+        void SetPropertyPanelDelegate(IPropertyPanelDelegate propertyPanelDelegate);
         void SetFont(IView view, IFont font);
 		FontData GetFont(IView view);
 		void ConvertToNodes(IView view, INodeView nodeView, InspectorViewMode viewMode);
@@ -57,5 +64,6 @@ namespace VisualStudio.ViewInspector
         bool IsDarkTheme();
         void SetBackgroundColor(IView selectedView, IColor e);
         void SetBackgroundColorClear(IView selectedView);
+        IPropertyPanel CreatePropertyPanelView();
     }
 }

@@ -22,10 +22,11 @@ namespace ExampleDebugMac
 
         static void Main (string[] args)
 		{
+
             NSApplication.Init();
 			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
 
-            VisualStudio.ViewInspector.Runtime.Initialize();
+            VisualStudio.ViewInspector.Runtime.Initialize().StartWatcher();
 
             var xPos = NSScreen.MainScreen.Frame.Width / 2;// NSWidth([[window screen] frame])/ 2 - NSWidth([window frame])/ 2;
             var yPos = NSScreen.MainScreen.Frame.Height / 2; // NSHeight([[window screen] frame])/ 2 - NSHeight([window frame])/ 2;
@@ -96,18 +97,18 @@ namespace ExampleDebugMac
 			};
 
             var button2 = new NSButton { Title = "Opens Localized text" };
-            button2.Activated += (sender, e) => {
-                var window = new NSWindow() { StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable };
-                var stack = NativeViewHelper.CreateHorizontalStackView();
-                var label = NativeViewHelper.CreateLabel("hello");
-                stack.AddArrangedSubview(label);
-                window.ContentView = stack;
-                window.WillClose += (sender1, e1) =>
-                {
-                    window.Dispose();
-                };
-                window.MakeKeyAndOrderFront(mainWindow);
-            };
+            //button2.Activated += (sender, e) => {
+            //    var window = new NSWindow() { StyleMask = NSWindowStyle.Titled | NSWindowStyle.Resizable | NSWindowStyle.Closable };
+            //    var stack = NativeViewHelper.CreateHorizontalStackView();
+            //    var label = NativeViewHelper.CreateLabel("hello");
+            //    stack.AddArrangedSubview(label);
+            //    window.ContentView = stack;
+            //    window.WillClose += (sender1, e1) =>
+            //    {
+            //        window.Dispose();
+            //    };
+            //    window.MakeKeyAndOrderFront(mainWindow);
+            //};
             stackView.AddArrangedSubview(button2);
             //button2.HeightAnchor.ConstraintEqualTo(100).Active = true; ;
             stackView.AddArrangedSubview(new NSView());

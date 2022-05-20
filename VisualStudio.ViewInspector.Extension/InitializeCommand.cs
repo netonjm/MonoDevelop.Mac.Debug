@@ -9,7 +9,8 @@ namespace VisualStudio.ViewInspector.Extension
         {
             IdeApp.Initialized += (s, e) =>
             {
-                Runtime.Initialize();
+                var propertyPanelDelegate = new PropertyPanelDelegate();
+                Runtime.Initialize(propertyPanelDelegate);
             };
         }
     }
