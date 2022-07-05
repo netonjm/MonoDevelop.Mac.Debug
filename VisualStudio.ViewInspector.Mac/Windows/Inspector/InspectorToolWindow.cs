@@ -212,6 +212,31 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                     {
                         hasOptions = true;
 
+                        menu.AddItem(new NSMenuItem("Needs Layout", (s, e) =>
+                        {
+                            nSView.NeedsLayout = true;
+                        }));
+
+                        menu.AddItem(new NSMenuItem("Needs Display", (s, e) =>
+                        {
+                            nSView.NeedsDisplay = true;
+                        }));
+
+                        menu.AddItem(new NSMenuItem("Needs Update Constraints", (s, e) =>
+                        {
+                            nSView.NeedsUpdateConstraints = true;
+                        }));
+
+                        menu.AddItem(new NSMenuItem("LayoutSubtreeIfNeeded()", (s, e) =>
+                        {
+                            nSView.LayoutSubtreeIfNeeded();
+                        }));
+
+                        menu.AddItem(new NSMenuItem("InvalidateIntrinsicContentSize()", (s, e) =>
+                        {
+                            nSView.InvalidateIntrinsicContentSize();
+                        }));
+
                         if (nSView is NSControl control)
                         {
                             menu.AddItem(new NSMenuItem(control.Enabled ? "Disable" : "Enable", (s, e) =>
