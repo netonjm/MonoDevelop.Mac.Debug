@@ -15,7 +15,7 @@
     <ProjectReference Include="..\VisualStudio.ViewInspector.Mac\VisualStudio.ViewInspector.Mac.csproj" />
   </ItemGroup>
    <ItemGroup>
-        <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0-preview.7955" />
+        <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0" />
    </ItemGroup>
    <ItemGroup>
      <None Remove="Xamarin.Designer" />
