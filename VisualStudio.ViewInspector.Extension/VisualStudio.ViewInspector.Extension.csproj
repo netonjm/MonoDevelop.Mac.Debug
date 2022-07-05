@@ -11,7 +11,6 @@
     <AddinReference Include="Xamarin.Designer" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VisualStudio.ViewInspector.Figma\VisualStudio.ViewInspector.Figma.csproj" />
     <ProjectReference Include="..\VisualStudio.ViewInspector.Mac\VisualStudio.ViewInspector.Mac.csproj" />
   </ItemGroup>
    <ItemGroup>
