@@ -22,7 +22,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
     {
         const float Offset = 1;
         CALayer circleLayer, lineLayer;
-        public NSColor Color { get; set; } = NSColor.ControlAccentColor;
+        public NSColor Color { get; set; } = NSColor.ControlAccent;
 
         public override bool WantsDefaultClipping => false;
 
@@ -306,7 +306,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         class InspectorOutlineViewDelegate : OutlineViewDelegate
         {
-            public override ObjCRuntime.nfloat GetRowHeight(NSOutlineView outlineView, NSObject item)
+            public override nfloat GetRowHeight(NSOutlineView outlineView, NSObject item)
             {
                 return 22;
             }

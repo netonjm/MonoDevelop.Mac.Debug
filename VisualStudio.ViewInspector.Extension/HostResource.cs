@@ -40,7 +40,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
                          NSColor.FromRgb(0, 0, 0) :
                          NSColor.FromRgb(217, 217, 217);
                 case NamedResources.DescriptionLabelColor:
-                    return NSColor.SecondaryLabelColor;
+                    return NSColor.SecondaryLabel;
                 case NamedResources.ForegroundColor:
                     return NSColor.ControlBackground;
                 case NamedResources.PadBackgroundColor:
@@ -62,7 +62,7 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             return NSColor.FromName(name);
         }
 
-        public NSFont GetNamedFont(string name, ObjCRuntime.nfloat fontSize)
+        public NSFont GetNamedFont(string name, nfloat fontSize)
         {
             return NSFont.SystemFontOfSize(NSFont.SystemFontSize);
         }
