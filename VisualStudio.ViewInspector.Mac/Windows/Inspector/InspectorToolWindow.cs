@@ -101,8 +101,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
             outlineView = new InspectorOutlineView();
             var outlineViewScrollView = new ScrollContainerView(outlineView);
-            outlineViewScrollView.BackgroundColor = NSColor.Clear;
-            outlineViewScrollView.DrawsBackground = false;
 
             //TOOLBAR
             var tabView = new NSTabView() { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -176,7 +174,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             methodsStackPanel.RightAnchor.ConstraintEqualTo(tabMethod.View.RightAnchor, 0).Active = true;
             methodsStackPanel.TopAnchor.ConstraintEqualTo(tabMethod.View.TopAnchor, 0).Active = true;
             methodsStackPanel.BottomAnchor.ConstraintEqualTo(tabMethod.View.BottomAnchor, 0).Active = true;
-
 
             //Events
             var eventsStackPanel = CreateEventsTabView();

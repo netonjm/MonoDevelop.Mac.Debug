@@ -86,7 +86,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
             public InspectorImageRowCell(InspectorOutlineView outlineView)
             {
                 weakOutlineView = new WeakReference<InspectorOutlineView>(outlineView);
-
             }
 
             internal TreeNode Data;
@@ -383,7 +382,6 @@ namespace VisualStudio.ViewInspector.Mac.Windows.Inspector
 
         public InspectorOutlineView ()
         {
-            HeaderView = null;
             BackgroundColor = NSColor.Clear;
         }
 

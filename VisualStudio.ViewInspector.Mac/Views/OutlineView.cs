@@ -56,16 +56,16 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		{
 			AllowsExpansionToolTips = true;
 			AllowsMultipleSelection = false;
-			AutosaveTableColumns = false;
 			FocusRingType = NSFocusRingType.None;
 			IndentationPerLevel = 16;
 			RowHeight = 17;
 			NSTableColumn column = new NSTableColumn ("Values");
-			column.Title = "View Outline";
-			AddColumn (column);
+			column.Title = "View Hierarchy";
+			column.Width = 300;
+            AddColumn (column);
 			OutlineTableColumn = column;
-
-			Delegate = outlineViewDelegate = GetDelegate();
+			ColumnAutoresizingStyle = NSTableViewColumnAutoresizingStyle.None;
+            Delegate = outlineViewDelegate = GetDelegate();
 			DataSource = outlineViewDataSource = GetDataSource(Data);
 			outlineViewDataSource.StartDrag += (sender, e) =>
 			{
@@ -351,7 +351,7 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		public bool IsLeaf { get { return ChildCount == 0; } }
 	}
 
-	public abstract class ImageRowSubView : NSView
+	public abstract class ImageRowSubView : NSStackView
 	{
 		internal const string IdentifierId = "PreferencesSubCategoriesCell";
 
@@ -364,10 +364,12 @@ namespace VisualStudio.ViewInspector.Mac.Views
 			Identifier = IdentifierId;
 
 			imageView = new NSImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
-			this.AddSubview(imageView);
+			this.AddArrangedSubview(imageView);
 
-			imageView.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
-			imageView.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 4).Active = true;
+            EdgeInsets = new NSEdgeInsets(4, 4, 4, 4);
+            Orientation = NSUserInterfaceLayoutOrientation.Horizontal;
+			Alignment = NSLayoutAttribute.CenterY;
+			Distribution = NSStackViewDistribution.Fill;
 
 			imageView.WidthAnchor.ConstraintEqualTo(16).Active = true;
 			imageView.HeightAnchor.ConstraintEqualTo(16).Active = true;
@@ -375,11 +377,8 @@ namespace VisualStudio.ViewInspector.Mac.Views
 			textField = NSTextField.CreateLabel(string.Empty);
 			textField.TranslatesAutoresizingMaskIntoConstraints = false;
 			textField.UsesSingleLineMode = true;
-			textField.LineBreakMode = NSLineBreakMode.TruncatingTail;
 
-			this.AddSubview(textField);
-			textField.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
-			textField.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 25).Active = true;
+			this.AddArrangedSubview(textField);
 		}
 
 		public override void ViewDidChangeEffectiveAppearance()
@@ -397,8 +396,8 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		}
 	}
 
-	public abstract class LabelRowSubView : NSView
-	{
+	public abstract class LabelRowSubView : NSStackView
+    {
 		internal const string IdentifierId = "PreferencesLabelCategoriesCell";
 
 		protected NSTextField textField;
@@ -407,14 +406,16 @@ namespace VisualStudio.ViewInspector.Mac.Views
 		{
 			Identifier = IdentifierId;
 
-			textField = NSTextField.CreateLabel(string.Empty);
+            EdgeInsets = new NSEdgeInsets(4, 4, 4, 4);
+            Orientation = NSUserInterfaceLayoutOrientation.Horizontal;
+            Alignment = NSLayoutAttribute.CenterY;
+            Distribution = NSStackViewDistribution.Fill;
+
+            textField = NSTextField.CreateLabel(string.Empty);
 			textField.TranslatesAutoresizingMaskIntoConstraints = false;
 			textField.UsesSingleLineMode = true;
-			textField.LineBreakMode = NSLineBreakMode.TruncatingTail;
 
-			this.AddSubview(textField);
-			textField.CenterYAnchor.ConstraintEqualTo(this.CenterYAnchor).Active = true;
-			textField.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 3).Active = true;
+			this.AddArrangedSubview(textField);
 		}
 	}
 

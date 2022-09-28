@@ -86,11 +86,12 @@ namespace VisualStudio.ViewInspector.Mac.Views
 	{
 		public ScrollContainerView (NSView content)
 		{
-			ContentInsets = new NSEdgeInsets(0, 0, 0, 0);
-			HasVerticalScroller = true;
+			TranslatesAutoresizingMaskIntoConstraints = false;
+            HasVerticalScroller = true;
+			ScrollerStyle = NSScrollerStyle.Legacy;
 			HasHorizontalScroller = true;
-			DocumentView = content;
-		}
+            DocumentView = content;
+        }
 	}
 
 	public class TableView : NSTableView
